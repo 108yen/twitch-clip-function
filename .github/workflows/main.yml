@@ -1,23 +1,30 @@
-name: Build and Deploy
+name: Deploy
+
 on:
   push:
     branches:
       - master
 
 jobs:
-  build_and_deploy:
-    name: Build&Deploy
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@master
-      - name: Install Dependencies
-        run: npm install
-      - name: Install Functions Dependencies
-        run: cd functions && npm install
+        uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "npm"
+          cache-dependency-path: functions/package-lock.json
+      - name: Install dependencies
+        run: npm install -C functions
+      # ここからがデプロイのステップ
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:
-          args: deploy
+          args: deploy --only functions
         env:
-          FIREBASE_TOKEN: ${{ secrets.GCP_SA_KEY }}
+          GCP_SA_KEY: ${{ secrets.GCP_SA_KEY }}
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}

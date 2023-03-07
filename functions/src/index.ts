@@ -26,16 +26,25 @@ export const scheduledFunction = functions
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
-        //get twitch clips
-        const clips:Array<Clip> = await getStreamersClips(
-            streamerIds,
-            process.env.TWITCH_CLIENT_ID!,
-            twitchToken
-        );
-        //post clips to firestore
-        await db.collection("clips").doc("day").set({
-            "clips": clips
-        });
+        //loop each period
+        const dayList = {
+            day: 1,
+            week: 7,
+            month: 30,
+        };
+        for (const key in dayList) {
+            //get twitch clips
+            const clips: Array<Clip> = await getStreamersClips(
+                streamerIds,
+                process.env.TWITCH_CLIENT_ID!,
+                twitchToken,
+                dayList[key],
+            );
+            //post clips to firestore
+            await db.collection("clips").doc(key).set({
+                "clips": clips
+            });
+        }
 
         console.log("complete!!!");
         console.log(new Date());
@@ -112,7 +121,8 @@ const sortByViewconut = (clips: Array<Clip>) => {
 async function getStreamersClips(
     ids: Array<string>,
     client_id: string,
-    token: Token
+    token: Token,
+    days: number
 ): Promise<Array<Clip>> {
     let result: Array<Clip> = [];
     for (const key in ids) {
@@ -121,7 +131,12 @@ async function getStreamersClips(
         if (isNaN(id)) {
             console.log(`${element}はnumberではありません。`);
         } else {
-            result = result.concat(await getClips(id, client_id, token));
+            result = result.concat(await getClips(
+                id,
+                client_id,
+                token,
+                days
+            ));
         }
     }
     return sortByViewconut(result);
@@ -130,10 +145,11 @@ async function getStreamersClips(
 async function getClips(
     broadcaster_id: number,
     client_id: string,
-    token: Token
+    token: Token,
+    days: number
 ): Promise<Array<Clip>> {
     const now = new Date(); // 現在の日付を取得
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000); //1週間
+    const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //何日前か
 
     const config: AxiosRequestConfig = {
         url: 'https://api.twitch.tv/helix/clips',
@@ -145,7 +161,7 @@ async function getClips(
         params: {
             'broadcaster_id': broadcaster_id,
             'first': 10,
-            'started_at': sevenDaysAgo.toISOString(),
+            'started_at': daysAgo.toISOString(),
         }
     }
     const res = await axios(config)

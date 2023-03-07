@@ -27,7 +27,7 @@ export const scheduledFunction = functions
             process.env.TWITCH_CLIENT_SECRET!
         );
         //loop each period
-        const dayList = {
+        const dayList: { [key: string]: number } = {
             day: 1,
             week: 7,
             month: 30,

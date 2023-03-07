@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios, { AxiosRequestConfig } from "axios";
 
-export const scheduledFunction = functions
+export const getTwitchClipFunction = functions
     .region("asia-northeast1")
     .runWith({
         secrets: [

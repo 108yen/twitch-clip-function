@@ -10,13 +10,14 @@ export const getTwitchClipFunction = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("0 0 * * *")
+    .pubsub.schedule("0 10,22 * * *")
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
         admin.initializeApp({ credential: admin.credential.applicationDefault() });
         const db = admin.firestore();
         //get streamers info from firestore
+        // const fetchfromfirestore:{ streamers:Array<Streamer> }= await db.collection("streamers").doc("streamers").get();
         const col = db.collection("streamers") as admin.firestore.CollectionReference<Streamer>;
         const querySnapshot = await col.get();
         const streamers = querySnapshot.docs.map((doc) => doc.data());
@@ -31,6 +32,7 @@ export const getTwitchClipFunction = functions
             day: 1,
             week: 7,
             month: 30,
+            // all:?
         };
         for (const key in dayList) {
             //get twitch clips
@@ -45,9 +47,6 @@ export const getTwitchClipFunction = functions
                 "clips": clips
             });
         }
-
-        console.log("complete!!!");
-        console.log(new Date());
     });
 //type
 

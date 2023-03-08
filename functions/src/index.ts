@@ -58,7 +58,9 @@ export const getTwitchClipFunction = functions
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
-        admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        if (!getApps().length) {
+            admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        }
         const db = admin.firestore();
         //get streamers info from firestore
         const doc = await db.collection("streamers").doc("streamers").get();

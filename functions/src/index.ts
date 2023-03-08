@@ -2,6 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios, { AxiosRequestConfig } from "axios";
 import { FieldValue } from "firebase-admin/firestore";
+import { getApps } from "firebase-admin/app";
 
 //add new streamer every month 1st
 export const addStreamer = functions
@@ -12,12 +13,13 @@ export const addStreamer = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("*/5 * * * *")
-    // .pubsub.schedule("0 0 1 * *")
+    .pubsub.schedule("0 0 * * 1")
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
-        admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        if (!getApps().length) {
+            admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        }
         const db = admin.firestore();
         //get new streamers login from firestore
         const doc = await db.collection("streamers").doc("new").get();

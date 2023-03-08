@@ -17,11 +17,17 @@ export const getTwitchClipFunction = functions
         admin.initializeApp({ credential: admin.credential.applicationDefault() });
         const db = admin.firestore();
         //get streamers info from firestore
-        // const fetchfromfirestore:{ streamers:Array<Streamer> }= await db.collection("streamers").doc("streamers").get();
-        const col = db.collection("streamers") as admin.firestore.CollectionReference<Streamer>;
-        const querySnapshot = await col.get();
-        const streamers = querySnapshot.docs.map((doc) => doc.data());
-        const streamerIds = streamers.map(streamer => streamer.id);
+        const doc = await db
+            .collection("streamers")
+            .doc("streamers")
+            .get();
+        const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
+        const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
+        // const col = db.collection("streamers") as admin.firestore.CollectionReference<Streamer>;
+        // const querySnapshot = await col.get();
+        // const streamers = querySnapshot.docs.map((doc) => doc.data());
+        // const streamerIds = streamers.map(streamer => streamer.id);
+        
         //get twitch api token
         const twitchToken = await getToken(
             process.env.TWITCH_CLIENT_ID!,

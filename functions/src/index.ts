@@ -39,7 +39,7 @@ export const addStreamer = functions
             });
             //delete login from new doc
             await db.collection("streamers").doc("new").update({
-                logins: FieldValue.arrayUnion(...fetchfromfirestore.logins)
+                logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
             });
         }
     });

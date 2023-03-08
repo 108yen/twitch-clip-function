@@ -35,11 +35,11 @@ export const addStreamer = functions
             const streamers = await getStreamersSlice(fetchfromfirestore.logins, twitchToken);
             //post streamers to firestore
             await db.collection("streamers").doc("streamers").update({
-                streamers: FieldValue.arrayUnion(streamers)
+                streamers: FieldValue.arrayUnion(...streamers)
             });
             //delete login from new doc
             await db.collection("streamers").doc("new").update({
-                logins: FieldValue.arrayUnion(fetchfromfirestore.logins)
+                logins: FieldValue.arrayUnion(...fetchfromfirestore.logins)
             });
         }
     });

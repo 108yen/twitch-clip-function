@@ -32,7 +32,7 @@ export const addStreamer = functions
                 process.env.TWITCH_CLIENT_SECRET!
             );
             //get streamers info from twitch api
-            const streamers = getStreamersSlice(fetchfromfirestore.logins, twitchToken);
+            const streamers = await getStreamersSlice(fetchfromfirestore.logins, twitchToken);
             //post streamers to firestore
             await db.collection("streamers").doc("streamers").update({
                 streamers: FieldValue.arrayUnion(streamers)

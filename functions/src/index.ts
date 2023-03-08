@@ -1,7 +1,51 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios, { AxiosRequestConfig } from "axios";
+import { FieldValue } from "firebase-admin/firestore";
 
+//add new streamer every month 1st
+export const addStreamer = functions
+    .region("asia-northeast1")
+    .runWith({
+        secrets: [
+            'TWITCH_CLIENT_ID',
+            'TWITCH_CLIENT_SECRET',
+        ],
+    })
+    .pubsub.schedule("0 0 1 * *")
+    .timeZone("Asia/Tokyo")
+    .onRun(async () => {
+        //initialize firebase app
+        admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        const db = admin.firestore();
+        //get new streamers login from firestore
+        const doc = await db
+            .collection("streamers")
+            .doc("new")
+            .get();
+        const fetchfromfirestore: { logins: Array<string> } = doc.data() as { logins: Array<string> };
+        //if exist new
+        if (fetchfromfirestore.logins.length != 0) {
+            //get twitch api token
+            const twitchToken = await getToken(
+                process.env.TWITCH_CLIENT_ID!,
+                process.env.TWITCH_CLIENT_SECRET!
+            );
+            //get streamers info from twitch api
+            const streamers = getStreamersSlice(fetchfromfirestore.logins, twitchToken);
+            //post streamers to firestore
+            await db.collection("streamers").doc("streamers").update({
+                streamers: FieldValue.arrayUnion(streamers)
+            });
+            //delete login from new doc
+            await db.collection("streamers").doc("new").update({
+                logins: FieldValue.arrayUnion(fetchfromfirestore.logins)
+            });
+        }
+    });
+
+
+//get twitch clip every day twice
 export const getTwitchClipFunction = functions
     .region("asia-northeast1")
     .runWith({
@@ -23,11 +67,7 @@ export const getTwitchClipFunction = functions
             .get();
         const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
         const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
-        // const col = db.collection("streamers") as admin.firestore.CollectionReference<Streamer>;
-        // const querySnapshot = await col.get();
-        // const streamers = querySnapshot.docs.map((doc) => doc.data());
-        // const streamerIds = streamers.map(streamer => streamer.id);
-        
+
         //get twitch api token
         const twitchToken = await getToken(
             process.env.TWITCH_CLIENT_ID!,
@@ -41,7 +81,7 @@ export const getTwitchClipFunction = functions
             // all:?
         };
         for (const key in dayList) {
-            //get twitch clips
+            //get twitch clips from twitch api
             const clips: Array<Clip> = await getStreamersClips(
                 streamerIds,
                 process.env.TWITCH_CLIENT_ID!,
@@ -173,5 +213,46 @@ async function getClips(
         .catch(() => {
             console.log('clip fetch error');
         });
+    return res?.data.data;
+}
+
+async function getStreamersSlice(
+    logins: Array<string>,
+    token: Token,
+): Promise<Array<Streamer>> {
+    const chunkSize = 100;
+    const numChunks = Math.ceil(logins.length / chunkSize);
+    let streamers: Array<Streamer> = [];
+
+    for (let i = 0; i < numChunks; i++) {
+        streamers = streamers.concat(
+            await getStreamers(
+                logins.slice(i * chunkSize, (i + 1) * chunkSize),
+                token,
+            )
+        );
+    }
+    return streamers;
+}
+
+async function getStreamers(
+    logins: Array<string>,
+    token: Token,
+): Promise<Array<Streamer>> {
+
+    const config: AxiosRequestConfig = {
+        url: 'https://api.twitch.tv/helix/users',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token.access_token,
+            'Client-Id': 'k5nfeu9zzvc4egiaszxzemst6lqljt',
+        },
+        params: {
+            login: logins,
+        },
+        paramsSerializer: { indexes: null }
+    }
+    const res = await axios(config);
+
     return res?.data.data;
 }

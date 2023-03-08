@@ -16,9 +16,7 @@ export const addStreamer = functions
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
-        if (admin.app.length === 0) {
-            admin.initializeApp({ credential: admin.credential.applicationDefault() });
-        }
+        admin.initializeApp({ credential: admin.credential.applicationDefault() });
         const db = admin.firestore();
         //get new streamers login from firestore
         const doc = await db

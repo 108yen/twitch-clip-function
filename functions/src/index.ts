@@ -12,17 +12,15 @@ export const addStreamer = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("0 0 1 * *")
+    .pubsub.schedule("*/5 * * * *")
+    // .pubsub.schedule("0 0 1 * *")
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
         admin.initializeApp({ credential: admin.credential.applicationDefault() });
         const db = admin.firestore();
         //get new streamers login from firestore
-        const doc = await db
-            .collection("streamers")
-            .doc("new")
-            .get();
+        const doc = await db.collection("streamers").doc("new").get();
         const fetchfromfirestore: { logins: Array<string> } = doc.data() as { logins: Array<string> };
         //if exist new
         if (fetchfromfirestore.logins.length != 0) {
@@ -61,10 +59,7 @@ export const getTwitchClipFunction = functions
         admin.initializeApp({ credential: admin.credential.applicationDefault() });
         const db = admin.firestore();
         //get streamers info from firestore
-        const doc = await db
-            .collection("streamers")
-            .doc("streamers")
-            .get();
+        const doc = await db.collection("streamers").doc("streamers").get();
         const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
         const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
 
@@ -160,7 +155,9 @@ async function getToken(client_id: string, client_secret: string) {
 }
 
 const sortByViewconut = (clips: Array<Clip>) => {
-    return clips.sort((a, b) => b.view_count - a.view_count);
+    return clips
+        .sort((a, b) => b.view_count - a.view_count)
+        .slice(0, 10);
 }
 
 async function getStreamersClips(
@@ -205,7 +202,7 @@ async function getClips(
         },
         params: {
             'broadcaster_id': broadcaster_id,
-            'first': 10,
+            'first': 20,
             'started_at': daysAgo.toISOString(),
         }
     }

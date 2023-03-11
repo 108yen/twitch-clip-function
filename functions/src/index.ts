@@ -5,6 +5,7 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getApps } from "firebase-admin/app";
 
 //add new streamer every month 1st
+//todo:既存の情報も更新したい
 export const addStreamer = functions
     .region("asia-northeast1")
     .runWith({
@@ -161,7 +162,7 @@ async function getToken(client_id: string, client_secret: string) {
 const sortByViewconut = (clips: Array<Clip>) => {
     return clips
         .sort((a, b) => b.view_count - a.view_count)
-        .slice(0, 10);
+        .slice(0, 50);
 }
 
 async function getStreamersClips(
@@ -206,7 +207,7 @@ async function getClips(
         },
         params: {
             'broadcaster_id': broadcaster_id,
-            'first': 20,
+            'first': 50,
             'started_at': daysAgo.toISOString(),
         }
     }

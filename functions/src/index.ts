@@ -209,6 +209,7 @@ async function getClips(
             'broadcaster_id': broadcaster_id,
             'first': 50,
             'started_at': daysAgo.toISOString(),
+            'ended_at': now.toISOString(),
         }
     }
     const res = await axios(config)

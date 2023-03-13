@@ -45,6 +45,46 @@ export const addStreamer = functions
         }
     });
 
+//get twitch clip every month 1st and 16 for all ranking
+export const getTwitchClipForAllRankingFunction = functions
+    .region("asia-northeast1")
+    .runWith({
+        secrets: [
+            'TWITCH_CLIENT_ID',
+            'TWITCH_CLIENT_SECRET',
+        ],
+    })
+    .pubsub.schedule("0 1 1,16 * *")
+    .timeZone("Asia/Tokyo")
+    .onRun(async () => {
+        //initialize firebase app
+        if (!getApps().length) {
+            admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        }
+        const db = admin.firestore();
+        //get streamers info from firestore
+        const doc = await db.collection("streamers").doc("streamers").get();
+        const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
+        const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
+
+        //get twitch api token
+        const twitchToken = await getToken(
+            process.env.TWITCH_CLIENT_ID!,
+            process.env.TWITCH_CLIENT_SECRET!
+        );
+        //get twitch clips from twitch api
+        const clips: Array<Clip> = await getStreamersClips(
+            streamerIds,
+            process.env.TWITCH_CLIENT_ID!,
+            twitchToken,
+            -1,   //define all is -1
+        );
+        //post clips to firestore
+        await db.collection("clips").doc('all').set({
+            "clips": clips
+        });
+
+    });
 
 //get twitch clip every day twice
 export const getTwitchClipFunction = functions
@@ -94,8 +134,8 @@ export const getTwitchClipFunction = functions
             });
         }
     });
-//type
 
+//type
 type Streamer = {
     id: string;
     login: string;
@@ -195,21 +235,39 @@ async function getClips(
     token: Token,
     days: number
 ): Promise<Array<Clip>> {
-    const now = new Date(); // 現在の日付を取得
-    const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //何日前か
-
-    const config: AxiosRequestConfig = {
-        url: 'https://api.twitch.tv/helix/clips',
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token.access_token,
-            'Client-Id': client_id,
-        },
-        params: {
-            'broadcaster_id': broadcaster_id,
-            'first': 50,
-            'started_at': daysAgo.toISOString(),
-            'ended_at': now.toISOString(),
+    let config: AxiosRequestConfig;
+    //if period is all
+    if (days == -1) {
+        config = {
+            url: 'https://api.twitch.tv/helix/clips',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token.access_token,
+                'Client-Id': client_id,
+            },
+            params: {
+                'broadcaster_id': broadcaster_id,
+                'first': 50,
+            }
+        }
+    //else period
+    } else {
+        const now = new Date(); // get present date
+        const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //days ago
+    
+        config = {
+            url: 'https://api.twitch.tv/helix/clips',
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + token.access_token,
+                'Client-Id': client_id,
+            },
+            params: {
+                'broadcaster_id': broadcaster_id,
+                'first': 50,
+                'started_at': daysAgo.toISOString(),
+                'ended_at': now.toISOString(),
+            }
         }
     }
     const res = await axios(config)

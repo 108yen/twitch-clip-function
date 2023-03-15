@@ -5,7 +5,8 @@ import { FieldValue } from "firebase-admin/firestore";
 import { getApps } from "firebase-admin/app";
 
 //add new streamer every month 1st
-//todo:既存の情報も更新したい
+//todo:update data
+//todo:if add new streamer, make the streamer clips document
 export const addStreamer = functions
     .region("asia-northeast1")
     .runWith({
@@ -46,6 +47,7 @@ export const addStreamer = functions
     });
 
 //get twitch clip every month 1st and 16 for all ranking
+//todo: update streamer clip doc
 export const getTwitchClipForAllRankingFunction = functions
     .region("asia-northeast1")
     .runWith({
@@ -113,26 +115,41 @@ export const getTwitchClipFunction = functions
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
-        //loop each period
-        const dayList: { [key: string]: number } = {
-            day: 1,
-            week: 7,
-            month: 30,
-            // all:?
+
+        //for summary ranking
+        let summary: StreamerClips = {
+            day: [],
+            week: [],
+            month: [],
         };
-        for (const key in dayList) {
-            //get twitch clips from twitch api
-            const clips: Array<Clip> = await getStreamersClips(
-                streamerIds,
+        //loop each streamer
+        for (const key in streamerIds) {
+            const clips = await getClipsForEachStreamer(
+                streamerIds[key],
                 process.env.TWITCH_CLIENT_ID!,
                 twitchToken,
-                dayList[key],
-            );
-            //post clips to firestore
-            await db.collection("clips").doc(key).set({
-                "clips": clips
+            )
+            //post each streamer clips to firestore
+            //!set to update
+            //todo:batch
+            await db.collection("clips").doc(streamerIds[key]).set({
+                "day": clips.day,
+                "week": clips.week,
+                "month": clips.month,
             });
+            //push to summary list
+            summary.day.concat(clips.day);
+            summary.week.concat(clips.week);
+            summary.month.concat(clips.month);
         }
+        //make summary ranking
+        summary.day = sortByViewconut(summary.day);
+        summary.week = sortByViewconut(summary.week);
+        summary.month = sortByViewconut(summary.month);
+
+        //post summary clips to firestore
+        //!set to update
+        await db.collection("clips").doc("summary").set(summary);
     });
 
 //type
@@ -174,6 +191,12 @@ type Token = {
     token_type: string;
 }
 
+type StreamerClips = {
+    day: Array<Clip>;
+    week: Array<Clip>;
+    month: Array<Clip>;
+}
+
 //twitch api
 async function getToken(client_id: string, client_secret: string) {
     const config: AxiosRequestConfig = {
@@ -205,6 +228,42 @@ const sortByViewconut = (clips: Array<Clip>) => {
         .slice(0, 50);
 }
 
+
+//for each streamer, get day,week,month clip
+//todo: have to create documents to use update
+//todo: create sammary list
+async function getClipsForEachStreamer(
+    id: string,
+    client_id: string,
+    token: Token,
+): Promise<StreamerClips> {
+    //loop each period
+    const dayList: { [key: string]: number } = {
+        day: 1,
+        week: 7,
+        month: 30,
+    };
+    let clipsList: { [key: string]: Array<Clip> } = {};
+    for (const key in dayList) {
+        //get twitch clips from twitch api
+        const clips: Array<Clip> = await getClips(
+            parseInt(id),
+            client_id,
+            token,
+            dayList[key],
+        )
+        clipsList[key] = clips;
+    }
+    //return this
+    const result: StreamerClips = {
+        day: clipsList['day'],
+        week: clipsList['week'],
+        month: clipsList['month'],
+    }
+    return result;
+}
+
+//regacy function. get all streamer clips for each period
 async function getStreamersClips(
     ids: Array<string>,
     client_id: string,
@@ -250,11 +309,11 @@ async function getClips(
                 'first': 50,
             }
         }
-    //else period
+        //else period
     } else {
         const now = new Date(); // get present date
         const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //days ago
-    
+
         config = {
             url: 'https://api.twitch.tv/helix/clips',
             method: 'GET',

@@ -35,10 +35,17 @@ export const addStreamer = functions
             );
             //get streamers info from twitch api
             const streamers = await getStreamersSlice(fetchfromfirestore.logins, twitchToken);
+            //todo:batch
+            // const batch = db.batch();
             //post streamers to firestore
             await db.collection("streamers").doc("streamers").update({
                 streamers: FieldValue.arrayUnion(...streamers)
             });
+            //create clip docs
+            for (const key in streamers) {
+                await db.collection("clips").doc(streamers[key].id).set({});
+            }
+            
             //delete login from new doc
             await db.collection("streamers").doc("new").update({
                 logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)

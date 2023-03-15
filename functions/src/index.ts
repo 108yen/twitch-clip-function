@@ -47,7 +47,6 @@ export const addStreamer = functions
     });
 
 //get twitch clip every month 1st and 16 for all ranking
-//todo: update streamer clip doc
 export const getTwitchClipForAllRankingFunction = functions
     .region("asia-northeast1")
     .runWith({
@@ -284,31 +283,6 @@ async function getEachPeriodClips(
         month: clipsList['month'],
     }
     return result;
-}
-
-//regacy function. get all streamer clips for each period
-async function getStreamersClips(
-    ids: Array<string>,
-    client_id: string,
-    token: Token,
-    days: number
-): Promise<Array<Clip>> {
-    let result: Array<Clip> = [];
-    for (const key in ids) {
-        const element = ids[key];
-        const id: number = parseInt(element);
-        if (isNaN(id)) {
-            console.log(`${element}はnumberではありません。`);
-        } else {
-            result = result.concat(await getClips(
-                id,
-                client_id,
-                token,
-                days
-            ));
-        }
-    }
-    return sortByViewconut(result);
 }
 
 async function getClips(

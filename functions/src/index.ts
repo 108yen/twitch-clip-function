@@ -74,18 +74,30 @@ export const getTwitchClipForAllRankingFunction = functions
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
-        //get twitch clips from twitch api
-        const clips: Array<Clip> = await getStreamersClips(
-            streamerIds,
-            process.env.TWITCH_CLIENT_ID!,
-            twitchToken,
-            -1,   //define all is -1
-        );
-        //post clips to firestore
-        await db.collection("clips").doc('all').set({
-            "clips": clips
-        });
+        //for summary ranking
+        let summary: Array<Clip> = [];
+        //get for each streamer's clips
+        for (const key in streamerIds) {
+            const clips = await getAllPeriodClips(
+                streamerIds[key],
+                process.env.TWITCH_CLIENT_ID!,
+                twitchToken,
+            );
+            //post each streamer clips to firestore
+            //todo:batch
+            await db.collection("clips").doc(streamerIds[key]).update({
+                "all": clips,
+            });
+            //push to summary
+            summary = summary.concat(clips);
+        }
 
+        //make summary ranking
+        summary = sortByViewconut(summary);
+        //post summary clips to firestore
+        await db.collection("clips").doc("summary").update({
+            "all": summary,
+        });
     });
 
 //get twitch clip every day twice
@@ -124,7 +136,7 @@ export const getTwitchClipFunction = functions
         };
         //loop each streamer
         for (const key in streamerIds) {
-            const clips = await getClipsForEachStreamer(
+            const clips = await getEachPeriodClips(
                 streamerIds[key],
                 process.env.TWITCH_CLIENT_ID!,
                 twitchToken,
@@ -226,11 +238,24 @@ const sortByViewconut = (clips: Array<Clip>) => {
         .slice(0, 50);
 }
 
+//for each streamer, get all period clip
+async function getAllPeriodClips(
+    id: string,
+    client_id: string,
+    token: Token,
+): Promise<Array<Clip>> {
+    //get twitch clips from twitch api
+    const clips: Array<Clip> = await getClips(
+        parseInt(id),
+        client_id,
+        token,
+        -1, //if all period, this val is -1
+    );
+    return clips;
+}
 
-//for each streamer, get day,week,month clip
-//todo: have to create documents to use update
-//todo: create sammary list
-async function getClipsForEachStreamer(
+//for each streamer, get day,week,month period clip
+async function getEachPeriodClips(
     id: string,
     client_id: string,
     token: Token,

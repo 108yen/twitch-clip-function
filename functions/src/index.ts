@@ -130,17 +130,16 @@ export const getTwitchClipFunction = functions
                 twitchToken,
             )
             //post each streamer clips to firestore
-            //!set to update
             //todo:batch
-            await db.collection("clips").doc(streamerIds[key]).set({
+            await db.collection("clips").doc(streamerIds[key]).update({
                 "day": clips.day,
                 "week": clips.week,
                 "month": clips.month,
             });
             //push to summary list
-            summary.day.concat(clips.day);
-            summary.week.concat(clips.week);
-            summary.month.concat(clips.month);
+            summary.day = summary.day.concat(clips.day);
+            summary.week = summary.week.concat(clips.week);
+            summary.month = summary.month.concat(clips.month);
         }
         //make summary ranking
         summary.day = sortByViewconut(summary.day);
@@ -148,8 +147,7 @@ export const getTwitchClipFunction = functions
         summary.month = sortByViewconut(summary.month);
 
         //post summary clips to firestore
-        //!set to update
-        await db.collection("clips").doc("summary").set(summary);
+        await db.collection("clips").doc("summary").update(summary);
     });
 
 //type

@@ -4,9 +4,59 @@ import axios, { AxiosRequestConfig } from "axios";
 import { FieldValue } from "firebase-admin/firestore";
 import { getApps } from "firebase-admin/app";
 
-//add new streamer every month 1st
-//todo:update data
-//todo:if add new streamer, make the streamer clips document
+//update streamer info every wed
+export const updateStreamer = functions
+    .region("asia-northeast1")
+    .runWith({
+        secrets: [
+            'TWITCH_CLIENT_ID',
+            'TWITCH_CLIENT_SECRET',
+        ],
+    })
+    .pubsub.schedule("0 21 * * 3")
+    .timeZone("Asia/Tokyo")
+    .onRun(async () => {
+        //initialize firebase app
+        if (!getApps().length) {
+            admin.initializeApp({ credential: admin.credential.applicationDefault() });
+        }
+        const db = admin.firestore();
+        //get streamers info from firestore
+        const doc = await db.collection("streamers").doc("streamers").get();
+        const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
+        const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
+        //get twitch api token
+        const twitchToken = await getToken(
+            process.env.TWITCH_CLIENT_ID!,
+            process.env.TWITCH_CLIENT_SECRET!
+        );
+        //get streamers info from twitch api
+        let streamers = await getStreamersSlice(
+            streamerIds,
+            true,
+            process.env.TWITCH_CLIENT_ID!,
+            twitchToken,
+        );
+        //for each streamers
+        for (const key in streamers) {
+            //get follower num from twitch api
+            const followerNum = await getFollowerNum(
+                streamers[key].id,
+                process.env.TWITCH_CLIENT_ID!,
+                twitchToken,
+            );
+            streamers[key].follower_num = followerNum;
+        }
+        //sort by follower num
+        streamers = sortByFollowerNum(streamers);
+        //post streamers to firestore
+        await db.collection("streamers").doc("streamers").update({
+            streamers: streamers
+        });
+
+    });
+
+//add new streamer every monday
 export const addStreamer = functions
     .region("asia-northeast1")
     .runWith({
@@ -15,7 +65,7 @@ export const addStreamer = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("0 0 * * 1")
+    .pubsub.schedule("0 21 * * 1")
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app
@@ -34,7 +84,12 @@ export const addStreamer = functions
                 process.env.TWITCH_CLIENT_SECRET!
             );
             //get streamers info from twitch api
-            const streamers = await getStreamersSlice(fetchfromfirestore.logins, twitchToken);
+            const streamers = await getStreamersSlice(
+                fetchfromfirestore.logins,
+                false,
+                process.env.TWITCH_CLIENT_ID!,
+                twitchToken,
+            );
             //todo:batch
             // const batch = db.batch();
             //post streamers to firestore
@@ -45,7 +100,7 @@ export const addStreamer = functions
             for (const key in streamers) {
                 await db.collection("clips").doc(streamers[key].id).set({});
             }
-            
+
             //delete login from new doc
             await db.collection("streamers").doc("new").update({
                 logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
@@ -171,15 +226,16 @@ export const getTwitchClipFunction = functions
 //type
 type Streamer = {
     id: string;
-    login: string;
-    display_name: string;
-    type: string;
-    broadcaster_type: string;
-    description: string;
-    profile_image_url: string;
-    offline_image_url: string;
-    view_count: number;
-    created_at: string;
+    login: string | undefined;
+    display_name: string | undefined;
+    type: string | undefined;
+    broadcaster_type: string | undefined;
+    description: string | undefined;
+    profile_image_url: string | undefined;
+    offline_image_url: string | undefined;
+    view_count: number | undefined;
+    created_at: string | undefined;
+    follower_num: number | undefined;
 }
 
 type Clip = {
@@ -238,10 +294,48 @@ async function getToken(client_id: string, client_secret: string) {
     return result;
 }
 
-const sortByViewconut = (clips: Array<Clip>) => {
+//sort
+function sortByViewconut(clips: Array<Clip>) {
     return clips
         .sort((a, b) => b.view_count - a.view_count)
         .slice(0, 50);
+}
+function sortByFollowerNum(streamers: Array<Streamer>) {
+    return streamers
+        .sort((a, b) => {
+            if (b.follower_num == undefined) {
+                return -1;
+            }
+            if (a.follower_num == undefined) {
+                return 1;
+            }
+            return b.follower_num - a.follower_num;
+        });
+}
+
+//get followers
+async function getFollowerNum(
+    id: string,
+    client_id: string,
+    token: Token,
+): Promise<number> {
+    const config: AxiosRequestConfig = {
+        url: 'https://api.twitch.tv/helix/channels/followers',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token.access_token,
+            'Client-Id': client_id,
+        },
+        params: {
+            'broadcaster_id': id,
+            'first': 1,
+        }
+    }
+    const res = await axios(config)
+        .catch(() => {
+            console.log('clip fetch error');
+        });
+    return res?.data.total;
 }
 
 //for each streamer, get all period clip
@@ -341,40 +435,64 @@ async function getClips(
 }
 
 async function getStreamersSlice(
-    logins: Array<string>,
+    ids: Array<string>,
+    isId: boolean,
+    client_id: string,
     token: Token,
 ): Promise<Array<Streamer>> {
     const chunkSize = 100;
-    const numChunks = Math.ceil(logins.length / chunkSize);
+    const numChunks = Math.ceil(ids.length / chunkSize);
     let streamers: Array<Streamer> = [];
 
-    for (let i = 0; i < numChunks; i++) {
-        streamers = streamers.concat(
-            await getStreamers(
-                logins.slice(i * chunkSize, (i + 1) * chunkSize),
-                token,
-            )
-        );
+    if (isId) {
+        for (let i = 0; i < numChunks; i++) {
+            streamers = streamers.concat(
+                await getStreamers(
+                    null,
+                    ids.slice(i * chunkSize, (i + 1) * chunkSize),
+                    client_id,
+                    token,
+                )
+            );
+        }
+    } else {
+        for (let i = 0; i < numChunks; i++) {
+            streamers = streamers.concat(
+                await getStreamers(
+                    ids.slice(i * chunkSize, (i + 1) * chunkSize),
+                    null,
+                    client_id,
+                    token,
+                )
+            );
+        }
     }
     return streamers;
 }
 
 async function getStreamers(
-    logins: Array<string>,
+    logins: Array<string> | null,
+    ids: Array<string> | null,
+    client_id: string,
     token: Token,
 ): Promise<Array<Streamer>> {
-
     const config: AxiosRequestConfig = {
         url: 'https://api.twitch.tv/helix/users',
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token.access_token,
-            'Client-Id': 'k5nfeu9zzvc4egiaszxzemst6lqljt',
-        },
-        params: {
-            login: logins,
+            'Client-Id': client_id,
         },
         paramsSerializer: { indexes: null }
+    }
+    if (logins != null) {
+        config.params = {
+            login: logins
+        }
+    } else if (ids != null) {
+        config.params = {
+            id: ids
+        }
     }
     const res = await axios(config);
 

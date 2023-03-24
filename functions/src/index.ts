@@ -108,6 +108,8 @@ export const addStreamer = functions
         }
     });
 
+//get twitch clip ranking for each year
+
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions
     .region("asia-northeast1")
@@ -494,7 +496,72 @@ async function getStreamers(
             id: ids
         }
     }
-    const res = await axios(config);
+    const res = await axios(config)
+        .catch(() => {
+            console.log('streamer info fetch error');
+        });
 
+    return res?.data.data;
+}
+
+async function getYearRankingForEachStreamer(
+    streamer: Streamer,
+    client_id: string,
+    token: Token,
+): Promise<Map<string, Array<Clip>> | undefined> {
+    let result = new Map<string, Array<Clip>>();
+
+    //if undefined
+    if (streamer.created_at == undefined) {
+        console.log(streamer.id + ': created_at is undefined');
+        return undefined;
+    }
+    //get start year
+    const created_at = new Date(streamer.created_at);
+    const start_year = created_at.getFullYear();
+    const current_year = new Date().getFullYear();
+    //get foreach year clip ranking
+    for (let year = start_year; year <= current_year; year++) {
+        result.set(
+            year.toString(),
+            await getClipsYear(
+                parseInt(streamer.id),
+                year,
+                client_id,
+                token
+            )
+        );
+    }
+
+    return result;
+}
+
+async function getClipsYear(
+    broadcaster_id: number,
+    year: number,
+    client_id: string,
+    token: Token,
+): Promise<Array<Clip>> {
+    const started_at = new Date(year, 0, 1, 0, 0);
+    const ended_at = new Date(year, 11, 31, 23, 59);
+
+    const config: AxiosRequestConfig = {
+        url: 'https://api.twitch.tv/helix/clips',
+        method: 'GET',
+        headers: {
+            'Authorization': 'Bearer ' + token.access_token,
+            'Client-Id': client_id,
+        },
+        params: {
+            'broadcaster_id': broadcaster_id,
+            'first': 50,
+            'started_at': started_at.toISOString(),
+            'ended_at': ended_at.toISOString(),
+        }
+    }
+    const res = await axios(config)
+        .catch(() => {
+            console.log('clip fetch error');
+        });
     return res?.data.data;
 }

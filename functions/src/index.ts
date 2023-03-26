@@ -109,11 +109,71 @@ export const addStreamer = functions
     });
 
 //get twitch clip ranking for each year
+export const getYearRankingFunction = functions
+    .region("asia-northeast1")
+    .runWith({
+        timeoutSeconds: 300,
+        secrets: [
+            'TWITCH_CLIENT_ID',
+            'TWITCH_CLIENT_SECRET',
+        ],
+    })
+    .pubsub.schedule("0 1 4 * *")
+    .timeZone("Asia/Tokyo")
+    .onRun(
+        async () => {
+            //initialize firebase app
+            if (!getApps().length) {
+                admin.initializeApp({ credential: admin.credential.applicationDefault() });
+            }
+            const db = admin.firestore();
+            //get streamers info from firestore
+            const doc = await db.collection("streamers").doc("streamers").get();
+            const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
+            const streamers = fetchfromfirestore.streamers;
+
+            //get twitch api token
+            const twitchToken = await getToken(
+                process.env.TWITCH_CLIENT_ID!,
+                process.env.TWITCH_CLIENT_SECRET!
+            );
+            //for summary ranking
+            let summary: Map<string, Array<Clip>> = new Map<string, Array<Clip>>();
+            //get for each streamer's clips
+            for (const key in streamers) {
+                const clips = await getYearRankingForEachStreamer(
+                    streamers[key],
+                    process.env.TWITCH_CLIENT_ID!,
+                    twitchToken,
+                )
+                if (clips != undefined) {
+                    //push to firestore
+                    const clipsObj = Object.fromEntries(clips.entries());
+                    await db.collection("clips").doc(streamers[key].id).update(clipsObj);
+                    //for each year, push to summary
+                    for (const [year, yearOfClips] of clips) {
+                        if (summary.has(year)) {
+                            //if aleady exist year in summary
+                            const sorted = sortByViewconut(yearOfClips.concat(summary.get(year)!));
+                            summary.set(year, sorted);
+                        } else {
+                            //if not
+                            summary.set(year, yearOfClips);
+                        }
+                    }
+                }
+            }
+            //push summary to firestore
+            const summaryObj = Object.fromEntries(summary.entries());
+            await db.collection("clips").doc("past_summary").update(summaryObj);
+        }
+    );
 
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions
     .region("asia-northeast1")
     .runWith({
+        timeoutSeconds: 300,
         secrets: [
             'TWITCH_CLIENT_ID',
             'TWITCH_CLIENT_SECRET',
@@ -167,6 +227,7 @@ export const getTwitchClipForAllRankingFunction = functions
 export const getTwitchClipFunction = functions
     .region("asia-northeast1")
     .runWith({
+        timeoutSeconds: 300,
         secrets: [
             'TWITCH_CLIENT_ID',
             'TWITCH_CLIENT_SECRET',
@@ -297,6 +358,7 @@ async function getToken(client_id: string, client_secret: string) {
 }
 
 //sort
+//and slice 50
 function sortByViewconut(clips: Array<Clip>) {
     return clips
         .sort((a, b) => b.view_count - a.view_count)
@@ -518,22 +580,34 @@ async function getYearRankingForEachStreamer(
     }
     //get start year
     const created_at = new Date(streamer.created_at);
-    const start_year = created_at.getFullYear();
+    //at least, from 2016
+    const start_year = created_at.getFullYear() < 2016 ? 2016 : created_at.getFullYear();
     const current_year = new Date().getFullYear();
-    //get foreach year clip ranking
-    for (let year = start_year; year <= current_year; year++) {
-        result.set(
-            year.toString(),
-            await getClipsYear(
-                parseInt(streamer.id),
-                year,
-                client_id,
-                token
-            )
-        );
+    //if created current year
+    if (start_year == current_year) {
+        return undefined;
     }
-
-    return result;
+    //get foreach year clip ranking
+    for (let year = start_year; year < current_year; year++) {
+        const clips = await getClipsYear(
+            parseInt(streamer.id),
+            year,
+            client_id,
+            token
+        );
+        //if exist
+        if (clips.length != 0) {
+            result.set(
+                year.toString(),
+                clips,
+            );
+        }
+    }
+    //if exist result
+    if (result.size != 0) {
+        return result;
+    }
+    return undefined;
 }
 
 async function getClipsYear(

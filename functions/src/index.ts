@@ -233,7 +233,7 @@ export const getTwitchClipFunction = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("0 10,22 * * *")
+    .pubsub.schedule("0 0,6,12,18 * * *")
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         //initialize firebase app

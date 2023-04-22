@@ -4,6 +4,8 @@ import axios, { AxiosRequestConfig } from "axios";
 import { FieldValue } from "firebase-admin/firestore";
 import { getApps } from "firebase-admin/app";
 
+const CLIP_NUM = 100;
+
 //update streamer info every wed
 export const updateStreamer = functions
     .region("asia-northeast1")
@@ -223,7 +225,7 @@ export const getTwitchClipForAllRankingFunction = functions
         });
     });
 
-//get twitch clip every day twice
+//get twitch clip every day
 export const getTwitchClipFunction = functions
     .region("asia-northeast1")
     .runWith({
@@ -358,11 +360,11 @@ async function getToken(client_id: string, client_secret: string) {
 }
 
 //sort
-//and slice 50
+//and slice CLIP_NUM
 function sortByViewconut(clips: Array<Clip>) {
     return clips
         .sort((a, b) => b.view_count - a.view_count)
-        .slice(0, 50);
+        .slice(0, CLIP_NUM);
 }
 function sortByFollowerNum(streamers: Array<Streamer>) {
     return streamers
@@ -468,7 +470,7 @@ async function getClips(
             },
             params: {
                 'broadcaster_id': broadcaster_id,
-                'first': 50,
+                'first': CLIP_NUM,
             }
         }
         //else period
@@ -485,7 +487,7 @@ async function getClips(
             },
             params: {
                 'broadcaster_id': broadcaster_id,
-                'first': 50,
+                'first': CLIP_NUM,
                 'started_at': daysAgo.toISOString(),
                 'ended_at': now.toISOString(),
             }
@@ -628,7 +630,7 @@ async function getClipsYear(
         },
         params: {
             'broadcaster_id': broadcaster_id,
-            'first': 50,
+            'first': CLIP_NUM,
             'started_at': started_at.toISOString(),
             'ended_at': ended_at.toISOString(),
         }

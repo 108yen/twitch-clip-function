@@ -23,6 +23,7 @@ export const updateStreamer = functions
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
         }
         const db = admin.firestore();
+        db.settings({ ignoreUndefinedProperties: true });
         //get streamers info from firestore
         const doc = await db.collection("streamers").doc("streamers").get();
         const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
@@ -75,6 +76,7 @@ export const addStreamer = functions
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
         }
         const db = admin.firestore();
+        db.settings({ ignoreUndefinedProperties: true });
         //get new streamers login from firestore
         const doc = await db.collection("streamers").doc("new").get();
         const fetchfromfirestore: { logins: Array<string> } = doc.data() as { logins: Array<string> };
@@ -129,6 +131,8 @@ export const getYearRankingFunction = functions
                 admin.initializeApp({ credential: admin.credential.applicationDefault() });
             }
             const db = admin.firestore();
+
+        db.settings({ ignoreUndefinedProperties: true });
             //get streamers info from firestore
             const doc = await db.collection("streamers").doc("streamers").get();
             const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
@@ -189,6 +193,7 @@ export const getTwitchClipForAllRankingFunction = functions
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
         }
         const db = admin.firestore();
+        db.settings({ ignoreUndefinedProperties: true });
         //get streamers info from firestore
         const doc = await db.collection("streamers").doc("streamers").get();
         const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
@@ -243,6 +248,7 @@ export const getTwitchClipFunction = functions
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
         }
         const db = admin.firestore();
+        db.settings({ ignoreUndefinedProperties: true });
         //get streamers info from firestore
         const doc = await db.collection("streamers").doc("streamers").get();
         const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };

@@ -132,7 +132,7 @@ export const getYearRankingFunction = functions
             }
             const db = admin.firestore();
 
-        db.settings({ ignoreUndefinedProperties: true });
+            db.settings({ ignoreUndefinedProperties: true });
             //get streamers info from firestore
             const doc = await db.collection("streamers").doc("streamers").get();
             const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
@@ -265,6 +265,7 @@ export const getTwitchClipFunction = functions
             day: [],
             week: [],
             month: [],
+            year: [],
         };
         //loop each streamer
         for (const key in streamerIds) {
@@ -279,16 +280,19 @@ export const getTwitchClipFunction = functions
                 "day": clips.day,
                 "week": clips.week,
                 "month": clips.month,
+                "year": clips.year,
             });
             //push to summary list
             summary.day = summary.day.concat(clips.day);
             summary.week = summary.week.concat(clips.week);
             summary.month = summary.month.concat(clips.month);
+            summary.year = summary.year.concat(clips.year);
         }
         //make summary ranking
         summary.day = sortByViewconut(summary.day);
         summary.week = sortByViewconut(summary.week);
         summary.month = sortByViewconut(summary.month);
+        summary.year = sortByViewconut(summary.year);
 
         //post summary clips to firestore
         await db.collection("clips").doc("summary").update(summary);
@@ -338,6 +342,7 @@ type StreamerClips = {
     day: Array<Clip>;
     week: Array<Clip>;
     month: Array<Clip>;
+    year: Array<Clip>;
 }
 
 //twitch api
@@ -437,6 +442,7 @@ async function getEachPeriodClips(
         day: 1,
         week: 7,
         month: 30,
+        year: 365,
     };
     let clipsList: { [key: string]: Array<Clip> } = {};
     for (const key in dayList) {
@@ -454,6 +460,7 @@ async function getEachPeriodClips(
         day: clipsList['day'],
         week: clipsList['week'],
         month: clipsList['month'],
+        year: clipsList['year'],
     }
     return result;
 }

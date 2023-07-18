@@ -75,10 +75,6 @@ export const onAddStreamer = functions
     })
     .firestore.document("/streamers/new")
     .onUpdate(async (change) => {
-        //initialize firebase app
-        if (!getApps().length) {
-            admin.initializeApp({ credential: admin.credential.applicationDefault() });
-        }
         const db = admin.firestore();
         db.settings({ ignoreUndefinedProperties: true });
         //get change

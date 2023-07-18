@@ -6,6 +6,11 @@ import { getApps } from "firebase-admin/app";
 
 const CLIP_NUM = 100;
 
+//initialize firebase app
+if (!getApps().length) {
+    admin.initializeApp({ credential: admin.credential.applicationDefault() });
+}
+
 //update streamer info every wed
 export const updateStreamer = functions
     .region("asia-northeast1")

@@ -59,8 +59,7 @@ export const updateStreamer = functions
 
     });
 
-//add new streamer every monday
-//todo: onCreate
+//add new streamer
 export const onAddStreamer = functions
     .region("asia-northeast1")
     .runWith({
@@ -70,7 +69,7 @@ export const onAddStreamer = functions
         ],
     })
     .firestore.document("/streamers/new")
-    .onCreate(async (snapshot) => {
+    .onUpdate(async (change) => {
         //initialize firebase app
         if (!getApps().length) {
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
@@ -78,7 +77,7 @@ export const onAddStreamer = functions
         const db = admin.firestore();
         db.settings({ ignoreUndefinedProperties: true });
         //get change
-        const fetchfromfirestore: { logins: Array<string> } = snapshot.data() as { logins: Array<string> };
+        const fetchfromfirestore: { logins: Array<string> } = change.after.data() as { logins: Array<string> };
         //if exist new
         if (fetchfromfirestore.logins.length != 0) {
             //get twitch api token

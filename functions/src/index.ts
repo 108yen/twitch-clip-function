@@ -60,7 +60,8 @@ export const updateStreamer = functions
     });
 
 //add new streamer every monday
-export const addStreamer = functions
+//todo: onCreate
+export const onAddStreamer = functions
     .region("asia-northeast1")
     .runWith({
         secrets: [
@@ -68,18 +69,16 @@ export const addStreamer = functions
             'TWITCH_CLIENT_SECRET',
         ],
     })
-    .pubsub.schedule("0 21 * * 1")
-    .timeZone("Asia/Tokyo")
-    .onRun(async () => {
+    .firestore.document("/streamers/new")
+    .onCreate(async (snapshot) => {
         //initialize firebase app
         if (!getApps().length) {
             admin.initializeApp({ credential: admin.credential.applicationDefault() });
         }
         const db = admin.firestore();
         db.settings({ ignoreUndefinedProperties: true });
-        //get new streamers login from firestore
-        const doc = await db.collection("streamers").doc("new").get();
-        const fetchfromfirestore: { logins: Array<string> } = doc.data() as { logins: Array<string> };
+        //get change
+        const fetchfromfirestore: { logins: Array<string> } = snapshot.data() as { logins: Array<string> };
         //if exist new
         if (fetchfromfirestore.logins.length != 0) {
             //get twitch api token
@@ -110,7 +109,60 @@ export const addStreamer = functions
                 logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
             });
         }
+
     });
+
+// export const addStreamer = functions
+//     .region("asia-northeast1")
+//     .runWith({
+//         secrets: [
+//             'TWITCH_CLIENT_ID',
+//             'TWITCH_CLIENT_SECRET',
+//         ],
+//     })
+//     .pubsub.schedule("0 21 * * 1")
+//     .timeZone("Asia/Tokyo")
+//     .onRun(async () => {
+//         //initialize firebase app
+//         if (!getApps().length) {
+//             admin.initializeApp({ credential: admin.credential.applicationDefault() });
+//         }
+//         const db = admin.firestore();
+//         db.settings({ ignoreUndefinedProperties: true });
+//         //get new streamers login from firestore
+//         const doc = await db.collection("streamers").doc("new").get();
+//         const fetchfromfirestore: { logins: Array<string> } = doc.data() as { logins: Array<string> };
+//         //if exist new
+//         if (fetchfromfirestore.logins.length != 0) {
+//             //get twitch api token
+//             const twitchToken = await getToken(
+//                 process.env.TWITCH_CLIENT_ID!,
+//                 process.env.TWITCH_CLIENT_SECRET!
+//             );
+//             //get streamers info from twitch api
+//             const streamers = await getStreamersSlice(
+//                 fetchfromfirestore.logins,
+//                 false,
+//                 process.env.TWITCH_CLIENT_ID!,
+//                 twitchToken,
+//             );
+//             //todo:batch
+//             // const batch = db.batch();
+//             //post streamers to firestore
+//             await db.collection("streamers").doc("streamers").update({
+//                 streamers: FieldValue.arrayUnion(...streamers)
+//             });
+//             //create clip docs
+//             for (const key in streamers) {
+//                 await db.collection("clips").doc(streamers[key].id).set({});
+//             }
+
+//             //delete login from new doc
+//             await db.collection("streamers").doc("new").update({
+//                 logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
+//             });
+//         }
+//     });
 
 //get twitch clip ranking for each year
 export const getYearRankingFunction = functions

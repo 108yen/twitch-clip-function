@@ -1,9 +1,10 @@
 import { FieldValue } from "firebase-admin/firestore";
 import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
 import { getToken } from "../../repositories/token";
 import { StreamerRepository } from "../../repositories/streamer";
-import { streamersDocRef } from "../../firestore-refs/streamerRefs";
+import { newStreamerLoginsDocRef, streamersDocRef } from "../../firestore-refs/streamerRefs";
+import { newStreamerLoginsConverter } from "../../converters/newStreamerLoginsConverter";
+import { clipDocRef } from "../../firestore-refs/clipRefs";
 
 //add new streamer
 export const onAddStreamer = functions
@@ -18,7 +19,7 @@ export const onAddStreamer = functions
     .onUpdate(async (change) => {
         const streamerRepository = new StreamerRepository();
         //get change
-        const fetchfromfirestore: { logins: Array<string> } = change.after.data() as { logins: Array<string> };
+        const fetchfromfirestore = newStreamerLoginsConverter.fromFirestore(change.after);
         //if exist new
         if (fetchfromfirestore.logins.length != 0) {
             //get twitch api token
@@ -34,25 +35,30 @@ export const onAddStreamer = functions
                 twitchToken,
             );
             //post streamers to firestore
-            await db.collection("streamers").doc("streamers").update({
-                streamers: FieldValue.arrayUnion(...streamers)
-            });
             try {
                 await streamersDocRef.update({
                     streamers: FieldValue.arrayUnion(...streamers)
                 });
             } catch (error) {
-
+                functions.logger.error(`streamerの追加に失敗しました: ${error}`);
             }
             //create clip docs
             for (const key in streamers) {
-                await db.collection("clips").doc(streamers[key].id).set({});
+                try {
+                    await clipDocRef({ clipId: streamers[key].id }).set({});
+                } catch (error) {
+                    functions.logger.error(`docId:${streamers[key].id}の作成に失敗しました: ${error}`);
+                }
             }
 
-            //delete login from new doc
-            await db.collection("streamers").doc("new").update({
-                logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
-            });
+            //delete login from new doc;
+            try {
+                await newStreamerLoginsDocRef.update({
+                    logins: FieldValue.arrayRemove(...fetchfromfirestore.logins)
+                });
+            } catch (error) {
+                functions.logger.error(`streamers/new/loginsの削除に失敗しました: ${error}`);
+            }
         }
 
     });

@@ -2,11 +2,32 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios, { AxiosRequestConfig } from "axios";
 import { getApps } from "firebase-admin/app";
+import * as serviceAccountKey from '../keys/service_account_key.json'
 
 const CLIP_NUM = 100;
 
-//initialize firebase app
-admin.initializeApp({ credential: admin.credential.applicationDefault() });
+// サービスアカウントを環境変数から取得
+const serviceAccount = {
+    type: serviceAccountKey.type,
+    projectId: serviceAccountKey.project_id,
+    privateKeyId: serviceAccountKey.private_key_id,
+    privateKey: serviceAccountKey.private_key.replace(/\\n/g, `\n`),
+    clientEmail: serviceAccountKey.client_email,
+    clientId: serviceAccountKey.client_id,
+    authUri: serviceAccountKey.auth_uri,
+    tokenUri: serviceAccountKey.token_uri,
+    authProviderX509CertUrl: serviceAccountKey.auth_provider_x509_cert_url,
+    clientC509CertUrl: serviceAccountKey.client_x509_cert_url
+}
+
+// Firebase Admin SDK の初期化
+// https://firebase.google.com/docs/functions/config-env?hl=ja
+if (admin.apps.length === 0) {
+    admin.initializeApp({
+        credential: admin.credential.cert(serviceAccount),
+        databaseURL: `https://${serviceAccount.projectId}.firebaseio.com`
+    })
+}
 
 //deploy function
 import { updateStreamer } from "./firebase-functions/streamer/updateStreamer";

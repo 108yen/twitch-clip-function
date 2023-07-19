@@ -1,10 +1,7 @@
-import * as admin from "firebase-admin";
 import { CollectionReference, DocumentReference } from "firebase-admin/firestore";
 import { ClipDoc } from "../models/clipDoc";
 import { clipDocConverter } from "../converters/clipDocConverter";
-
-const db = admin.firestore();
-db.settings({ ignoreUndefinedProperties: true });
+import { db } from "./db";
 
 export const clipColRef: CollectionReference<ClipDoc> = db
     .collection("clips")

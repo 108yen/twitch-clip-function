@@ -25,7 +25,6 @@ export async function getToken(client_id: string, client_secret: string) {
     if (!(res?.data)) {
         functions.logger.error(`twitch tokenの取得に失敗しました`);
     }
-    // const result: Token = res?.data;
     const result = res!.data!;
 
     return result;

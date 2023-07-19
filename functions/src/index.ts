@@ -7,62 +7,14 @@ import { getApps } from "firebase-admin/app";
 const CLIP_NUM = 100;
 
 //initialize firebase app
-if (!getApps().length) {
-    admin.initializeApp({ credential: admin.credential.applicationDefault() });
+admin.initializeApp({ credential: admin.credential.applicationDefault() });
+
+//deploy function
+import { updateStreamer } from "./firebase-functions/streamer/updateStreamer";
+export {
+    updateStreamer,
 }
 
-//update streamer info every wed
-export const updateStreamer = functions
-    .region("asia-northeast1")
-    .runWith({
-        secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
-        ],
-    })
-    .pubsub.schedule("0 21 * * 3")
-    .timeZone("Asia/Tokyo")
-    .onRun(async () => {
-        //initialize firebase app
-        if (!getApps().length) {
-            admin.initializeApp({ credential: admin.credential.applicationDefault() });
-        }
-        const db = admin.firestore();
-        db.settings({ ignoreUndefinedProperties: true });
-        //get streamers info from firestore
-        const doc = await db.collection("streamers").doc("streamers").get();
-        const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
-        const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
-        //get twitch api token
-        const twitchToken = await getToken(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
-        //get streamers info from twitch api
-        let streamers = await getStreamersSlice(
-            streamerIds,
-            true,
-            process.env.TWITCH_CLIENT_ID!,
-            twitchToken,
-        );
-        //for each streamers
-        for (const key in streamers) {
-            //get follower num from twitch api
-            const followerNum = await getFollowerNum(
-                streamers[key].id,
-                process.env.TWITCH_CLIENT_ID!,
-                twitchToken,
-            );
-            streamers[key].follower_num = followerNum;
-        }
-        //sort by follower num
-        streamers = sortByFollowerNum(streamers);
-        //post streamers to firestore
-        await db.collection("streamers").doc("streamers").update({
-            streamers: streamers
-        });
-
-    });
 
 //add new streamer
 export const onAddStreamer = functions

@@ -6,7 +6,7 @@ import { streamerConverter } from "../converters/streamerConverter";
 const db = admin.firestore();
 db.settings({ ignoreUndefinedProperties: true });
 
-export const streamersDocRef: DocumentReference<Array<Streamer>> = db
+export const streamersDocRef: DocumentReference<{ streamers: Array<Streamer> }> = db
     .collection("streamers")
     .doc("streamers")
-    .withConverter<Array<Streamer>>(streamerConverter);
+    .withConverter<{ streamers: Array<Streamer> }>(streamerConverter);

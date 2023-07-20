@@ -5,6 +5,7 @@ import { StreamerRepository } from "../../repositories/streamer";
 import { newStreamerLoginsDocRef, streamersDocRef } from "../../firestore-refs/streamerRefs";
 import { newStreamerLoginsConverter } from "../../converters/newStreamerLoginsConverter";
 import { clipDocRef } from "../../firestore-refs/clipRefs";
+import { ClipDoc } from "~/src/models/clipDoc";
 
 //add new streamer
 export const onAddStreamer = functions
@@ -46,7 +47,7 @@ export const onAddStreamer = functions
             //create clip docs
             for (const key in streamers) {
                 try {
-                    await clipDocRef({ clipId: streamers[key].id }).set({});
+                    await clipDocRef({ clipId: streamers[key].id }).set(new ClipDoc());
                 } catch (error) {
                     functions.logger.error(`docId:${streamers[key].id}の作成に失敗しました: ${error}`);
                 }

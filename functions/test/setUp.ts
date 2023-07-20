@@ -1,29 +1,34 @@
+
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions-test'
-import * as serviceAccountKey from '../keys/service_account_key.json'
+import * as devServiceAccountKey from '../keys/dev_service_account_key.json'
+import * as devTwitchApiKey from '../keys/dev_twitch_api_key.json'
+
+process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID;
+process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET;
 
 // サービスアカウントを環境変数から取得
-const serviceAccount = {
-    type: serviceAccountKey.type,
-    projectId: serviceAccountKey.project_id,
-    privateKeyId: serviceAccountKey.private_key_id,
-    privateKey: serviceAccountKey.private_key.replace(/\\n/g, `\n`),
-    clientEmail: serviceAccountKey.client_email,
-    clientId: serviceAccountKey.client_id,
-    authUri: serviceAccountKey.auth_uri,
-    tokenUri: serviceAccountKey.token_uri,
-    authProviderX509CertUrl: serviceAccountKey.auth_provider_x509_cert_url,
-    clientC509CertUrl: serviceAccountKey.client_x509_cert_url
+const devServiceAccount = {
+    type: devServiceAccountKey.type,
+    projectId: devServiceAccountKey.project_id,
+    privateKeyId: devServiceAccountKey.private_key_id,
+    privateKey: devServiceAccountKey.private_key.replace(/\\n/g, `\n`),
+    clientEmail: devServiceAccountKey.client_email,
+    clientId: devServiceAccountKey.client_id,
+    authUri: devServiceAccountKey.auth_uri,
+    tokenUri: devServiceAccountKey.token_uri,
+    authProviderX509CertUrl: devServiceAccountKey.auth_provider_x509_cert_url,
+    clientC509CertUrl: devServiceAccountKey.client_x509_cert_url
 }
 
 admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
-    databaseURL: `https://${serviceAccount.projectId}.firebaseio.com`
+    credential: admin.credential.cert(devServiceAccount),
+    databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`
 })
 
 export const testEnv = functions.default(
     {
-        databaseURL: `https://${serviceAccount.projectId}.firebaseio.com`,
-        projectId: serviceAccount.projectId
+        databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`,
+        projectId: devServiceAccount.projectId
     }
 )

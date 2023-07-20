@@ -3,9 +3,18 @@ import * as functions from "firebase-functions";
 import { Clip } from "../models/clip";
 import { ClipDoc } from "../models/clipDoc";
 import { Token } from "../models/token";
+import { clipDocRef } from "../firestore-refs/clipRefs";
 
 export class ClipRepository {
     CLIP_NUM = 100;
+    async fetchClip(clipId: string): Promise<ClipDoc> {
+        const ds = await clipDocRef({ clipId: clipId }).get();
+        if (!ds.data()) {
+            throw new Error(`documentId: ${clipId}のclipの取得に失敗しました。`);
+        }
+
+        return ds.data()!;
+    }
 
     //for each streamer, get day,week,month period clip
     async getEachPeriodClips(

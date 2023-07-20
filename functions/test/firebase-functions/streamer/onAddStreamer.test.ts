@@ -6,7 +6,7 @@ import { WrappedFunction, WrappedScheduledFunction } from 'firebase-functions-te
 import { Change } from 'firebase-functions/v2/firestore';
 import { testEnv } from '~/test/setUp';
 import { StreamerRepository } from '~/src/repositories/streamer';
-import { clipDocRef } from '~/src/firestore-refs/clipRefs';
+import { ClipRepository } from '~/src/repositories/clip';
 
 describe('onAddStreamerのテスト', () => {
     let wrappedOnAddStreamer: WrappedScheduledFunction | WrappedFunction<Change<QueryDocumentSnapshot>>;
@@ -24,15 +24,13 @@ describe('onAddStreamerのテスト', () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        // !これを実行すると、本番が変わる
-        // await wrappedOnAddStreamer(change);
-        // 結果を検証する（publicUsers/:accountId ドキュメントが作成されているはず）
-        const repository = new StreamerRepository();
-        const streamers = await repository.fetchFirestoreStreamers();
+        await wrappedOnAddStreamer(change);
+        const streamerRepository = new StreamerRepository();
+        const clipRepository = new ClipRepository();
+        const streamers = await streamerRepository.fetchFirestoreStreamers();
         const newStreamer = streamers?.find(e => e.login == "surugamonkey0113");
         expect(newStreamer).toBeDefined();
         expect(newStreamer?.id).toBeDefined();
-        const clipDoc = clipDocRef({ clipId: newStreamer!.id }).get();
-        expect(clipDoc).toBeDefined();
+        expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
     })
 })

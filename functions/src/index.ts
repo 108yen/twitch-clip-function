@@ -2,40 +2,26 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import axios, { AxiosRequestConfig } from "axios";
 import { getApps } from "firebase-admin/app";
-import * as serviceAccountKey from '../keys/service_account_key.json'
 
 const CLIP_NUM = 100;
-
-// サービスアカウントを環境変数から取得
-const serviceAccount = {
-    type: serviceAccountKey.type,
-    projectId: serviceAccountKey.project_id,
-    privateKeyId: serviceAccountKey.private_key_id,
-    privateKey: serviceAccountKey.private_key.replace(/\\n/g, `\n`),
-    clientEmail: serviceAccountKey.client_email,
-    clientId: serviceAccountKey.client_id,
-    authUri: serviceAccountKey.auth_uri,
-    tokenUri: serviceAccountKey.token_uri,
-    authProviderX509CertUrl: serviceAccountKey.auth_provider_x509_cert_url,
-    clientC509CertUrl: serviceAccountKey.client_x509_cert_url
-}
 
 // Firebase Admin SDK の初期化
 // https://firebase.google.com/docs/functions/config-env?hl=ja
 if (admin.apps.length === 0) {
     admin.initializeApp({
-        credential: admin.credential.cert(serviceAccount),
-        databaseURL: `https://${serviceAccount.projectId}.firebaseio.com`
+        credential: admin.credential.applicationDefault(),
     })
 }
 
 //deploy function
 import { updateStreamer } from "./firebase-functions/streamer/updateStreamer";
 import { onAddStreamer } from "./firebase-functions/streamer/onAddStreamer";
+import { getTwitchClipFunction } from "./firebase-functions/clip/getTwitchClipFunction";
 
 export {
     updateStreamer,
     onAddStreamer,
+    getTwitchClipFunction,
 }
 
 //get twitch clip ranking for each year
@@ -156,74 +142,6 @@ export const getTwitchClipForAllRankingFunction = functions
         });
     });
 
-//get twitch clip every day
-export const getTwitchClipFunction = functions
-    .region("asia-northeast1")
-    .runWith({
-        timeoutSeconds: 300,
-        secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
-        ],
-    })
-    .pubsub.schedule("0 0,6,12,18 * * *")
-    .timeZone("Asia/Tokyo")
-    .onRun(async () => {
-        //initialize firebase app
-        if (!getApps().length) {
-            admin.initializeApp({ credential: admin.credential.applicationDefault() });
-        }
-        const db = admin.firestore();
-        db.settings({ ignoreUndefinedProperties: true });
-        //get streamers info from firestore
-        const doc = await db.collection("streamers").doc("streamers").get();
-        const fetchfromfirestore: { streamers: Array<Streamer> } = doc.data() as { streamers: Array<Streamer> };
-        const streamerIds = fetchfromfirestore.streamers.map(streamer => streamer.id);
-
-        //get twitch api token
-        const twitchToken = await getToken(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
-
-        //for summary ranking
-        let summary: StreamerClips = {
-            day: [],
-            week: [],
-            month: [],
-            year: [],
-        };
-        //loop each streamer
-        for (const key in streamerIds) {
-            const clips = await getEachPeriodClips(
-                streamerIds[key],
-                process.env.TWITCH_CLIENT_ID!,
-                twitchToken,
-            )
-            //post each streamer clips to firestore
-            //todo:batch
-            await db.collection("clips").doc(streamerIds[key]).update({
-                "day": clips.day,
-                "week": clips.week,
-                "month": clips.month,
-                "year": clips.year,
-            });
-            //push to summary list
-            summary.day = summary.day.concat(clips.day);
-            summary.week = summary.week.concat(clips.week);
-            summary.month = summary.month.concat(clips.month);
-            summary.year = summary.year.concat(clips.year);
-        }
-        //make summary ranking
-        summary.day = sortByViewconut(summary.day);
-        summary.week = sortByViewconut(summary.week);
-        summary.month = sortByViewconut(summary.month);
-        summary.year = sortByViewconut(summary.year);
-
-        //post summary clips to firestore
-        await db.collection("clips").doc("summary").update(summary);
-    });
-
 //type
 type Streamer = {
     id: string;
@@ -262,13 +180,6 @@ type Token = {
     access_token: string;
     expires_in: number;
     token_type: string;
-}
-
-type StreamerClips = {
-    day: Array<Clip>;
-    week: Array<Clip>;
-    month: Array<Clip>;
-    year: Array<Clip>;
 }
 
 //twitch api
@@ -318,40 +229,6 @@ async function getAllPeriodClips(
         -1, //if all period, this val is -1
     );
     return clips;
-}
-
-//for each streamer, get day,week,month period clip
-async function getEachPeriodClips(
-    id: string,
-    client_id: string,
-    token: Token,
-): Promise<StreamerClips> {
-    //loop each period
-    const dayList: { [key: string]: number } = {
-        day: 1,
-        week: 7,
-        month: 30,
-        year: 365,
-    };
-    let clipsList: { [key: string]: Array<Clip> } = {};
-    for (const key in dayList) {
-        //get twitch clips from twitch api
-        const clips: Array<Clip> = await getClips(
-            parseInt(id),
-            client_id,
-            token,
-            dayList[key],
-        )
-        clipsList[key] = clips;
-    }
-    //return this
-    const result: StreamerClips = {
-        day: clipsList['day'],
-        week: clipsList['week'],
-        month: clipsList['month'],
-        year: clipsList['year'],
-    }
-    return result;
 }
 
 async function getClips(

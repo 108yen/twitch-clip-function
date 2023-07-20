@@ -5,9 +5,13 @@ import { Token } from "../models/token";
 import * as functions from "firebase-functions";
 
 export class StreamerRepository {
-    async fetchFirestoreStreamers(): Promise<Array<Streamer> | undefined> {
+    async fetchFirestoreStreamers(): Promise<Array<Streamer>> {
         const ds = await streamersDocRef.get();
-        return ds.data()?.streamers;
+        if (!ds.data()) {
+            throw new Error("streamersの取得に失敗しました。");
+        }
+        
+        return ds.data()!.streamers;
     }
 
     async fetchFollowerNum(

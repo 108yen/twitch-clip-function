@@ -22,8 +22,6 @@ export const onAddStreamer = functions
         const fetchfromfirestore = newStreamerLoginsConverter.fromFirestore(change.after);
         //if exist new
         if (fetchfromfirestore.logins.length != 0) {
-            //!debug
-            functions.logger.info(`TWITCH_CLIENT_ID: ${process.env.TWITCH_CLIENT_ID!}`);
             //get twitch api token
             const twitchToken = await getToken(
                 process.env.TWITCH_CLIENT_ID!,
@@ -37,6 +35,7 @@ export const onAddStreamer = functions
                 twitchToken,
             );
             //post streamers to firestore
+            //todo: check aleady exist
             try {
                 await streamersDocRef.update({
                     streamers: FieldValue.arrayUnion(...streamers)

@@ -24,7 +24,8 @@ describe('onAddStreamerのテスト', () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        await wrappedOnAddStreamer(change);
+        // !これを実行すると、本番が変わる
+        // await wrappedOnAddStreamer(change);
         // 結果を検証する（publicUsers/:accountId ドキュメントが作成されているはず）
         const repository = new StreamerRepository();
         const streamers = await repository.fetchFirestoreStreamers();

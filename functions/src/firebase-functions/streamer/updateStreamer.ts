@@ -18,11 +18,8 @@ export const updateStreamer = functions
     .timeZone("Asia/Tokyo")
     .onRun(async () => {
         const streamerRepository = new StreamerRepository();
-        const fetchStreamers = await streamerRepository.fetchFirestoreStreamers();
-        if (!fetchStreamers) {
-            functions.logger.error("streamersの取得に失敗しました。");
-            return;
-        }
+        const fetchStreamers = await streamerRepository
+            .fetchFirestoreStreamers();
         const streamerIds = fetchStreamers.map(streamer => streamer.id);
         //get twitch api token
         const twitchToken = await getToken(

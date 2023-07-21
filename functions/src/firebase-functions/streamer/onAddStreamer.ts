@@ -59,7 +59,7 @@ export const onAddStreamer = functions
             //create clip docs
             for (const key in streamers) {
                 try {
-                    await clipDocRef({ clipId: streamers[key].id }).set(new ClipDoc());
+                    await clipDocRef({ clipId: streamers[key].id }).set(new ClipDoc);
                 } catch (error) {
                     functions.logger.error(`docId:${streamers[key].id}の作成に失敗しました: ${error}`);
                 }

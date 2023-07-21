@@ -31,7 +31,7 @@ export const getYearRankingFunction = functions
                 process.env.TWITCH_CLIENT_SECRET!
             );
             //for summary ranking
-            let summary = new ClipDoc();
+            const summary = new ClipDoc();
             //get for each streamer's clips
             for (const key in streamers) {
                 const clipDoc = await clipRepository.getYearRankingForEachStreamer(
@@ -48,6 +48,7 @@ export const getYearRankingFunction = functions
                     }
                     //for each year, push to summary
                     summary.clipDocConcat(clipDoc);
+                    summary.sort();
                 }
             }
             //push summary to firestore

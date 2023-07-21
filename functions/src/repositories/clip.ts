@@ -7,7 +7,7 @@ import { clipDocRef } from "../firestore-refs/clipRefs";
 import { Streamer } from "../models/streamer";
 
 export class ClipRepository {
-    CLIP_NUM = 100;
+    private CLIP_NUM = 100;
 
     async fetchClip(clipId: string): Promise<ClipDoc> {
         const ds = await clipDocRef({ clipId: clipId }).get();
@@ -16,6 +16,27 @@ export class ClipRepository {
         }
 
         return ds.data()!;
+    }
+
+    //for each streamer, get all period clip
+    async getAllPeriodClips(
+        id: string,
+        client_id: string,
+        token: Token,
+    ): Promise<ClipDoc> {
+        //get twitch clips from twitch api
+        const clips = await this.getClips(
+            parseInt(id),
+            client_id,
+            token,
+            -1, //if all period, this val is -1
+        );
+        const result = new ClipDoc();
+        result.clipsMap.set(
+            "all",
+            clips
+        )
+        return result;
     }
 
     //for each streamer, get day,week,month period clip
@@ -171,7 +192,7 @@ export class ClipRepository {
             .catch((error) => {
                 functions.logger.error(`twitch apiからクリップの取得に失敗しました: ${error}`);
             });
-        
+
         return res?.data.data;
     }
 

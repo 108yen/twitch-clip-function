@@ -32,12 +32,7 @@ export const getTwitchClipFunction = functions
         );
 
         //for summary ranking
-        let summary = new ClipDoc({
-            day: [],
-            week: [],
-            month: [],
-            year: [],
-        });
+        let summary = new ClipDoc();
         //loop each streamer
         for (const key in streamerIds) {
             const clips = await clipRepository.getEachPeriodClips(

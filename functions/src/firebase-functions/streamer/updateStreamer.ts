@@ -46,7 +46,6 @@ export const updateStreamer = functions
         //sort by follower num
         streamers = sortByFollowerNum(streamers);
         try {
-            //!間違っているかも　{streamers:streamers}では？　converterでやっているからいいのか？
             await streamersDocRef.update({
                 streamers: streamers
             });

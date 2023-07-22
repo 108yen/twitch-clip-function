@@ -1,13 +1,13 @@
 import 'jest'
 import { describe } from 'node:test'
-import { getYearRankingFunction } from '~/src';
+import { getYearRankingFunction } from '../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
-import { testEnv } from '~/test/setUp';
+import { testEnv } from '../../../test/setUp';
 import * as functions from "firebase-functions";
-import { StreamerRepository } from '~/src/repositories/streamer';
-import { clipDocRef } from '~/src/firestore-refs/clipRefs';
-import { ClipDoc } from '~/src/models/clipDoc';
-import { ClipRepository } from '~/src/repositories/clip';
+import { StreamerRepository } from '../../../src/repositories/streamer';
+import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
+import { ClipDoc } from '../../../src/models/clipDoc';
+import { ClipRepository } from '../../../src/repositories/clip';
 
 describe('getYearRankingFunctionのテスト', () => {
     let wrappedGetYearRankingFunction: WrappedScheduledFunction;

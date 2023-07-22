@@ -40,11 +40,9 @@ export const getTwitchClipForAllRankingFunction = functions
                 twitchToken,
             );
             //post each streamer clips to firestore
-            // await db.collection("clips").doc(streamerIds[key]).update({
-            //     "all": clips,
-            // });
             try {
-                await clipDocRef({ clipId: streamers[key].id }).update(clips);
+                await clipDocRef({ clipId: streamers[key].id })
+                    .set(clips, { merge: true });
             } catch (error) {
                 functions.logger.error(`${streamers[key].display_name}のクリップの更新に失敗しました: ${error}`);
             }
@@ -55,11 +53,9 @@ export const getTwitchClipForAllRankingFunction = functions
         //make summary ranking
         summary.sort();
         //post summary clips to firestore
-        // await db.collection("clips").doc("summary").update({
-        //     "all": summary,
-        // });
         try {
-            await clipDocRef({ clipId: "summary" }).update(summary);
+            await clipDocRef({ clipId: "summary" })
+                .set(summary, { merge: true });
         } catch (error) {
             functions.logger.error(`summaryクリップの更新に失敗しました: ${error}`);
         }

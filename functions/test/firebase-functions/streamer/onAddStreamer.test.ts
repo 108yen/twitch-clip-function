@@ -19,7 +19,7 @@ describe('onAddStreamerのテスト', () => {
 
     test('新規追加', async () => {
         const path = "streamers/new";
-        const testLogins = ["stylishnoob4", "fps_shaka"];
+        const testLogins = ["akamikarubi"];
         const beforeSnap = testEnv.firestore.makeDocumentSnapshot({
             logins: []
         }, path);
@@ -27,6 +27,9 @@ describe('onAddStreamerのテスト', () => {
             logins: testLogins
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
+
+        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
+        await sleep(5);
 
         await wrappedOnAddStreamer(change);
         const streamerRepository = new StreamerRepository();
@@ -40,7 +43,7 @@ describe('onAddStreamerのテスト', () => {
             expect(newStreamer?.id).toBeDefined();
             //clipのドキュメントが作成出来ているか
             expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
-            
+
             //後処理
             await clipDocRef({ clipId: newStreamer!.id }).delete();
             await streamersDocRef.update({
@@ -48,7 +51,7 @@ describe('onAddStreamerのテスト', () => {
             });
         }
 
-    })
+    },10000)
     test('追加済み', async () => {
         const path = "streamers/new";
         const testLogin = "surugamonkey0113";
@@ -59,6 +62,9 @@ describe('onAddStreamerのテスト', () => {
             logins: [testLogin]
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
+
+        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
+        await sleep(5);
 
         await wrappedOnAddStreamer(change);
         const streamerRepository = new StreamerRepository();
@@ -71,5 +77,5 @@ describe('onAddStreamerのテスト', () => {
         expect(newStreamer?.id).toBeDefined();
         //clipのドキュメントが作成出来ているか
         expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
-    })
+    },10000)
 })

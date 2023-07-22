@@ -1,32 +1,28 @@
 import 'jest'
 import { describe } from 'node:test'
-import { getTwitchClipFunction } from '~/src';
+import { getTwitchClipForAllRankingFunction } from '~/src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '~/test/setUp';
 import * as functions from "firebase-functions";
 import { StreamerRepository } from '~/src/repositories/streamer';
 import { clipDocRef } from '~/src/firestore-refs/clipRefs';
 import { ClipDoc } from '~/src/models/clipDoc';
-import { Clip } from '~/src/models/clip';
 import { ClipRepository } from '~/src/repositories/clip';
+import { Clip } from '~/src/models/clip';
 
-describe('getTwitchClipFunctionのテスト', () => {
-    let wrappedGetTwitchClipFuntion: WrappedScheduledFunction;
+describe('getTwitchClipForAllRankingFunctionのテスト', () => {
+    let wrappedGetTwitchClipForAllRankingFunction: WrappedScheduledFunction;
     beforeAll(() => {
-        wrappedGetTwitchClipFuntion = testEnv.wrap(getTwitchClipFunction);
+        wrappedGetTwitchClipForAllRankingFunction = testEnv.wrap(getTwitchClipForAllRankingFunction);
     })
 
     test('更新', async () => {
-
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.fetchFirestoreStreamers();
         //準備 データを消す
         const initedClipDoc = new ClipDoc({
             clipsMap: new Map<string, Array<Clip>>([
-                ["day", []],
-                ["week", []],
-                ["month", []],
-                ["year", []],
+                ["all", []],
             ])
         });
         for (const key in streamers) {
@@ -46,10 +42,10 @@ describe('getTwitchClipFunctionのテスト', () => {
         }
 
         //実行
-        await wrappedGetTwitchClipFuntion();
+        await wrappedGetTwitchClipForAllRankingFunction();
 
         const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(5);
+        await sleep(10);
 
         //更新されているか
         const clipRepository = new ClipRepository();
@@ -59,30 +55,33 @@ describe('getTwitchClipFunctionのテスト', () => {
             const clipDoc = await clipRepository.fetchClip(element.id);
 
             //各期間のクリップがあるか
-            expect(clipDoc.clipsMap.size).toBeGreaterThanOrEqual(4)
-            const periods = ["day", "week", "month", "year"];
-            for (const key in periods) {
-                const period = periods[key];
-                expect(clipDoc.clipsMap.get(period)).toBeDefined();
-                expect(clipDoc.clipsMap.get(period)?.length).toBeGreaterThan(0);
-                //中身の要素確認
-                for (const key in clipDoc.clipsMap.get(period)!) {
-                    const element = (clipDoc.clipsMap.get(period)!)[key];
-                    expect(element.title).toBeDefined();
-                    expect(element.view_count).toBeDefined();
-                    expect(element.created_at).toBeDefined();
-                    expect(element.broadcaster_name).toBeDefined();
-                    expect(element.embed_url).toBeDefined();
-                }
+            const allPeriodClips = clipDoc.clipsMap.get("all");
+            expect(allPeriodClips).toBeDefined();
+            expect(allPeriodClips!.length).toBeGreaterThan(90);
+            //  中身の要素確認
+            for (const key_j in allPeriodClips!) {
+                const element = allPeriodClips[key_j];
+                expect(element.title).toBeDefined();
+                expect(element.view_count).toBeDefined();
+                expect(element.created_at).toBeDefined();
+                expect(element.broadcaster_name).toBeDefined();
+                expect(element.embed_url).toBeDefined();
             }
         }
         //全体のランキング
         const clipDoc = await clipRepository.fetchClip("summary");
-        const periods = ["day", "week", "month", "year"];
-        for (const key in periods) {
-            const period = periods[key];
-            expect(clipDoc.clipsMap.get(period)).toBeDefined();
-            expect(clipDoc.clipsMap.get(period)?.length).toBeGreaterThan(0);
+        const allPeriodClips = clipDoc.clipsMap.get("all");
+        expect(allPeriodClips).toBeDefined();
+        expect(allPeriodClips!.length).toEqual(100);
+
+        //  中身の要素確認
+        for (const key_j in allPeriodClips!) {
+            const element = allPeriodClips[key_j];
+            expect(element.title).toBeDefined();
+            expect(element.view_count).toBeDefined();
+            expect(element.created_at).toBeDefined();
+            expect(element.broadcaster_name).toBeDefined();
+            expect(element.embed_url).toBeDefined();
         }
 
     }, 20000)

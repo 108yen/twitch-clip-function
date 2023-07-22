@@ -42,7 +42,8 @@ export const getYearRankingFunction = functions
                 if (clipDoc != undefined) {
                     //push to firestore
                     try {
-                        await clipDocRef({ clipId: streamers[key].id }).update(clipDoc);
+                        await clipDocRef({ clipId: streamers[key].id })
+                            .set(clipDoc, { merge: true });
                     } catch (error) {
                         functions.logger.error(`${streamers[key].display_name}のクリップの更新に失敗しました: ${error}`);
                     }
@@ -53,9 +54,10 @@ export const getYearRankingFunction = functions
             }
             //push summary to firestore
             try {
-                await clipDocRef({ clipId: "past_summary" }).update(summary);
+                await clipDocRef({ clipId: "past_summary" })
+                .set(summary, { merge: true });
             } catch (error) {
                 functions.logger.error(`past_summaryのクリップの更新に失敗しました: ${error}`);
             }
         }
-);
+    );

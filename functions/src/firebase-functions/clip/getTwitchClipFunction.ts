@@ -1,9 +1,9 @@
 import * as functions from "firebase-functions";
-import { clipDocRef } from "~/src/firestore-refs/clipRefs";
-import { ClipDoc } from "~/src/models/clipDoc";
-import { ClipRepository } from "~/src/repositories/clip";
-import { StreamerRepository } from "~/src/repositories/streamer";
-import { getToken } from "~/src/repositories/token";
+import { clipDocRef } from "../../../src/firestore-refs/clipRefs";
+import { ClipDoc } from "../../../src/models/clipDoc";
+import { ClipRepository } from "../../../src/repositories/clip";
+import { StreamerRepository } from "../../../src/repositories/streamer";
+import { getToken } from "../../../src/repositories/token";
 
 //get twitch clip every day
 export const getTwitchClipFunction = functions

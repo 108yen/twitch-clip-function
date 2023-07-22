@@ -24,6 +24,7 @@
   "compileOnSave": true,
   "exclude": [
     "node_modules",
-    "lib"
+    "lib",
+    "test"
   ]
 }

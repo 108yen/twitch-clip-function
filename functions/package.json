@@ -2,7 +2,7 @@
   "name": "functions",
   "scripts": {
     "lint": "eslint --ext .js,.ts .",
-    "build": "tsc && tsc-alias",
+    "build": "tsc",
     "build:watch": "tsc --watch",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
@@ -14,7 +14,7 @@
   "engines": {
     "node": "16"
   },
-  "main": "lib/index.js",
+  "main": "lib/src/index.js",
   "dependencies": {
     "@types/node": "^18.14.6",
     "axios": "^1.3.4",

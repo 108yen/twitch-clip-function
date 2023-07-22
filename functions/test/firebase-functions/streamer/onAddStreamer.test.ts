@@ -1,14 +1,14 @@
 import 'jest'
 import { QueryDocumentSnapshot } from '@google-cloud/firestore'
 import { describe } from 'node:test'
-import { onAddStreamer } from '~/src';
+import { onAddStreamer } from '../../../src';
 import { WrappedFunction, WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { Change } from 'firebase-functions/v2/firestore';
-import { testEnv } from '~/test/setUp';
-import { StreamerRepository } from '~/src/repositories/streamer';
-import { ClipRepository } from '~/src/repositories/clip';
-import { clipDocRef } from '~/src/firestore-refs/clipRefs';
-import { streamersDocRef } from '~/src/firestore-refs/streamerRefs';
+import { testEnv } from '../../../test/setUp';
+import { StreamerRepository } from '../../../src/repositories/streamer';
+import { ClipRepository } from '../../../src/repositories/clip';
+import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
+import { streamersDocRef } from '../../../src/firestore-refs/streamerRefs';
 import { FieldValue } from 'firebase-admin/firestore';
 
 describe('onAddStreamerのテスト', () => {

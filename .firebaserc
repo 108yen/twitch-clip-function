@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "twitch-clip-66e5b"
+  },
+  "targets": {
+    "functions": {
+      "exclude": [
+        "test/**"
+      ]
+    }
+  }
+}

@@ -5,22 +5,54 @@ on:
     branches:
       - master
 
+# jobs:
+#   deploy:
+#     name: Deploy
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repo
+#         uses: actions/checkout@v3
+#       - name: Setup node
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 16
+#           cache: "npm"
+#           cache-dependency-path: functions/package-lock.json
+#       - name: Install dependencies
+#         run: npm install -C functions
+#       # ここからがデプロイのステップ
+#       - name: Deploy to Firebase
+#         uses: w9jds/firebase-action@master
+#         with:
+#           args: deploy --only functions
 jobs:
-  deploy:
-    name: Deploy
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v3
-      - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/checkout@master
+      - name: Install Dependencies
+        run: npm install
+      - name: Build
+        run: npm run build-prod
+      - name: Archive Production Artifact
+        uses: actions/upload-artifact@master
         with:
-          node-version: 16
-          cache: "npm"
-          cache-dependency-path: functions/package-lock.json
-      - name: Install dependencies
-        run: npm install -C functions
-      # ここからがデプロイのステップ
+          name: dist
+          path: dist
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@master
+      - name: Download Artifact
+        uses: actions/download-artifact@master
+        with:
+          name: dist
+          path: dist
       - name: Deploy to Firebase
         uses: w9jds/firebase-action@master
         with:

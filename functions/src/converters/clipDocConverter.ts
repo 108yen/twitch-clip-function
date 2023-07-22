@@ -5,11 +5,23 @@ import { Clip } from "../models/clip";
 export const clipDocConverter: FirestoreDataConverter<ClipDoc> = {
     fromFirestore(qds: FirebaseFirestore.QueryDocumentSnapshot): ClipDoc {
         const data = qds.data();
-        return new ClipDoc({
-            clipsMap: data as Map<string, Array<Clip>>,
-        });
+
+        const result = new ClipDoc();
+        for (const i in data) {
+            const clips: Array<Clip> = [];
+            for (const j in data[i]) {
+                const element = data[i][j] as Clip;
+                clips.push(element);
+            }
+            result.clipsMap.set(
+                i,
+                clips
+            )
+        }
+        return result;
     },
     toFirestore(clipDoc: ClipDoc): FirebaseFirestore.DocumentData {
-        return clipDoc.clipsMap.size == 0 ? {} : clipDoc.clipsMap;
+        const clipsObj = Object.fromEntries(clipDoc.clipsMap.entries());
+        return clipsObj;
     },
 }

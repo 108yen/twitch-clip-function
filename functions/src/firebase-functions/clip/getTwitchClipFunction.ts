@@ -22,9 +22,8 @@ export const getTwitchClipFunction = functions
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
         //get streamers info from firestore
-        const fetchStreamers = await streamerRepository
+        const streamers = await streamerRepository
             .fetchFirestoreStreamers();
-        const streamerIds = fetchStreamers.map(streamer => streamer.id);
         //get twitch api token
         const twitchToken = await getToken(
             process.env.TWITCH_CLIENT_ID!,
@@ -34,17 +33,18 @@ export const getTwitchClipFunction = functions
         //for summary ranking
         let summary = new ClipDoc();
         //loop each streamer
-        for (const key in streamerIds) {
+        for (const key in streamers) {
             const clips = await clipRepository.getEachPeriodClips(
-                streamerIds[key],
+                streamers[key].id,
                 process.env.TWITCH_CLIENT_ID!,
                 twitchToken,
             )
             //post each streamer clips to firestore
             try {
-                await clipDocRef({ clipId: streamerIds[key] }).update(clips);
+                await clipDocRef({ clipId: streamers[key].id })
+                    .set(clips, { merge: true });
             } catch (error) {
-                functions.logger.error(`documentID: ${streamerIds[key]}のclip情報の更新に失敗しました: ${error}`);
+                functions.logger.error(`${streamers[key].display_name}のclip情報の更新に失敗しました: ${error}`);
             }
             //push to summary list
             summary.clipDocConcat(clips);
@@ -54,7 +54,9 @@ export const getTwitchClipFunction = functions
 
         //post summary clips to firestore
         try {
-            await clipDocRef({ clipId: "summary" }).update(summary);
+            // await clipDocRef({ clipId: "summary" }).update(summary.clipsMap);
+            await clipDocRef({ clipId: "summary" })
+                .set(summary, { merge: true });
         } catch (error) {
             functions.logger.error(`summaryのclip情報の更新に失敗しました: ${error}`);
         }

@@ -15,6 +15,7 @@ export class ClipRepository {
             throw new Error(`documentId: ${clipId}のclipの取得に失敗しました。`);
         }
 
+        // return new ClipDoc({ clipsMap: ds.data()! });
         return ds.data()!;
     }
 

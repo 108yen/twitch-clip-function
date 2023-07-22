@@ -16,7 +16,7 @@ describe('updateStreamerのテスト', () => {
     test('更新', async () => {
 
         const streamerRepository = new StreamerRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        let streamers = await streamerRepository.fetchFirestoreStreamers();
         //準備 id以外を消す
         const beforeStreamers = streamers.map(e => new Streamer({
             id: e.id
@@ -26,10 +26,14 @@ describe('updateStreamerのテスト', () => {
                 streamers: beforeStreamers
             });
         } catch (error) {
-            
+
         }
         //実行
         await wrappedUpdateStreamer();
+
+        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
+        await sleep(10);
+        streamers = await streamerRepository.fetchFirestoreStreamers();
         //streamerが存在しているか
         expect(streamers.length).toBeGreaterThan(0);
         for (const key in streamers) {
@@ -45,5 +49,5 @@ describe('updateStreamerのテスト', () => {
             expect(element.follower_num).toBeDefined();
         }
 
-    })
+    }, 20000)
 })

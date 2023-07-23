@@ -20,6 +20,6 @@ module.exports = {
         quotes: [`error`, `backtick`]
     },
     settings: {
-        'import/resolver': "off"
+        'import/resolver': 'webpack'
     }
 }

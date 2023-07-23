@@ -8,9 +8,9 @@ export class StreamerRepository {
     async fetchFirestoreStreamers(): Promise<Array<Streamer>> {
         const ds = await streamersDocRef.get();
         if (!ds.data()) {
-            throw new Error("streamersの取得に失敗しました。");
+            throw new Error(`streamersの取得に失敗しました。`);
         }
-        
+
         return ds.data()!.streamers;
     }
 
@@ -20,15 +20,15 @@ export class StreamerRepository {
         token: Token,
     ): Promise<number> {
         const config: AxiosRequestConfig = {
-            url: 'https://api.twitch.tv/helix/channels/followers',
-            method: 'GET',
+            url: `https://api.twitch.tv/helix/channels/followers`,
+            method: `GET`,
             headers: {
-                'Authorization': 'Bearer ' + token.access_token,
-                'Client-Id': client_id,
+                Authorization: `Bearer ${token.access_token}`,
+                [`Client-Id`]: client_id,
             },
             params: {
-                'broadcaster_id': id,
-                'first': 1,
+                broadcaster_id: id,
+                first: 1,
             }
         }
         const res = await axios(config)
@@ -81,11 +81,11 @@ export class StreamerRepository {
         token: Token,
     ): Promise<Array<Streamer>> {
         const config: AxiosRequestConfig = {
-            url: 'https://api.twitch.tv/helix/users',
-            method: 'GET',
+            url: `https://api.twitch.tv/helix/users`,
+            method: `GET`,
             headers: {
-                'Authorization': 'Bearer ' + token.access_token,
-                'Client-Id': client_id,
+                Authorization: `Bearer ${token.access_token}`,
+                [`Client-Id`]: client_id,
             },
             paramsSerializer: { indexes: null }
         }

@@ -4,7 +4,7 @@ import { db } from "./db";
 import { ClipDoc } from "../models/clipDoc";
 
 export const clipColRef: CollectionReference<ClipDoc> = db
-    .collection("clips")
+    .collection(`clips`)
     .withConverter<ClipDoc>(clipDocConverter);
 
 export const clipDocRef = ({ clipId }: { clipId: string }): DocumentReference<ClipDoc> =>

@@ -7,16 +7,16 @@ import { getToken } from "../../../src/repositories/token";
 
 //get twitch clip ranking for each year
 export const getYearRankingFunction = functions
-    .region("asia-northeast1")
+    .region(`asia-northeast1`)
     .runWith({
         timeoutSeconds: 300,
         secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
+            `TWITCH_CLIENT_ID`,
+            `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule("0 1 4 * *")
-    .timeZone("Asia/Tokyo")
+    .pubsub.schedule(`0 1 4 * *`)
+    .timeZone(`Asia/Tokyo`)
     .onRun(
         async () => {
             //repository
@@ -54,8 +54,8 @@ export const getYearRankingFunction = functions
             }
             //push summary to firestore
             try {
-                await clipDocRef({ clipId: "past_summary" })
-                .set(summary, { merge: true });
+                await clipDocRef({ clipId: `past_summary` })
+                    .set(summary, { merge: true });
             } catch (error) {
                 functions.logger.error(`past_summaryのクリップの更新に失敗しました: ${error}`);
             }

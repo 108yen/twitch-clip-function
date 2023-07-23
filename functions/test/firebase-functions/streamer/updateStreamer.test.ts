@@ -6,14 +6,15 @@ import { testEnv } from '../../../test/setUp';
 import { StreamerRepository } from '../../../src/repositories/streamer';
 import { streamersDocRef } from '../../../src/firestore-refs/streamerRefs';
 import { Streamer } from '../../../src/models/streamer';
+import * as functions from 'firebase-functions';
 
-describe('updateStreamerのテスト', () => {
+describe(`updateStreamerのテスト`, () => {
     let wrappedUpdateStreamer: WrappedScheduledFunction;
     beforeAll(() => {
         wrappedUpdateStreamer = testEnv.wrap(updateStreamer);
     })
 
-    test('更新', async () => {
+    test(`更新`, async () => {
 
         const streamerRepository = new StreamerRepository();
         let streamers = await streamerRepository.fetchFirestoreStreamers();
@@ -26,7 +27,7 @@ describe('updateStreamerのテスト', () => {
                 streamers: beforeStreamers
             });
         } catch (error) {
-
+            functions.logger.debug(`初期化エラー: ${error}`);
         }
         //実行
         await wrappedUpdateStreamer();

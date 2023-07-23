@@ -7,16 +7,16 @@ import { getToken } from "../../../src/repositories/token";
 
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions
-    .region("asia-northeast1")
+    .region(`asia-northeast1`)
     .runWith({
         timeoutSeconds: 300,
         secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
+            `TWITCH_CLIENT_ID`,
+            `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule("0 1 1,16 * *")
-    .timeZone("Asia/Tokyo")
+    .pubsub.schedule(`0 1 1,16 * *`)
+    .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         //repository
         const streamerRepository = new StreamerRepository();
@@ -54,7 +54,7 @@ export const getTwitchClipForAllRankingFunction = functions
         summary.sort();
         //post summary clips to firestore
         try {
-            await clipDocRef({ clipId: "summary" })
+            await clipDocRef({ clipId: `summary` })
                 .set(summary, { merge: true });
         } catch (error) {
             functions.logger.error(`summaryクリップの更新に失敗しました: ${error}`);

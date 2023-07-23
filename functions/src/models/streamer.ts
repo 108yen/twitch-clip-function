@@ -1,6 +1,6 @@
 
 export class Streamer {
-    id = "";
+    id = ``;
     login?: string;
     display_name?: string;
     type?: string;

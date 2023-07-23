@@ -3,7 +3,6 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "esModuleInterop": true,
-    "resolveJsonModule": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "outDir": "lib",
@@ -23,9 +22,6 @@
     ]
   },
   "compileOnSave": true,
-  "include": [
-    "src/**/*",
-  ],
   "exclude": [
     "node_modules",
     "lib",

@@ -7,15 +7,15 @@ import { getToken } from "../../repositories/token";
 
 //update streamer info every wed
 export const updateStreamer = functions
-    .region("asia-northeast1")
+    .region(`asia-northeast1`)
     .runWith({
         secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
+            `TWITCH_CLIENT_ID`,
+            `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule("0 21 * * 3")
-    .timeZone("Asia/Tokyo")
+    .pubsub.schedule(`0 21 * * 3`)
+    .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const streamerRepository = new StreamerRepository();
         const fetchStreamers = await streamerRepository

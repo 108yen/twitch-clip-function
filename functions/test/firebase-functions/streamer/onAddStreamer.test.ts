@@ -11,15 +11,15 @@ import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { streamersDocRef } from '../../../src/firestore-refs/streamerRefs';
 import { FieldValue } from 'firebase-admin/firestore';
 
-describe('onAddStreamerのテスト', () => {
+describe(`onAddStreamerのテスト`, () => {
     let wrappedOnAddStreamer: WrappedScheduledFunction | WrappedFunction<Change<QueryDocumentSnapshot>>;
     beforeAll(() => {
         wrappedOnAddStreamer = testEnv.wrap(onAddStreamer);
     })
 
-    test('新規追加', async () => {
-        const path = "streamers/new";
-        const testLogins = ["akamikarubi"];
+    test(`新規追加`, async () => {
+        const path = `streamers/new`;
+        const testLogins = [`akamikarubi`];
         const beforeSnap = testEnv.firestore.makeDocumentSnapshot({
             logins: []
         }, path);
@@ -51,10 +51,10 @@ describe('onAddStreamerのテスト', () => {
             });
         }
 
-    },10000)
-    test('追加済み', async () => {
-        const path = "streamers/new";
-        const testLogin = "surugamonkey0113";
+    }, 10000)
+    test(`追加済み`, async () => {
+        const path = `streamers/new`;
+        const testLogin = `surugamonkey0113`;
         const beforeSnap = testEnv.firestore.makeDocumentSnapshot({
             logins: []
         }, path);
@@ -77,5 +77,5 @@ describe('onAddStreamerのテスト', () => {
         expect(newStreamer?.id).toBeDefined();
         //clipのドキュメントが作成出来ているか
         expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
-    },10000)
+    }, 10000)
 })

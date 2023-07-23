@@ -7,16 +7,16 @@ import { getToken } from "../../../src/repositories/token";
 
 //get twitch clip every day
 export const getTwitchClipFunction = functions
-    .region("asia-northeast1")
+    .region(`asia-northeast1`)
     .runWith({
         timeoutSeconds: 300,
         secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
+            `TWITCH_CLIENT_ID`,
+            `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule("0 0,6,12,18 * * *")
-    .timeZone("Asia/Tokyo")
+    .pubsub.schedule(`0 0,6,12,18 * * *`)
+    .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         //repository
         const streamerRepository = new StreamerRepository();
@@ -31,7 +31,7 @@ export const getTwitchClipFunction = functions
         );
 
         //for summary ranking
-        let summary = new ClipDoc();
+        const summary = new ClipDoc();
         //loop each streamer
         for (const key in streamers) {
             const clips = await clipRepository.getEachPeriodClips(
@@ -54,8 +54,8 @@ export const getTwitchClipFunction = functions
 
         //post summary clips to firestore
         try {
-            // await clipDocRef({ clipId: "summary" }).update(summary.clipsMap);
-            await clipDocRef({ clipId: "summary" })
+            // await clipDocRef({ clipId: `summary` }).update(summary.clipsMap);
+            await clipDocRef({ clipId: `summary` })
                 .set(summary, { merge: true });
         } catch (error) {
             functions.logger.error(`summaryのclip情報の更新に失敗しました: ${error}`);

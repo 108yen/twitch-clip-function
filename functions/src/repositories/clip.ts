@@ -34,7 +34,7 @@ export class ClipRepository {
         );
         const result = new ClipDoc();
         result.clipsMap.set(
-            "all",
+            `all`,
             clips
         )
         return result;
@@ -81,15 +81,15 @@ export class ClipRepository {
         //if period is all
         if (days == -1) {
             config = {
-                url: 'https://api.twitch.tv/helix/clips',
-                method: 'GET',
+                url: `https://api.twitch.tv/helix/clips`,
+                method: `GET`,
                 headers: {
-                    'Authorization': 'Bearer ' + token.access_token,
-                    'Client-Id': client_id,
+                    Authorization: `Bearer ${token.access_token}`,
+                    [`Client-Id`]: client_id,
                 },
                 params: {
-                    'broadcaster_id': broadcaster_id,
-                    'first': this.CLIP_NUM,
+                    broadcaster_id: broadcaster_id,
+                    first: this.CLIP_NUM,
                 }
             }
             //else period
@@ -98,17 +98,17 @@ export class ClipRepository {
             const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //days ago
 
             config = {
-                url: 'https://api.twitch.tv/helix/clips',
-                method: 'GET',
+                url: `https://api.twitch.tv/helix/clips`,
+                method: `GET`,
                 headers: {
-                    'Authorization': 'Bearer ' + token.access_token,
-                    'Client-Id': client_id,
+                    Authorization: `Bearer ${token.access_token}`,
+                    [`Client-Id`]: client_id,
                 },
                 params: {
-                    'broadcaster_id': broadcaster_id,
-                    'first': this.CLIP_NUM,
-                    'started_at': daysAgo.toISOString(),
-                    'ended_at': now.toISOString(),
+                    broadcaster_id: broadcaster_id,
+                    first: this.CLIP_NUM,
+                    started_at: daysAgo.toISOString(),
+                    ended_at: now.toISOString(),
                 }
             }
         }
@@ -124,7 +124,7 @@ export class ClipRepository {
         client_id: string,
         token: Token,
     ): Promise<ClipDoc | undefined> {
-        let result = new ClipDoc();
+        const result = new ClipDoc();
 
         //if undefined
         if (!streamer.created_at) {
@@ -176,17 +176,17 @@ export class ClipRepository {
         const ended_at = new Date(year, 11, 31, 23, 59);
 
         const config: AxiosRequestConfig = {
-            url: 'https://api.twitch.tv/helix/clips',
-            method: 'GET',
+            url: `https://api.twitch.tv/helix/clips`,
+            method: `GET`,
             headers: {
-                'Authorization': 'Bearer ' + token.access_token,
-                'Client-Id': client_id,
+                Authorization: `Bearer ${token.access_token}`,
+                [`Client-Id`]: client_id,
             },
             params: {
-                'broadcaster_id': broadcaster_id,
-                'first': this.CLIP_NUM,
-                'started_at': started_at.toISOString(),
-                'ended_at': ended_at.toISOString(),
+                broadcaster_id: broadcaster_id,
+                first: this.CLIP_NUM,
+                started_at: started_at.toISOString(),
+                ended_at: ended_at.toISOString(),
             }
         }
         const res = await axios(config)

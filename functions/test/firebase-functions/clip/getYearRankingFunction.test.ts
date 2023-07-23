@@ -3,25 +3,25 @@ import { describe } from 'node:test'
 import { getYearRankingFunction } from '../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '../../../test/setUp';
-import * as functions from "firebase-functions";
+import * as functions from 'firebase-functions';
 import { StreamerRepository } from '../../../src/repositories/streamer';
 import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { ClipDoc } from '../../../src/models/clipDoc';
 import { ClipRepository } from '../../../src/repositories/clip';
 
-describe('getYearRankingFunctionのテスト', () => {
+describe(`getYearRankingFunctionのテスト`, () => {
     let wrappedGetYearRankingFunction: WrappedScheduledFunction;
     beforeAll(() => {
         wrappedGetYearRankingFunction = testEnv.wrap(getYearRankingFunction);
     })
 
-    test('更新', async () => {
+    test(`更新`, async () => {
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.fetchFirestoreStreamers();
         //準備 データを消す(個別はめんどくさいのでやらない)
         const initedClipDoc = new ClipDoc();
         try {
-            await clipDocRef({ clipId: "past_summary" })
+            await clipDocRef({ clipId: `past_summary` })
                 .set(initedClipDoc);
         } catch (error) {
             functions.logger.debug(`初期化エラー: ${error}`);
@@ -55,7 +55,7 @@ describe('getYearRankingFunctionのテスト', () => {
             }
         }
         //全体のランキング
-        const clipDoc = await clipRepository.fetchClip("past_summary");
+        const clipDoc = await clipRepository.fetchClip(`past_summary`);
         for (const [_, value] of clipDoc.clipsMap) {
             expect(value).toBeDefined();
             expect(value.length).toBeGreaterThan(0);

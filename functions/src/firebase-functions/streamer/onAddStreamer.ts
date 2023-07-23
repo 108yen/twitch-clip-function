@@ -9,14 +9,14 @@ import { ClipDoc } from "../../../src/models/clipDoc";
 
 //add new streamer
 export const onAddStreamer = functions
-    .region("asia-northeast1")
+    .region(`asia-northeast1`)
     .runWith({
         secrets: [
-            'TWITCH_CLIENT_ID',
-            'TWITCH_CLIENT_SECRET',
+            `TWITCH_CLIENT_ID`,
+            `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .firestore.document("/streamers/new")
+    .firestore.document(`/streamers/new`)
     .onUpdate(async (change) => {
         const streamerRepository = new StreamerRepository();
         //get change
@@ -25,17 +25,17 @@ export const onAddStreamer = functions
         if (fetchfromfirestore.logins.length != 0) {
             //check aleady exist
             const firestoreStreamers = await streamerRepository.fetchFirestoreStreamers();
-            let addLogins:Array<string> = [];
+            const addLogins: Array<string> = [];
             for (const key in fetchfromfirestore.logins) {
                 const login = fetchfromfirestore.logins[key];
                 if (!firestoreStreamers.find(e => e.login === login)) {
                     addLogins.push(login);
                 }
             }
-            if (addLogins.length==0) {
+            if (addLogins.length == 0) {
                 return;
             }
-            
+
             //get twitch api token
             const twitchToken = await getToken(
                 process.env.TWITCH_CLIENT_ID!,

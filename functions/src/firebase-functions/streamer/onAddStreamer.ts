@@ -5,7 +5,7 @@ import { StreamerRepository } from "../../repositories/streamer";
 import { newStreamerLoginsDocRef, streamersDocRef } from "../../firestore-refs/streamerRefs";
 import { newStreamerLoginsConverter } from "../../converters/newStreamerLoginsConverter";
 import { clipDocRef } from "../../firestore-refs/clipRefs";
-import { ClipDoc } from "../../../src/models/clipDoc";
+import { ClipDoc } from "../../models/clipDoc";
 
 //add new streamer
 export const onAddStreamer = functions

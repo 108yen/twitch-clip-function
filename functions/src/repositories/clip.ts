@@ -138,7 +138,7 @@ export class ClipRepository {
         const current_year = new Date().getFullYear();
         //if created current year
         if (start_year == current_year) {
-            functions.logger.error(`${streamer.display_name}: account created_at this year`);
+            functions.logger.info(`${streamer.display_name}: account created_at this year`);
             return undefined;
         }
         //get foreach year clip ranking
@@ -162,7 +162,7 @@ export class ClipRepository {
             return result;
         }
 
-        functions.logger.error(`${streamer.display_name}: has no past clips`);
+        functions.logger.info(`${streamer.display_name}: has no past clips`);
         return undefined;
     }
 

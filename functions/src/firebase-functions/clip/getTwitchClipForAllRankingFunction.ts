@@ -1,9 +1,9 @@
 import * as functions from "firebase-functions";
-import { clipDocRef } from "../../../src/firestore-refs/clipRefs";
-import { ClipDoc } from "../../../src/models/clipDoc";
-import { ClipRepository } from "../../../src/repositories/clip";
-import { StreamerRepository } from "../../../src/repositories/streamer";
-import { getToken } from "../../../src/repositories/token";
+import { clipDocRef } from "../../firestore-refs/clipRefs";
+import { ClipDoc } from "../../models/clipDoc";
+import { ClipRepository } from "../../repositories/clip";
+import { StreamerRepository } from "../../repositories/streamer";
+import { getToken } from "../../repositories/token";
 
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions

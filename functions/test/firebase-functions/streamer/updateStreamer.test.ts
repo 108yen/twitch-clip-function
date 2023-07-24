@@ -3,9 +3,9 @@ import { describe } from 'node:test'
 import { updateStreamer } from '../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '../../../test/setUp';
-import { StreamerRepository } from '../../../src/repositories/streamer';
-import { streamersDocRef } from '../../../src/firestore-refs/streamerRefs';
-import { Streamer } from '../../../src/models/streamer';
+import { StreamerRepository } from '../../repositories/streamer';
+import { streamersDocRef } from '../../firestore-refs/streamerRefs';
+import { Streamer } from '../../models/streamer';
 import * as functions from 'firebase-functions';
 
 describe(`updateStreamerのテスト`, () => {

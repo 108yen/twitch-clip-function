@@ -4,11 +4,11 @@ import { getTwitchClipFunction } from '../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '../../../test/setUp';
 import * as functions from 'firebase-functions';
-import { StreamerRepository } from '../../repositories/streamer';
-import { clipDocRef } from '../../firestore-refs/clipRefs';
-import { ClipDoc } from '../../models/clipDoc';
-import { Clip } from '../../models/clip';
-import { ClipRepository } from '../../repositories/clip';
+import { StreamerRepository } from '../../../src/repositories/streamer';
+import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
+import { ClipDoc } from '../../../src/models/clipDoc';
+import { Clip } from '../../../src/models/clip';
+import { ClipRepository } from '../../../src/repositories/clip';
 
 describe(`getTwitchClipFunctionのテスト`, () => {
     let wrappedGetTwitchClipFuntion: WrappedScheduledFunction;

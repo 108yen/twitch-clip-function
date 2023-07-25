@@ -30,9 +30,12 @@ export const onAddStreamer = functions
                 const login = fetchfromfirestore.logins[key];
                 if (!firestoreStreamers.find(e => e.login === login)) {
                     addLogins.push(login);
+                } else {
+                    functions.logger.info(`login: ${login} is aleady exist`);
                 }
             }
             if (addLogins.length == 0) {
+                functions.logger.info(`have no streamer to add`);
                 return;
             }
 
@@ -73,6 +76,8 @@ export const onAddStreamer = functions
             } catch (error) {
                 functions.logger.error(`streamers/new/loginsの削除に失敗しました: ${error}`);
             }
+
+            functions.logger.info(`add ${streamers.length} streamers`);
         }
 
     });

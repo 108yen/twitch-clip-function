@@ -53,6 +53,12 @@ export const updateStreamer = functions
             functions.logger.error(`streamerの更新に失敗しました: ${error}`);
         }
 
+        if (fetchStreamers.length == streamers.length) {
+            functions.logger.info(`update ${streamers.length} streamers info`);
+        } else {
+            const diff = fetchStreamers.filter(i => streamers.indexOf(i) == -1);
+            functions.logger.info(`difference (may be baned): ${diff.map(e => e.display_name)}`);
+        }
     });
 
 function sortByFollowerNum(streamers: Array<Streamer>) {

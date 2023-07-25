@@ -1,6 +1,6 @@
 
 import * as admin from 'firebase-admin'
-import * as functions from 'firebase-functions-test'
+import firebaseFunctinosTest from 'firebase-functions-test'
 import * as devServiceAccountKey from '../keys/dev_service_account_key.json'
 import * as devTwitchApiKey from '../keys/dev_twitch_api_key.json'
 
@@ -26,9 +26,9 @@ admin.initializeApp({
     databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`
 })
 
-export const testEnv = functions.default(
+export const testEnv = firebaseFunctinosTest(
     {
         databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`,
-        projectId: devServiceAccount.projectId
+        projectId: `${devServiceAccount.projectId}`
     }
 )

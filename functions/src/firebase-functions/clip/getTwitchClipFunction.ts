@@ -9,7 +9,7 @@ import { getToken } from "../../repositories/token";
 export const getTwitchClipFunction = functions
     .region(`asia-northeast1`)
     .runWith({
-        timeoutSeconds: 300,
+        timeoutSeconds: 540,
         secrets: [
             `TWITCH_CLIENT_ID`,
             `TWITCH_CLIENT_SECRET`,
@@ -35,7 +35,7 @@ export const getTwitchClipFunction = functions
         //loop each streamer
         for (const key in streamers) {
             const clips = await clipRepository.getEachPeriodClips(
-                streamers[key].id,
+                streamers[key],
                 process.env.TWITCH_CLIENT_ID!,
                 twitchToken,
             )
@@ -54,7 +54,6 @@ export const getTwitchClipFunction = functions
 
         //post summary clips to firestore
         try {
-            // await clipDocRef({ clipId: `summary` }).update(summary.clipsMap);
             await clipDocRef({ clipId: `summary` })
                 .set(summary, { merge: true });
         } catch (error) {

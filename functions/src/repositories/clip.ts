@@ -42,7 +42,7 @@ export class ClipRepository {
 
     //for each streamer, get day,week,month period clip
     async getEachPeriodClips(
-        id: string,
+        streamer: Streamer,
         client_id: string,
         token: Token,
     ): Promise<ClipDoc> {
@@ -57,7 +57,7 @@ export class ClipRepository {
         for (const key in dayList) {
             //get twitch clips from twitch api
             const clips: Array<Clip> = await this.getClips(
-                parseInt(id),
+                parseInt(streamer.id),
                 client_id,
                 token,
                 dayList[key],
@@ -66,6 +66,9 @@ export class ClipRepository {
                 key,
                 clips
             );
+            if (clips.length != this.CLIP_NUM) {
+                functions.logger.info(`${streamer.display_name} ${key} ${clips.length}`);
+            }
         }
         return result;
     }

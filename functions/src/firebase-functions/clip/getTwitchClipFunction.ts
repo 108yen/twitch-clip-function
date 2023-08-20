@@ -9,7 +9,7 @@ import { getToken } from "../../repositories/token";
 export const getTwitchClipFunction = functions
     .region(`asia-northeast1`)
     .runWith({
-        timeoutSeconds: 300,
+        timeoutSeconds: 540,
         secrets: [
             `TWITCH_CLIENT_ID`,
             `TWITCH_CLIENT_SECRET`,

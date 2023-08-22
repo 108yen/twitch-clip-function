@@ -34,8 +34,6 @@ describe(`updateStreamerのテスト`, () => {
         //実行
         await wrappedUpdateStreamer();
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(10);
         streamers = await streamerRepository.fetchFirestoreStreamers();
         //streamerが存在しているか
         expect(streamers.length).toBeGreaterThan(0);

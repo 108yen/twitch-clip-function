@@ -30,9 +30,6 @@ describe(`getYearRankingFunctionのテスト`, () => {
         //実行
         await wrappedGetYearRankingFunction();
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(5);
-
         //更新されているか
         const clipRepository = new ClipRepository();
         //各ストリーマーのクリップ

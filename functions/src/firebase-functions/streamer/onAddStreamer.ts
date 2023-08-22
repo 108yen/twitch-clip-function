@@ -51,6 +51,12 @@ export const onAddStreamer = functions
                 process.env.TWITCH_CLIENT_ID!,
                 twitchToken,
             );
+
+            //if streamers length 0
+            if (streamers.length == 0) {
+                functions.logger.info(`cant get streamer info. expect wrong login`);
+                return;
+            }
             //post streamers to firestore
             try {
                 await streamersDocRef.update({

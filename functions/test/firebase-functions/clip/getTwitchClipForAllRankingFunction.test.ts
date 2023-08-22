@@ -44,9 +44,6 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
         //実行
         await wrappedGetTwitchClipForAllRankingFunction();
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(10);
-
         //更新されているか
         const clipRepository = new ClipRepository();
         //各ストリーマーのクリップ

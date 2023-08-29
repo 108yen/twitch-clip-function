@@ -18,6 +18,15 @@ export class ClipRepository {
         return ds.data()!;
     }
 
+    async updateClip(clipId: string, clipDoc: ClipDoc) {
+        try {
+            await clipDocRef({ clipId: clipId })
+                .set(clipDoc, { merge: true });
+        } catch (error) {
+            functions.logger.error(`${clipId}のclip情報の更新に失敗しました: ${error}`);
+        }
+    }
+
     //all
     async getAllPeriodClips(
         id: string,
@@ -38,40 +47,6 @@ export class ClipRepository {
         )
         return result;
     }
-
-    //day,week,month
-    async getEachPeriodClips(
-        streamer: Streamer,
-        client_id: string,
-        token: Token,
-    ): Promise<ClipDoc> {
-        //loop each period
-        const dayList: { [key: string]: number } = {
-            day: 1,
-            week: 7,
-            month: 30,
-            year: 365,
-        };
-        const result = new ClipDoc();
-        for (const key in dayList) {
-            //get twitch clips from twitch api
-            const clips: Array<Clip> = await this.getClips(
-                parseInt(streamer.id),
-                client_id,
-                token,
-                dayList[key],
-            )
-            result.clipsMap.set(
-                key,
-                clips
-            );
-            if (clips.length != this.CLIP_NUM) {
-                functions.logger.info(`${streamer.display_name} ${key} ${clips.length}`);
-            }
-        }
-        return result;
-    }
-
 
     // past year
     async getYearRankingForEachStreamer(

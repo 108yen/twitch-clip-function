@@ -101,4 +101,7 @@ describe(`onAddStreamerのテスト`, () => {
         const clips = clipQst.docs.map(doc => doc.data());
         expect(clips).toEqual(preClips);
     })
+    test(`twitch apiの不具合`, async () => {
+        
+    })
 })

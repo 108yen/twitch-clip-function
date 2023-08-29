@@ -12,7 +12,6 @@ export class Streamer {
     created_at?: string;
     follower_num?: number;
 
-
     constructor(partial?: Partial<Streamer>) {
         Object.assign(this, partial)
     }

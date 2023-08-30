@@ -27,27 +27,6 @@ export class ClipRepository {
         }
     }
 
-    //all
-    async getAllPeriodClips(
-        id: string,
-        client_id: string,
-        token: Token,
-    ): Promise<ClipDoc> {
-        //get twitch clips from twitch api
-        const clips = await this.getClips(
-            parseInt(id),
-            client_id,
-            token,
-            -1, //if all period, this val is -1
-        );
-        const result = new ClipDoc();
-        result.clipsMap.set(
-            `all`,
-            clips
-        )
-        return result;
-    }
-
     // past year
     async getYearRankingForEachStreamer(
         streamer: Streamer,
@@ -124,55 +103,6 @@ export class ClipRepository {
                 functions.logger.error(`twitch apiからクリップの取得に失敗しました: ${error}`);
             });
 
-        return res?.data.data;
-    }
-
-
-    private async getClips(
-        broadcaster_id: number,
-        client_id: string,
-        token: Token,
-        days: number
-    ): Promise<Array<Clip>> {
-        let config: AxiosRequestConfig;
-        //if period is all
-        if (days == -1) {
-            config = {
-                url: `https://api.twitch.tv/helix/clips`,
-                method: `GET`,
-                headers: {
-                    Authorization: `Bearer ${token.access_token}`,
-                    [`Client-Id`]: client_id,
-                },
-                params: {
-                    broadcaster_id: broadcaster_id,
-                    first: this.CLIP_NUM,
-                }
-            }
-            //else period
-        } else {
-            const now = new Date(); // get present date
-            const daysAgo = new Date(now.getTime() - days * 24 * 60 * 60 * 1000); //days ago
-
-            config = {
-                url: `https://api.twitch.tv/helix/clips`,
-                method: `GET`,
-                headers: {
-                    Authorization: `Bearer ${token.access_token}`,
-                    [`Client-Id`]: client_id,
-                },
-                params: {
-                    broadcaster_id: broadcaster_id,
-                    first: this.CLIP_NUM,
-                    started_at: daysAgo.toISOString(),
-                    ended_at: now.toISOString(),
-                }
-            }
-        }
-        const res = await axios(config)
-            .catch((error) => {
-                functions.logger.error(`twitch apiからクリップの取得に失敗しました: ${error}`);
-            });
         return res?.data.data;
     }
 

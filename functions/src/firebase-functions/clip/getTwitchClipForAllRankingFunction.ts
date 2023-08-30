@@ -1,9 +1,9 @@
 import * as functions from "firebase-functions";
-import { clipDocRef } from "../../firestore-refs/clipRefs";
 import { ClipDoc } from "../../models/clipDoc";
 import { ClipRepository } from "../../repositories/clip";
 import { StreamerRepository } from "../../repositories/streamer";
-import { getToken } from "../../repositories/token";
+import { TwitchClipApi } from "~/src/apies/clip";
+import { Clip } from "~/src/models/clip";
 
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions
@@ -26,37 +26,33 @@ export const getTwitchClipForAllRankingFunction = functions
             .fetchFirestoreStreamers();
 
         //get twitch api token
-        const twitchToken = await getToken(
+        const twitchClipApi = new TwitchClipApi();
+        await twitchClipApi.getToken(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
+
         //for summary ranking
         const summary = new ClipDoc();
         //get for each streamer's clips
         for (const key in streamers) {
-            const clips = await clipRepository.getAllPeriodClips(
-                streamers[key].id,
+            const clips = await twitchClipApi.getClips(
+                parseInt(streamers[key].id),
                 process.env.TWITCH_CLIENT_ID!,
-                twitchToken,
             );
+            const clipDoc = new ClipDoc({
+                clipsMap: new Map<string, Array<Clip>>([
+                    [`all`, clips],
+                ])
+            });
             //post each streamer clips to firestore
-            try {
-                await clipDocRef({ clipId: streamers[key].id })
-                    .set(clips, { merge: true });
-            } catch (error) {
-                functions.logger.error(`${streamers[key].display_name}のクリップの更新に失敗しました: ${error}`);
-            }
+            await clipRepository.updateClip(streamers[key].id, clipDoc);
             //push to summary
-            summary.clipDocConcat(clips);
+            summary.clipDocConcat(clipDoc);
         }
 
         //make summary ranking
         summary.sort();
         //post summary clips to firestore
-        try {
-            await clipDocRef({ clipId: `summary` })
-                .set(summary, { merge: true });
-        } catch (error) {
-            functions.logger.error(`summaryクリップの更新に失敗しました: ${error}`);
-        }
+        await clipRepository.updateClip(`summary`, summary);
     });

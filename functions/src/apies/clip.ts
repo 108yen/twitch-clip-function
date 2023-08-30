@@ -12,36 +12,22 @@ export class TwitchClipApi extends TwitchApi {
         started_at?: Date,
         ended_at?: Date,
     ): Promise<Array<Clip>> {
-        let config: AxiosRequestConfig;
+        let config: AxiosRequestConfig = {
+            url: `https://api.twitch.tv/helix/clips`,
+            method: `GET`,
+            headers: {
+                Authorization: `Bearer ${this.token.access_token}`,
+                [`Client-Id`]: client_id,
+            },
+            params: {
+                broadcaster_id: broadcaster_id,
+                first: this.CLIP_NUM,
+            }
+        };
 
         if (started_at && ended_at) {
-            config = {
-                url: `https://api.twitch.tv/helix/clips`,
-                method: `GET`,
-                headers: {
-                    Authorization: `Bearer ${this.token.access_token}`,
-                    [`Client-Id`]: client_id,
-                },
-                params: {
-                    broadcaster_id: broadcaster_id,
-                    first: this.CLIP_NUM,
-                    started_at: started_at.toISOString(),
-                    ended_at: ended_at.toISOString(),
-                }
-            }
-        } else {
-            config = {
-                url: `https://api.twitch.tv/helix/clips`,
-                method: `GET`,
-                headers: {
-                    Authorization: `Bearer ${this.token.access_token}`,
-                    [`Client-Id`]: client_id,
-                },
-                params: {
-                    broadcaster_id: broadcaster_id,
-                    first: this.CLIP_NUM,
-                }
-            }
+            config.params.started_at = started_at.toISOString();
+            config.params.ended_at = ended_at.toISOString();
         }
         const res = await axios(config)
             .catch((error) => {

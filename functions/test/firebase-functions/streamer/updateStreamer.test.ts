@@ -23,11 +23,8 @@ describe(`updateStreamerのテスト`, () => {
             id: e.id
         }));
         try {
-            await streamersDocRef.set({
-                streamers: beforeStreamers
-            }, {
-                merge: true
-            });
+            await streamersDocRef
+                .update({ streamers: beforeStreamers });
         } catch (error) {
             functions.logger.debug(`初期化エラー: ${error}`);
         }

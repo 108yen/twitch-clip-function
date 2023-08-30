@@ -3,9 +3,13 @@ import * as functions from "firebase-functions";
 import { Token } from "../models/token";
 
 export class TwitchApi {
-    protected token!: Token;
+    protected token: Token;
+    
+    constructor(token: Token) {
+        this.token = token;
+    }
 
-    async getToken(client_id: string, client_secret: string) {
+    protected static async getToken(client_id: string, client_secret: string) {
         const config: AxiosRequestConfig = {
             url: `https://id.twitch.tv/oauth2/token`,
             method: `POST`,
@@ -28,6 +32,7 @@ export class TwitchApi {
         if (!(res?.data)) {
             functions.logger.error(`twitch tokenの取得に失敗しました`);
         }
-        this.token = res!.data!;
+        return res!.data!;
+        // this.token = res!.data!;
     }
 }

@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import { ClipDoc } from "../../models/clipDoc";
 import { ClipRepository } from "../../repositories/clip";
 import { StreamerRepository } from "../../repositories/streamer";
-import { TwitchClipApi } from "~/src/apies/clip";
+import { TwitchClipApi } from "~/src/apis/clip";
 
 //get twitch clip every day
 export const getTwitchClipFunction = functions
@@ -24,8 +24,7 @@ export const getTwitchClipFunction = functions
         const streamers = await streamerRepository
             .fetchFirestoreStreamers();
         //get twitch api token
-        const twitchClipApi = new TwitchClipApi();
-        await twitchClipApi.getToken(
+        const twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
@@ -50,7 +49,7 @@ export const getTwitchClipFunction = functions
                     process.env.TWITCH_CLIENT_ID!,
                     daysAgo,
                     now,
-                )              
+                )
                 clipDoc.clipsMap.set(
                     periodKey,
                     clips,

@@ -2,9 +2,18 @@ import axios, { AxiosRequestConfig } from "axios";
 import * as functions from "firebase-functions";
 import { Clip } from "../models/clip";
 import { TwitchApi } from "./twitchApi";
+import { Token } from "../models/token";
 
 export class TwitchClipApi extends TwitchApi {
     private CLIP_NUM = 100;
+
+    constructor(token: Token) {
+        super(token);
+    }
+
+    public static async init(client_id: string, client_secret: string){
+        return new TwitchClipApi(await this.getToken(client_id, client_secret));
+    }
 
     async getClips(
         broadcaster_id: number,

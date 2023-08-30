@@ -8,6 +8,7 @@ import { StreamerRepository } from '../../../src/repositories/streamer';
 import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { ClipDoc } from '../../../src/models/clipDoc';
 import { ClipRepository } from '../../../src/repositories/clip';
+import { Clip } from '../../../src/models/clip';
 
 describe(`getYearRankingFunctionのテスト`, () => {
     let wrappedGetYearRankingFunction: WrappedScheduledFunction;
@@ -18,8 +19,27 @@ describe(`getYearRankingFunctionのテスト`, () => {
     test(`更新`, async () => {
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.fetchFirestoreStreamers();
-        //準備 データを消す(個別はめんどくさいのでやらない)
-        const initedClipDoc = new ClipDoc();
+        //準備 データを消す
+        const initedClipDoc = new ClipDoc({
+            clipsMap: new Map<string, Array<Clip>>([
+                [`2016`, []],
+                [`2017`, []],
+                [`2018`, []],
+                [`2019`, []],
+                [`2020`, []],
+                [`2021`, []],
+                [`2022`, []],
+            ])
+        });
+        for (const key in streamers) {
+            const element = streamers[key];
+            try {
+                await clipDocRef({ clipId: element.id })
+                    .set(initedClipDoc, { merge: true });
+            } catch (error) {
+                functions.logger.debug(`初期化エラー: ${error}`);
+            }
+        }
         try {
             await clipDocRef({ clipId: `past_summary` })
                 .set(initedClipDoc);
@@ -82,5 +102,5 @@ describe(`getYearRankingFunctionのテスト`, () => {
                 }
             }
         }
-    })
+    }, 20000)
 })

@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import { ClipDoc } from "../../models/clipDoc";
 import { ClipRepository } from "../../repositories/clip";
 import { StreamerRepository } from "../../repositories/streamer";
-import { TwitchClipApi } from "~/src/apies/clip";
+import { TwitchClipApi } from "~/src/apis/clip";
 
 //get twitch clip ranking for each year
 export const getYearRankingFunction = functions
@@ -25,11 +25,11 @@ export const getYearRankingFunction = functions
             const streamers = await streamerRepository
                 .fetchFirestoreStreamers();
             //get twitch api token
-            const twitchClipApi = new TwitchClipApi();
-            await twitchClipApi.getToken(
+            const twitchClipApi = await TwitchClipApi.init(
                 process.env.TWITCH_CLIENT_ID!,
                 process.env.TWITCH_CLIENT_SECRET!
             );
+
             //for summary ranking
             const summary = new ClipDoc();
             //get for each streamer's clips
@@ -79,6 +79,6 @@ export const getYearRankingFunction = functions
                 }
             }
             //post summary clips to firestore
-            await clipRepository.updateClip(`summary`, summary);
+            await clipRepository.updateClip(`past_summary`, summary);
         }
     );

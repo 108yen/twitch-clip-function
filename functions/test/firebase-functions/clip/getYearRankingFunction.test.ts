@@ -38,8 +38,10 @@ describe(`getYearRankingFunctionのテスト`, () => {
             const clipDoc = await clipRepository.fetchClip(element.id);
 
             //各期間のクリップがあるか
-            expect(clipDoc.clipsMap.size).toBeGreaterThanOrEqual(4)
-            for (const [_, value] of clipDoc.clipsMap) {
+            expect(clipDoc.clipsMap.size).toBeGreaterThanOrEqual(5)
+            for (const [period, value] of clipDoc.clipsMap) {
+                expect(value).toBeDefined();
+                expect(value.length).toBeGreaterThan(0);
                 //  中身の要素確認
                 for (const key_j in value) {
                     const element = value[key_j];
@@ -48,12 +50,19 @@ describe(`getYearRankingFunctionのテスト`, () => {
                     expect(element.created_at).toBeDefined();
                     expect(element.broadcaster_name).toBeDefined();
                     expect(element.embed_url).toBeDefined();
+                    if (!isNaN(Number(period))) {
+                        const year = parseInt(period);
+                        const started_at = new Date(year, 0, 1, 0, 0, 0);
+                        const ended_at = new Date(year, 11, 31, 23, 59, 59);
+                        expect(new Date(element.created_at!).getTime()).toBeGreaterThanOrEqual(started_at.getTime());
+                        expect(new Date(element.created_at!).getTime()).toBeLessThanOrEqual(ended_at.getTime());
+                    }
                 }
             }
         }
         //全体のランキング
         const clipDoc = await clipRepository.fetchClip(`past_summary`);
-        for (const [_, value] of clipDoc.clipsMap) {
+        for (const [period, value] of clipDoc.clipsMap) {
             expect(value).toBeDefined();
             expect(value.length).toBeGreaterThan(0);
             //  中身の要素確認
@@ -64,7 +73,14 @@ describe(`getYearRankingFunctionのテスト`, () => {
                 expect(element.created_at).toBeDefined();
                 expect(element.broadcaster_name).toBeDefined();
                 expect(element.embed_url).toBeDefined();
+                if (!isNaN(Number(period))) {
+                    const year = parseInt(period);
+                    const started_at = new Date(year, 0, 1, 0, 0, 0);
+                    const ended_at = new Date(year, 11, 31, 23, 59, 59);
+                    expect(new Date(element.created_at!).getTime()).toBeGreaterThanOrEqual(started_at.getTime());
+                    expect(new Date(element.created_at!).getTime()).toBeLessThanOrEqual(ended_at.getTime());
+                }
             }
         }
-    }, 20000)
+    })
 })

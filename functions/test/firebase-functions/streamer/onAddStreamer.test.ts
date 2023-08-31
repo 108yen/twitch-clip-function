@@ -30,9 +30,6 @@ describe(`onAddStreamerのテスト`, () => {
 
         await wrappedOnAddStreamer(change);
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(1);
-
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
         const streamers = await streamerRepository.getStreamers();

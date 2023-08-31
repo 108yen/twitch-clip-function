@@ -52,14 +52,14 @@ export const onAddStreamer = functions
                 return;
             }
             //post streamers to firestore
-            streamerRepository.addStreamers(streamers);
+            await streamerRepository.addStreamers(streamers);
             //create clip docs
             for (const key in streamers) {
-                clipRepository.createClipDoc(streamers[key].id);
+                await clipRepository.createClipDoc(streamers[key].id);
             }
 
             //delete login from new doc;
-            streamerRepository.deleteLogins(fetchfromfirestore.logins);
+            await streamerRepository.deleteLogins(fetchfromfirestore.logins);
 
             functions.logger.info(`add ${streamers.length} streamers`);
         }

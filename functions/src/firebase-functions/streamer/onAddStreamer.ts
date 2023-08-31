@@ -1,8 +1,8 @@
 import * as functions from "firebase-functions";
 import { StreamerRepository } from "../../repositories/streamer";
 import { newStreamerLoginsConverter } from "../../converters/newStreamerLoginsConverter";
-import { TwitchStreamerApi } from "~/src/apis/streamer";
-import { ClipRepository } from "~/src/repositories/clip";
+import { TwitchStreamerApi } from "../../apis/streamer";
+import { ClipRepository } from "../../repositories/clip";
 
 //add new streamer
 export const onAddStreamer = functions

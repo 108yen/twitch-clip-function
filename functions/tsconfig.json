@@ -12,11 +12,6 @@
     "baseUrl": "./",
     "traceResolution": true,
     "resolveJsonModule": true,
-    "paths": {
-      "~/*": [
-        "./*"
-      ]
-    },
     "types": [
       "@types/node",
       "jest"

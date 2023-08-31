@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 import { StreamerRepository } from "../../repositories/streamer";
 import { Streamer } from "../../models/streamer";
-import { TwitchStreamerApi } from "~/src/apis/streamer";
+import { TwitchStreamerApi } from "../../apis/streamer";
 
 
 //update streamer info every wed

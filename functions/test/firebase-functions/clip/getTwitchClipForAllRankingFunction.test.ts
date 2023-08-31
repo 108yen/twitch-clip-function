@@ -18,7 +18,7 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
 
     test(`更新`, async () => {
         const streamerRepository = new StreamerRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         //準備 データを消す
         const initedClipDoc = new ClipDoc({
             clipsMap: new Map<string, Array<Clip>>([
@@ -46,15 +46,21 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
 
         //更新されているか
         const clipRepository = new ClipRepository();
+        const now = new Date(); // get present date
+        const oneYearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); //days ago
+
         //各ストリーマーのクリップ
         for (const key in streamers) {
             const element = streamers[key];
-            const clipDoc = await clipRepository.fetchClip(element.id);
+            const clipDoc = await clipRepository.getClip(element.id);
 
             //各期間のクリップがあるか
             const allPeriodClips = clipDoc.clipsMap.get(`all`);
             expect(allPeriodClips).toBeDefined();
-            expect(allPeriodClips!.length).toBeGreaterThan(90);
+            //!なぜかモンキーのクリップが96
+            expect(allPeriodClips!.length).toBeGreaterThanOrEqual(96);
+            //期間確認用フラグ
+            let GreaterThanOneYearAgo = false;
             //  中身の要素確認
             for (const key_j in allPeriodClips!) {
                 const element = allPeriodClips[key_j];
@@ -63,10 +69,15 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
                 expect(element.created_at).toBeDefined();
                 expect(element.broadcaster_name).toBeDefined();
                 expect(element.embed_url).toBeDefined();
+
+                if (oneYearAgo.getTime()>(new Date(element.created_at!)).getTime()) {
+                    GreaterThanOneYearAgo = true;
+                }
             }
+            expect(GreaterThanOneYearAgo).toEqual(true);
         }
         //全体のランキング
-        const clipDoc = await clipRepository.fetchClip(`summary`);
+        const clipDoc = await clipRepository.getClip(`summary`);
         const allPeriodClips = clipDoc.clipsMap.get(`all`);
         expect(allPeriodClips).toBeDefined();
         expect(allPeriodClips!.length).toEqual(100);
@@ -81,5 +92,5 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
             expect(element.embed_url).toBeDefined();
         }
 
-    }, 20000)
+    })
 })

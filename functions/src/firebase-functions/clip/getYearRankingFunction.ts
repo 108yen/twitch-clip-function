@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import { ClipDoc } from "../../models/clipDoc";
 import { ClipRepository } from "../../repositories/clip";
 import { StreamerRepository } from "../../repositories/streamer";
-import { TwitchClipApi } from "~/src/apis/clip";
+import { TwitchClipApi } from "../../apis/clip";
 
 //get twitch clip ranking for each year
 export const getYearRankingFunction = functions

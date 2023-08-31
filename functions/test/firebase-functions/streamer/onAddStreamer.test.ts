@@ -7,7 +7,7 @@ import { Change } from 'firebase-functions/v2/firestore';
 import { testEnv } from '../../../test/setUp';
 import { StreamerRepository } from '../../../src/repositories/streamer';
 import { ClipRepository } from '../../../src/repositories/clip';
-import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
+import { clipColRef, clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { streamersDocRef } from '../../../src/firestore-refs/streamerRefs';
 import { FieldValue } from 'firebase-admin/firestore';
 
@@ -28,13 +28,11 @@ describe(`onAddStreamerのテスト`, () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(5);
-
         await wrappedOnAddStreamer(change);
+
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         for (const key in testLogins) {
             const element = testLogins[key];
             const newStreamer = streamers?.find(e => e.login == element);
@@ -42,7 +40,7 @@ describe(`onAddStreamerのテスト`, () => {
             expect(newStreamer).toBeDefined();
             expect(newStreamer?.id).toBeDefined();
             //clipのドキュメントが作成出来ているか
-            expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
+            expect(await clipRepository.getClip(newStreamer!.id)).not.toThrowError;
 
             //後処理
             await clipDocRef({ clipId: newStreamer!.id }).delete();
@@ -51,10 +49,11 @@ describe(`onAddStreamerのテスト`, () => {
             });
         }
 
-    }, 10000)
-    test(`追加済み`, async () => {
+    })
+    test(`追加済みのチャンネルの追加`, async () => {
         const path = `streamers/new`;
         const testLogin = `surugamonkey0113`;
+        const streamerRepository = new StreamerRepository();
         const beforeSnap = testEnv.firestore.makeDocumentSnapshot({
             logins: []
         }, path);
@@ -63,19 +62,47 @@ describe(`onAddStreamerのテスト`, () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
-        await sleep(5);
+        const preStreamers = await streamerRepository.getStreamers();
+        const preClipQst = await clipColRef.get();
+        const preClips = preClipQst.docs.map(doc => doc.data());
 
         await wrappedOnAddStreamer(change);
+        //streamerリストに変更がないか
+        const streamers = await streamerRepository.getStreamers();
+        expect(streamers).toEqual(preStreamers);
+
+        //clipのdocument listが変更されていないか
+        const clipQst = await clipColRef.get();
+        const clips = clipQst.docs.map(doc => doc.data());
+        expect(clips).toEqual(preClips);
+    })
+    test(`存在しないチャンネルの追加`, async () => {
+        const path = `streamers/new`;
+        const testLogin = `surugamonkey`;
         const streamerRepository = new StreamerRepository();
-        const clipRepository = new ClipRepository();
-        //streamerリストに追加できているか
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
-        const newStreamer = streamers?.find(e => e.login == testLogin);
-        expect(streamers?.filter(e => e.login == testLogin).length).toEqual(1);
-        expect(newStreamer).toBeDefined();
-        expect(newStreamer?.id).toBeDefined();
-        //clipのドキュメントが作成出来ているか
-        expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
-    }, 10000)
+        const beforeSnap = testEnv.firestore.makeDocumentSnapshot({
+            logins: []
+        }, path);
+        const afterSnap = testEnv.firestore.makeDocumentSnapshot({
+            logins: [testLogin]
+        }, path);
+        const change = testEnv.makeChange(beforeSnap, afterSnap);
+
+        const preStreamers = await streamerRepository.getStreamers();
+        const preClipQst = await clipColRef.get();
+        const preClips = preClipQst.docs.map(doc => doc.data());
+
+        await wrappedOnAddStreamer(change);
+        //streamerリストに変更がないか
+        const streamers = await streamerRepository.getStreamers();
+        expect(streamers).toEqual(preStreamers);
+
+        //clipのdocument listが変更されていないか
+        const clipQst = await clipColRef.get();
+        const clips = clipQst.docs.map(doc => doc.data());
+        expect(clips).toEqual(preClips);
+    })
+    test(`twitch apiの不具合`, async () => {
+        
+    })
 })

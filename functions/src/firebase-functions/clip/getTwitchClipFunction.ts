@@ -1,9 +1,8 @@
 import * as functions from "firebase-functions";
-import { clipDocRef } from "../../firestore-refs/clipRefs";
 import { ClipDoc } from "../../models/clipDoc";
 import { ClipRepository } from "../../repositories/clip";
 import { StreamerRepository } from "../../repositories/streamer";
-import { getToken } from "../../repositories/token";
+import { TwitchClipApi } from "~/src/apis/clip";
 
 //get twitch clip every day
 export const getTwitchClipFunction = functions
@@ -23,9 +22,9 @@ export const getTwitchClipFunction = functions
         const clipRepository = new ClipRepository();
         //get streamers info from firestore
         const streamers = await streamerRepository
-            .fetchFirestoreStreamers();
+            .getStreamers();
         //get twitch api token
-        const twitchToken = await getToken(
+        const twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
@@ -34,29 +33,35 @@ export const getTwitchClipFunction = functions
         const summary = new ClipDoc();
         //loop each streamer
         for (const key in streamers) {
-            const clips = await clipRepository.getEachPeriodClips(
-                streamers[key],
-                process.env.TWITCH_CLIENT_ID!,
-                twitchToken,
-            )
-            //post each streamer clips to firestore
-            try {
-                await clipDocRef({ clipId: streamers[key].id })
-                    .set(clips, { merge: true });
-            } catch (error) {
-                functions.logger.error(`${streamers[key].display_name}のclip情報の更新に失敗しました: ${error}`);
+            const periods: { [key: string]: number } = {
+                day: 1,
+                week: 7,
+                month: 30,
+                year: 365,
+            };
+            const clipDoc = new ClipDoc();
+            for (const periodKey in periods) {
+                const period = periods[periodKey];
+                const now = new Date(); // get present date
+                const daysAgo = new Date(now.getTime() - period * 24 * 60 * 60 * 1000); //days ago
+                const clips = await twitchClipApi.getClips(
+                    parseInt(streamers[key].id),
+                    daysAgo,
+                    now,
+                )
+                clipDoc.clipsMap.set(
+                    periodKey,
+                    clips,
+                );
             }
+            //post each streamer clips to firestore
+            await clipRepository.updateClip(streamers[key].id, clipDoc);
             //push to summary list
-            summary.clipDocConcat(clips);
+            summary.clipDocConcat(clipDoc);
         }
         //make summary ranking
         summary.sort();
 
         //post summary clips to firestore
-        try {
-            await clipDocRef({ clipId: `summary` })
-                .set(summary, { merge: true });
-        } catch (error) {
-            functions.logger.error(`summaryのclip情報の更新に失敗しました: ${error}`);
-        }
+        await clipRepository.updateClip(`summary`, summary);
     });

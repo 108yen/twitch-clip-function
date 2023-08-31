@@ -1,8 +1,7 @@
 import * as functions from "firebase-functions";
 import { StreamerRepository } from "../../repositories/streamer";
-import { streamersDocRef } from "../../firestore-refs/streamerRefs";
 import { Streamer } from "../../models/streamer";
-import { getToken } from "../../repositories/token";
+import { TwitchStreamerApi } from "~/src/apis/streamer";
 
 
 //update streamer info every wed
@@ -18,40 +17,28 @@ export const updateStreamer = functions
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const streamerRepository = new StreamerRepository();
-        const fetchStreamers = await streamerRepository
-            .fetchFirestoreStreamers();
+        const fetchStreamers = await streamerRepository.getStreamers();
         const streamerIds = fetchStreamers.map(streamer => streamer.id);
         //get twitch api token
-        const twitchToken = await getToken(
+        const twitchStreamerApi = await TwitchStreamerApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
+
         //get streamers info from twitch api
-        let streamers = await streamerRepository.fetchTwitchStreamers(
+        const streamers = await twitchStreamerApi.getStreamers(
             streamerIds,
             true,
-            process.env.TWITCH_CLIENT_ID!,
-            twitchToken,
-        );
+        )
         //for each streamers
         for (const key in streamers) {
             //get follower num from twitch api
-            const followerNum = await streamerRepository.fetchFollowerNum(
-                streamers[key].id,
-                process.env.TWITCH_CLIENT_ID!,
-                twitchToken,
-            );
+            const followerNum = await twitchStreamerApi
+                .getFollowerNum(streamers[key].id);
             streamers[key].follower_num = followerNum;
         }
         //sort by follower num
-        streamers = sortByFollowerNum(streamers);
-        try {
-            await streamersDocRef.update({
-                streamers: streamers
-            });
-        } catch (error) {
-            functions.logger.error(`streamerの更新に失敗しました: ${error}`);
-        }
+        await streamerRepository.updateStreamers(sortByFollowerNum(streamers));
 
         if (fetchStreamers.length == streamers.length) {
             functions.logger.info(`update ${streamers.length} streamers info`);

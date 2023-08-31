@@ -20,7 +20,6 @@ describe(`updateStreamerのテスト`, () => {
         const beforeStreamers = streamers.map(e => new Streamer({
             id: e.id
         }));
-        console.log(JSON.stringify(beforeStreamers));
         await streamerRepository.updateStreamers(beforeStreamers);
         
         //実行

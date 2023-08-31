@@ -19,7 +19,7 @@ describe(`getTwitchClipFunctionのテスト`, () => {
     test(`更新`, async () => {
 
         const streamerRepository = new StreamerRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         //準備 データを消す
         const initedClipDoc = new ClipDoc({
             clipsMap: new Map<string, Array<Clip>>([
@@ -53,7 +53,7 @@ describe(`getTwitchClipFunctionのテスト`, () => {
         //各ストリーマーのクリップ
         for (const key in streamers) {
             const element = streamers[key];
-            const clipDoc = await clipRepository.fetchClip(element.id);
+            const clipDoc = await clipRepository.getClip(element.id);
 
             //各期間のクリップがあるか
             expect(clipDoc.clipsMap.size).toBeGreaterThanOrEqual(4)
@@ -74,7 +74,7 @@ describe(`getTwitchClipFunctionのテスト`, () => {
             }
         }
         //全体のランキング
-        const clipDoc = await clipRepository.fetchClip(`summary`);
+        const clipDoc = await clipRepository.getClip(`summary`);
         const periods = [`day`, `week`, `month`, `year`];
         for (const key in periods) {
             const period = periods[key];

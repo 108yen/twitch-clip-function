@@ -22,7 +22,7 @@ export const getTwitchClipFunction = functions
         const clipRepository = new ClipRepository();
         //get streamers info from firestore
         const streamers = await streamerRepository
-            .fetchFirestoreStreamers();
+            .getStreamers();
         //get twitch api token
         const twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
@@ -46,7 +46,6 @@ export const getTwitchClipFunction = functions
                 const daysAgo = new Date(now.getTime() - period * 24 * 60 * 60 * 1000); //days ago
                 const clips = await twitchClipApi.getClips(
                     parseInt(streamers[key].id),
-                    process.env.TWITCH_CLIENT_ID!,
                     daysAgo,
                     now,
                 )

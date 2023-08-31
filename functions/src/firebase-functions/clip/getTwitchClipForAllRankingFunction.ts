@@ -23,7 +23,7 @@ export const getTwitchClipForAllRankingFunction = functions
         const clipRepository = new ClipRepository();
         //get streamers info from firestore
         const streamers = await streamerRepository
-            .fetchFirestoreStreamers();
+            .getStreamers();
 
         //get twitch api token
         const twitchClipApi = await TwitchClipApi.init(
@@ -37,7 +37,6 @@ export const getTwitchClipForAllRankingFunction = functions
         for (const key in streamers) {
             const clips = await twitchClipApi.getClips(
                 parseInt(streamers[key].id),
-                process.env.TWITCH_CLIENT_ID!,
             );
             const clipDoc = new ClipDoc({
                 clipsMap: new Map<string, Array<Clip>>([

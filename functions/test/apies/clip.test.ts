@@ -15,7 +15,6 @@ describe(`TwitchClipApiのテスト`, () => {
         const daysAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); //days ago
         const result: Array<Clip> = await twitchClipApi.getClips(
             203654142,
-            process.env.TWITCH_CLIENT_ID!,
             daysAgo,
             now,
         )
@@ -42,7 +41,6 @@ describe(`TwitchClipApiのテスト`, () => {
         
         const result: Array<Clip> = await twitchClipApi.getClips(
             203654142,
-            process.env.TWITCH_CLIENT_ID!,
         )
         expect(result.length).toEqual(100);
         for (const key in result) {

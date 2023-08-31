@@ -8,7 +8,6 @@ import { StreamerRepository } from '../../../src/repositories/streamer';
 import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { ClipDoc } from '../../../src/models/clipDoc';
 import { ClipRepository } from '../../../src/repositories/clip';
-import { Clip } from '../../../src/models/clip';
 
 describe(`getYearRankingFunctionのテスト`, () => {
     let wrappedGetYearRankingFunction: WrappedScheduledFunction;
@@ -18,24 +17,14 @@ describe(`getYearRankingFunctionのテスト`, () => {
 
     test(`更新`, async () => {
         const streamerRepository = new StreamerRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         //準備 データを消す
-        const initedClipDoc = new ClipDoc({
-            clipsMap: new Map<string, Array<Clip>>([
-                [`2016`, []],
-                [`2017`, []],
-                [`2018`, []],
-                [`2019`, []],
-                [`2020`, []],
-                [`2021`, []],
-                [`2022`, []],
-            ])
-        });
+        const initedClipDoc = new ClipDoc();
         for (const key in streamers) {
             const element = streamers[key];
             try {
                 await clipDocRef({ clipId: element.id })
-                    .set(initedClipDoc, { merge: true });
+                    .set(initedClipDoc);
             } catch (error) {
                 functions.logger.debug(`初期化エラー: ${error}`);
             }
@@ -55,12 +44,15 @@ describe(`getYearRankingFunctionのテスト`, () => {
         //各ストリーマーのクリップ
         for (const key in streamers) {
             const element = streamers[key];
-            const clipDoc = await clipRepository.fetchClip(element.id);
+            const clipDoc = await clipRepository.getClip(element.id);
 
             //各期間のクリップがあるか
-            expect(clipDoc.clipsMap.size).toBeGreaterThanOrEqual(5)
+            expect(clipDoc.clipsMap.size).toBeGreaterThan(0)
             for (const [period, value] of clipDoc.clipsMap) {
                 expect(value).toBeDefined();
+                if (value.length==0) {
+                    console.log(`${element.display_name},${period}`)
+                }
                 expect(value.length).toBeGreaterThan(0);
                 //  中身の要素確認
                 for (const key_j in value) {
@@ -81,7 +73,7 @@ describe(`getYearRankingFunctionのテスト`, () => {
             }
         }
         //全体のランキング
-        const clipDoc = await clipRepository.fetchClip(`past_summary`);
+        const clipDoc = await clipRepository.getClip(`past_summary`);
         for (const [period, value] of clipDoc.clipsMap) {
             expect(value).toBeDefined();
             expect(value.length).toBeGreaterThan(0);

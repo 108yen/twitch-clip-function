@@ -29,9 +29,13 @@ describe(`onAddStreamerのテスト`, () => {
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
         await wrappedOnAddStreamer(change);
+
+        const sleep = (second: number) => new Promise(resolve => setTimeout(resolve, second * 1000))
+        await sleep(1);
+
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         for (const key in testLogins) {
             const element = testLogins[key];
             const newStreamer = streamers?.find(e => e.login == element);
@@ -39,7 +43,7 @@ describe(`onAddStreamerのテスト`, () => {
             expect(newStreamer).toBeDefined();
             expect(newStreamer?.id).toBeDefined();
             //clipのドキュメントが作成出来ているか
-            expect(await clipRepository.fetchClip(newStreamer!.id)).not.toThrowError;
+            expect(await clipRepository.getClip(newStreamer!.id)).not.toThrowError;
 
             //後処理
             await clipDocRef({ clipId: newStreamer!.id }).delete();
@@ -61,13 +65,13 @@ describe(`onAddStreamerのテスト`, () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        const preStreamers = await streamerRepository.fetchFirestoreStreamers();
+        const preStreamers = await streamerRepository.getStreamers();
         const preClipQst = await clipColRef.get();
         const preClips = preClipQst.docs.map(doc => doc.data());
 
         await wrappedOnAddStreamer(change);
         //streamerリストに変更がないか
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         expect(streamers).toEqual(preStreamers);
 
         //clipのdocument listが変更されていないか
@@ -87,13 +91,13 @@ describe(`onAddStreamerのテスト`, () => {
         }, path);
         const change = testEnv.makeChange(beforeSnap, afterSnap);
 
-        const preStreamers = await streamerRepository.fetchFirestoreStreamers();
+        const preStreamers = await streamerRepository.getStreamers();
         const preClipQst = await clipColRef.get();
         const preClips = preClipQst.docs.map(doc => doc.data());
 
         await wrappedOnAddStreamer(change);
         //streamerリストに変更がないか
-        const streamers = await streamerRepository.fetchFirestoreStreamers();
+        const streamers = await streamerRepository.getStreamers();
         expect(streamers).toEqual(preStreamers);
 
         //clipのdocument listが変更されていないか

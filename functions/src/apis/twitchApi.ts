@@ -3,10 +3,11 @@ import * as functions from "firebase-functions";
 import { Token } from "../models/token";
 
 export class TwitchApi {
-    protected token: Token;
-    
-    constructor(token: Token) {
-        this.token = token;
+    protected token!: Token;
+    protected client_id!: string;
+
+    constructor(props: { token: Token, client_id: string }) {
+        Object.assign(this, props);
     }
 
     protected static async getToken(client_id: string, client_secret: string) {
@@ -33,6 +34,5 @@ export class TwitchApi {
             functions.logger.error(`twitch tokenの取得に失敗しました`);
         }
         return res!.data!;
-        // this.token = res!.data!;
     }
 }

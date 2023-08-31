@@ -4,7 +4,7 @@ import { clipDocRef } from "../firestore-refs/clipRefs";
 
 export class ClipRepository {
 
-    async fetchClip(clipId: string): Promise<ClipDoc> {
+    async getClip(clipId: string): Promise<ClipDoc> {
         const ds = await clipDocRef({ clipId: clipId }).get();
         if (!ds.data()) {
             throw new Error(`documentId: ${clipId}のclipの取得に失敗しました。`);
@@ -19,6 +19,14 @@ export class ClipRepository {
                 .set(clipDoc, { merge: true });
         } catch (error) {
             functions.logger.error(`${clipId}のclip情報の更新に失敗しました: ${error}`);
+        }
+    }
+
+    async createClipDoc(clipId: string) {
+        try {
+            await clipDocRef({ clipId: clipId }).set(new ClipDoc);
+        } catch (error) {
+            functions.logger.error(`docId:${clipId}の作成に失敗しました: ${error}`);
         }
     }
 }

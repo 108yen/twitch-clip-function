@@ -23,7 +23,7 @@ export const getYearRankingFunction = functions
             const clipRepository = new ClipRepository();
             //get streamers info from firestore
             const streamers = await streamerRepository
-                .fetchFirestoreStreamers();
+                .getStreamers();
             //get twitch api token
             const twitchClipApi = await TwitchClipApi.init(
                 process.env.TWITCH_CLIENT_ID!,
@@ -55,7 +55,6 @@ export const getYearRankingFunction = functions
                     const ended_at = new Date(year, 11, 31, 23, 59, 59);
                     const clips = await twitchClipApi.getClips(
                         parseInt(streamer.id),
-                        process.env.TWITCH_CLIENT_ID!,
                         started_at,
                         ended_at,
                     )

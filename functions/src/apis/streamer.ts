@@ -17,7 +17,7 @@ export class TwitchStreamerApi extends TwitchApi {
         });
     }
 
-    async getJpStreamers(): Promise<Array<Stream>> {
+    async getJpStreams(): Promise<Array<Stream>> {
         const config: AxiosRequestConfig = {
             url: `https://api.twitch.tv/helix/streams`,
             method: `GET`,

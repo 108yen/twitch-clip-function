@@ -10,12 +10,12 @@ describe(`TwitchStreamerApiのテスト`, () => {
             process.env.TWITCH_CLIENT_SECRET!
         );
 
-        const id =`49207184`    //釈迦
-        const followerNum =await twitchClipApi.getFollowerNum(id);
+        const id = `49207184`    //釈迦
+        const followerNum = await twitchClipApi.getFollowerNum(id);
         expect(followerNum).toBeGreaterThan(0);
     })
-    test(`getStreamers:id指定`,async () => {
-        
+    test(`getStreamers:id指定`, async () => {
+
         const twitchClipApi = await TwitchStreamerApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
@@ -61,5 +61,24 @@ describe(`TwitchStreamerApiのテスト`, () => {
             expect(element.login).toBeDefined();
             expect(element.profile_image_url).toBeDefined();
         }
+    })
+    test(`getJpStreams`, async () => {
+
+        const twitchClipApi = await TwitchStreamerApi.init(
+            process.env.TWITCH_CLIENT_ID!,
+            process.env.TWITCH_CLIENT_SECRET!
+        );
+
+        const streams = await twitchClipApi.getJpStreams();
+
+        expect(streams.length).toEqual(100);
+        for (const key in streams) {
+            const stream = streams[key];
+            expect(stream.user_id).toBeDefined();
+            expect(stream.user_login).toBeDefined();
+            expect(stream.viewer_count).toBeDefined();
+            expect(stream.tags).toBeDefined();
+        }
+
     })
 })

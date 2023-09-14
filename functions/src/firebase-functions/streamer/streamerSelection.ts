@@ -7,12 +7,13 @@ import { ClipRepository } from "../../repositories/clip";
 export const streamerSelection = functions
     .region(`asia-northeast1`)
     .runWith({
+        timeoutSeconds: 540,
         secrets: [
             `TWITCH_CLIENT_ID`,
             `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule(`0 21 * * 3`)
+    .pubsub.schedule(`30 * * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const streamerRepository = new StreamerRepository();
@@ -73,8 +74,8 @@ export const streamerSelection = functions
             }));
         }
         //Select streamers with top 200 followers
-        const selectedStreamers = sortByFollowerNum(oldStreamers.concat(newStreamers))
-            .slice(0, 200);
+        const sumStreamers = sortByFollowerNum(oldStreamers.concat(newStreamers));
+        const selectedStreamers = sumStreamers.slice(0, 200);
         const selectedStreamerIds = selectedStreamers.map(e => e.id);
         //push to firestore
         const storedStreamers = await twitchStreamerApi.getStreamers(
@@ -95,23 +96,23 @@ export const streamerSelection = functions
         ================================== */
 
         //If it had been deleted this time, delete clipDoc
-        if (selectedStreamers.length > 200) {
-            functions.logger.info(`delete ${selectedStreamers.length - 200} streamers`);
-            for (const key in selectedStreamers.slice(200)) {
-                const streamer = selectedStreamers.slice(200)[key];
-                if (oldStreamerIds.includes(streamer.id)) {
-                    await clipRepository.deleteClipDoc(streamer.id);
-                }
-            }
+        const removedStreamerIds = sumStreamers
+            .slice(200)
+            .map(e => e.id)
+            .filter(id => newStreamerIds.indexOf(id) == -1);
+        for (const key in removedStreamerIds) {
+            await clipRepository.deleteClipDoc(removedStreamerIds[key]);
         }
+
         //If it had been added this time, create clipDoc
         //Filter the elements held by both arrays
-        const addedStreamerIds = selectedStreamerIds.filter(id => newStreamerIds.indexOf(id) != -1);
-        functions.logger.info(`add ${addedStreamerIds.length} streamers`);
+        const addedStreamerIds = selectedStreamerIds
+            .filter(id => newStreamerIds.indexOf(id) != -1);
         for (const key in addedStreamerIds) {
             const id = addedStreamerIds[key];
             await clipRepository.createClipDoc(id);
         }
+        functions.logger.info(`add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${selectedStreamerIds.length})`);
     });
 
 

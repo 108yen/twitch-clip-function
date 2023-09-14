@@ -25,20 +25,40 @@ describe(`streamerSelectionのテスト`, () => {
 
         const newStreamer = await streamerRepository.getStreamers();
         const newStreamerIds = newStreamer.map(e => e.id);
-        const addedStreamerIds = newStreamerIds
-            .filter(id => oldStreamerIds.indexOf(id) == -1);
         const removedStreamerIds = oldStreamerIds
             .filter(id => newStreamerIds.indexOf(id) == -1);
-        //ドキュメントが作成されている
-        for (const key in addedStreamerIds) {
-            const id = addedStreamerIds[key];
-            expect(await clipRepository.getClip(id)).not.toThrowError;
+        //ドキュメントが作成されている,ストリーマーリストのドキュメントが作成されている
+        for (const key in newStreamerIds) {
+            const id = newStreamerIds[key];
+            await expect(clipRepository.getClip(id)).resolves.toBeDefined();
         }
         //ドキュメントが削除されている
         for (const key in removedStreamerIds) {
             const id = removedStreamerIds[key];
-            expect(await clipRepository.getClip(id)).toThrowError;
+            await expect(clipRepository.getClip(id)).rejects.toThrow();
         }
+        //ストリーマー情報チェック
+        expect(newStreamer.length).toEqual(200);
+        //主要な情報があるか
+        for (const key in newStreamer) {
+            const element = newStreamer[key];
+            //idが存在しているか
+            expect(element.id).toBeDefined();
+            //その他主要な項目があるか
+            expect(element.created_at).toBeDefined();
+            expect(element.description).toBeDefined();
+            expect(element.display_name).toBeDefined();
+            expect(element.login).toBeDefined();
+            expect(element.profile_image_url).toBeDefined();
+            expect(element.follower_num).toBeDefined();
+        }
+        //順番チェック
+        for (let index = 0; index < newStreamer.length-1; index++) {
+            expect(newStreamer[index].follower_num!).toBeGreaterThanOrEqual(newStreamer[index + 1].follower_num!);
+        }
+        //重複チェック
+        const newStreamerIdSets = new Set(newStreamerIds);
+        expect(newStreamerIdSets.size).toEqual(newStreamerIds.length);
 
     }, 100000)
 })

@@ -13,7 +13,7 @@ export const streamerSelection = functions
             `TWITCH_CLIENT_SECRET`,
         ],
     })
-    .pubsub.schedule(`30 */2 * * *`)
+    .pubsub.schedule(`30 5,11,17,23 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const streamerRepository = new StreamerRepository();

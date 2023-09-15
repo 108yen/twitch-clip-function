@@ -46,7 +46,7 @@ export const streamerSelection = functions
         /* ==================================
         Find out new streamer
         ================================== */
-        const removeTag = [`ASMR`];
+        const removeTag = [`ASMR`,`Commissions`];
         const streams = await twitchStreamerApi.getJpStreams();
         const newStreamerIds = streams
             .filter(stream => {

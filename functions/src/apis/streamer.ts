@@ -17,6 +17,27 @@ export class TwitchStreamerApi extends TwitchApi {
         });
     }
 
+    async getJpStreams(): Promise<Array<Stream>> {
+        const config: AxiosRequestConfig = {
+            url: `https://api.twitch.tv/helix/streams`,
+            method: `GET`,
+            headers: {
+                Authorization: `Bearer ${this.token.access_token}`,
+                [`Client-Id`]: this.client_id,
+            },
+            params: {
+                language: `ja`,
+                first: 100,
+            },
+            paramsSerializer: { indexes: null }
+        }
+        const res = await axios(config)
+            .catch((error) => {
+                console.error(`twitch apiからストリーマー情報の取得に失敗しました: ${error}`);
+            });
+        return res?.data.data;
+    }
+
     async getFollowerNum(
         id: string,
     ): Promise<number> {

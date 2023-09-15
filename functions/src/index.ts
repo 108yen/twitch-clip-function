@@ -9,15 +9,13 @@ if (admin.apps.length === 0) {
 }
 
 //deploy function
-import { updateStreamer } from "./firebase-functions/streamer/updateStreamer";
-import { onAddStreamer } from "./firebase-functions/streamer/onAddStreamer";
+import { streamerSelection } from "./firebase-functions/streamer/streamerSelection";
 import { getTwitchClipFunction } from "./firebase-functions/clip/getTwitchClipFunction";
 import { getYearRankingFunction } from "./firebase-functions/clip/getYearRankingFunction";
 import { getTwitchClipForAllRankingFunction } from "./firebase-functions/clip/getTwitchClipForAllRankingFunction";
 
 export {
-    updateStreamer,
-    onAddStreamer,
+    streamerSelection,
     getTwitchClipFunction,
     getYearRankingFunction,
     getTwitchClipForAllRankingFunction,

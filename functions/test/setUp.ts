@@ -6,6 +6,7 @@ import * as devTwitchApiKey from '../keys/dev_twitch_api_key.json'
 
 process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID;
 process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET;
+process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
 
 // サービスアカウントを環境変数から取得
 const devServiceAccount = {

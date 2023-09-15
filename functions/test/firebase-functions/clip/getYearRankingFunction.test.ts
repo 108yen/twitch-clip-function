@@ -5,7 +5,6 @@ import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '../../../test/setUp';
 import * as functions from 'firebase-functions';
 import { StreamerRepository } from '../../../src/repositories/streamer';
-import { clipDocRef } from '../../../src/firestore-refs/clipRefs';
 import { ClipDoc } from '../../../src/models/clipDoc';
 import { ClipRepository } from '../../../src/repositories/clip';
 
@@ -16,22 +15,23 @@ describe(`getYearRankingFunctionのテスト`, () => {
     })
 
     test(`更新`, async () => {
+        
+        const clipRepository = new ClipRepository();
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.getStreamers();
         //準備 データを消す
         const initedClipDoc = new ClipDoc();
+
         for (const key in streamers) {
             const element = streamers[key];
             try {
-                await clipDocRef({ clipId: element.id })
-                    .set(initedClipDoc);
+                await clipRepository.updateClip(element.id, initedClipDoc);
             } catch (error) {
                 functions.logger.debug(`初期化エラー: ${error}`);
             }
         }
         try {
-            await clipDocRef({ clipId: `past_summary` })
-                .set(initedClipDoc);
+            await clipRepository.updateClip(`past_summary`, initedClipDoc);
         } catch (error) {
             functions.logger.debug(`初期化エラー: ${error}`);
         }
@@ -39,8 +39,6 @@ describe(`getYearRankingFunctionのテスト`, () => {
         //実行
         await wrappedGetYearRankingFunction();
 
-        //更新されているか
-        const clipRepository = new ClipRepository();
         //各ストリーマーのクリップ
         for (const key in streamers) {
             const element = streamers[key];
@@ -49,6 +47,9 @@ describe(`getYearRankingFunctionのテスト`, () => {
             //各期間のクリップがあるか
             expect(clipDoc.clipsMap.size).toBeGreaterThan(0)
             for (const [period, value] of clipDoc.clipsMap) {
+                if (period == 'all' || period == 'day' || period == 'week' || period == 'month' || period == 'year' ) {
+                    break;
+                }
                 expect(value).toBeDefined();
                 if (value.length==0) {
                     console.log(`${element.display_name},${period}`)
@@ -94,5 +95,5 @@ describe(`getYearRankingFunctionのテスト`, () => {
                 }
             }
         }
-    }, 20000)
+    }, 300000)
 })

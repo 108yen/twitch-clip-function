@@ -1,4 +1,4 @@
-import { newStreamerLoginsDocRef, streamersDocRef } from "../firestore-refs/streamerRefs";
+import { streamersDocRef } from "../firestore-refs/streamerRefs";
 import { Streamer } from "../models/streamer";
 import * as functions from "firebase-functions";
 import { FieldValue } from "firebase-admin/firestore";
@@ -29,16 +29,6 @@ export class StreamerRepository {
             });
         } catch (error) {
             functions.logger.error(`streamerの追加に失敗しました: ${error}`);
-        }
-    }
-
-    async deleteLogins(logins: Array<string>) {
-        try {
-            await newStreamerLoginsDocRef.update({
-                logins: FieldValue.arrayRemove(...logins)
-            });
-        } catch (error) {
-            functions.logger.error(`streamers/new/loginsの削除に失敗しました: ${error}`);
         }
     }
 }

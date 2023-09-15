@@ -24,9 +24,17 @@ export class ClipRepository {
 
     async createClipDoc(clipId: string) {
         try {
-            await clipDocRef({ clipId: clipId }).set(new ClipDoc);
+            await clipDocRef({ clipId: clipId }).set(new ClipDoc());
         } catch (error) {
             functions.logger.error(`docId:${clipId}の作成に失敗しました: ${error}`);
+        }
+    }
+
+    async deleteClipDoc(clipId: string) {
+        try {
+            await clipDocRef({ clipId: clipId }).delete();
+        } catch (error) {
+            functions.logger.error(`docId:${clipId}の削除に失敗しました: ${error}`);
         }
     }
 }

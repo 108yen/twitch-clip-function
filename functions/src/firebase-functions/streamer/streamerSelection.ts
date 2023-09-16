@@ -36,6 +36,7 @@ export const streamerSelection = functions
         Find out new streamer
         ================================== */
         const removeTag = [`ASMR`, `Commissions`];
+        const removeId = [`126482446`,`9504944`];
         const streams = await twitchStreamerApi.getJpStreams();
         const newStreamerIds = streams
             .filter(stream => {
@@ -43,6 +44,9 @@ export const streamerSelection = functions
                     return false;
                 }
                 if (stream.tags?.some(tag => removeTag.includes(tag))) {
+                    return false;
+                }
+                if (removeId.includes(stream.user_id)) {
                     return false;
                 }
                 if (stream.viewer_count! > 200 && !oldStreamerIds.includes(stream.user_id!)) {

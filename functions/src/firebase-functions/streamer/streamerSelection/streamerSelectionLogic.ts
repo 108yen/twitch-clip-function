@@ -32,7 +32,7 @@ export class StreamerSelectionLogic {
     }
     filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`];
-        const removeId = [`126482446`, `9504944`];
+        const removeId = [`126482446`, `9504944`, `840446934`,`208760543`];
         const filteredId = streams
             .filter(stream => {
                 if (stream.viewer_count == undefined || stream.user_id == undefined) {

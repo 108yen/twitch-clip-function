@@ -212,7 +212,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
 
     }, 100000)
     test(`updateFirestoreのテスト`, async () => {
-        const getStreamersSpy = jest
+        const updateStreamers = jest
             .spyOn(StreamerRepository.prototype, `updateStreamers`)
             .mockResolvedValue();
         const deleteClipDocSpy = jest
@@ -261,8 +261,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         await streamerSelectionLogic
             .updateFirestore(storedStreamers, removeStreamerIds, addedStreamerIds);
 
-        expect(getStreamersSpy).toHaveBeenCalledTimes(1);
+        expect(updateStreamers).toHaveBeenCalledTimes(1);
+        expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers);
         expect(deleteClipDocSpy).toHaveBeenCalledTimes(2);
+        expect(deleteClipDocSpy.mock.calls[0][0]).toEqual(removeStreamerIds[0]);
+        expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1]);
         expect(createClipDocSpy).toHaveBeenCalledTimes(1);
+        expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0]);
     }, 100000)
 })

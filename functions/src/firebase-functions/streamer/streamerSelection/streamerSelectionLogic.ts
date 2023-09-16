@@ -1,49 +1,9 @@
-import * as functions from "firebase-functions";
-import { StreamerRepository } from "../../repositories/streamer";
-import { TwitchStreamerApi } from "../../apis/streamer";
-import { Streamer } from "../../models/streamer";
-import { ClipRepository } from "../../repositories/clip";
+import { StreamerRepository } from "../../../repositories/streamer";
+import { TwitchStreamerApi } from "../../../apis/streamer";
+import { Streamer } from "../../../models/streamer";
+import { ClipRepository } from "../../../repositories/clip";
 
-export const streamerSelection = functions
-    .region(`asia-northeast1`)
-    .runWith({
-        timeoutSeconds: 300,
-        secrets: [
-            `TWITCH_CLIENT_ID`,
-            `TWITCH_CLIENT_SECRET`,
-        ],
-    })
-    .pubsub.schedule(`30 5,11,17,23 * * *`)
-    .timeZone(`Asia/Tokyo`)
-    .onRun(async () => {
-        const findoutNewStreamer = await FindOutNewStreamer.init();
-
-        /* ==================================
-        Update existing streamer information
-        ================================== */
-        const oldStreamers = await findoutNewStreamer.getOldStreamer();
-        const oldStreamerIds = oldStreamers.map(e => e.id);
-
-        /* ==================================
-        Find out new streamer
-        ================================== */
-        const stream = await findoutNewStreamer.getJpLiveStreaming();
-        const newStreamerIds = findoutNewStreamer.filterStreams(stream, oldStreamerIds);
-        const newStreamers = await findoutNewStreamer.getNewStreamerFollower(newStreamerIds);
-        const { selectedStreamers, removedStreamerIds, addedStreamerIds } = findoutNewStreamer
-            .concatAndFilter(oldStreamers, newStreamers);
-        const storedStreamers = await findoutNewStreamer.updateStreamerInfo(selectedStreamers);
-
-
-        /* ==================================
-        Add, delete clipDoc
-        ================================== */
-        await findoutNewStreamer.updateFirestore(storedStreamers, removedStreamerIds, addedStreamerIds);
-
-        functions.logger.info(`add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`);
-    });
-
-class FindOutNewStreamer {
+export class StreamerSelectionLogic {
     streamerRepository = new StreamerRepository();
     clipRepository = new ClipRepository();
     twitchStreamerApi: TwitchStreamerApi;
@@ -56,13 +16,13 @@ class FindOutNewStreamer {
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
-        return new FindOutNewStreamer(twitchStreamerApi);
+        return new StreamerSelectionLogic(twitchStreamerApi);
     }
 
     async getOldStreamer(): Promise<Array<Streamer>> {
         const fetchStreamers = await this.streamerRepository.getStreamers();
         const oldStreamerIds = fetchStreamers.map(streamer => streamer.id);
-        const oldStreamers = await storeFolloweres(oldStreamerIds, this.twitchStreamerApi);
+        const oldStreamers = await this.storeFolloweres(oldStreamerIds, this.twitchStreamerApi);
         return oldStreamers;
     }
     async getJpLiveStreaming(): Promise<Array<Stream>> {
@@ -98,12 +58,12 @@ class FindOutNewStreamer {
         return newStreamerIds;
     }
     async getNewStreamerFollower(newStreamerIds: Array<string>): Promise<Array<Streamer>> {
-        const newStreamers = await storeFolloweres(newStreamerIds, this.twitchStreamerApi);
+        const newStreamers = await this.storeFolloweres(newStreamerIds, this.twitchStreamerApi);
         return newStreamers;
     }
     concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
         //Select streamers with top 200 followers
-        const sumStreamers = sortByFollowerNum(oldStreamers.concat(newStreamers));
+        const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers));
         const selectedStreamers = sumStreamers.slice(0, 200);
         const selectedStreamerIds = selectedStreamers.map(e => e.id);
         const newStreamerIds = newStreamers.map(e => e.id);
@@ -136,7 +96,7 @@ class FindOutNewStreamer {
         addedStreamerIds: Array<string>
     ) {
 
-        await this.streamerRepository.updateStreamers(sortByFollowerNum(storedStreamers));
+        await this.streamerRepository.updateStreamers(this.sortByFollowerNum(storedStreamers));
         for (const key in removedStreamerIds) {
             await this.clipRepository.deleteClipDoc(removedStreamerIds[key]);
         }
@@ -144,34 +104,33 @@ class FindOutNewStreamer {
             await this.clipRepository.createClipDoc(addedStreamerIds[key]);
         }
     }
-}
+    private async storeFolloweres(ids: Array<string>, twitchStreamerApi: TwitchStreamerApi): Promise<Array<Streamer>> {
+        const streamers: Array<Streamer> = [];
 
-async function storeFolloweres(ids: Array<string>, twitchStreamerApi: TwitchStreamerApi): Promise<Array<Streamer>> {
-    const streamers: Array<Streamer> = [];
+        for (const key in ids) {
+            const id = ids[key];
+            //get follower num from twitch api
+            const followerNum = await twitchStreamerApi
+                .getFollowerNum(id);
+            streamers.push(new Streamer({
+                id: id,
+                follower_num: followerNum,
+            }))
+        }
 
-    for (const key in ids) {
-        const id = ids[key];
-        //get follower num from twitch api
-        const followerNum = await twitchStreamerApi
-            .getFollowerNum(id);
-        streamers.push(new Streamer({
-            id: id,
-            follower_num: followerNum,
-        }))
+        return streamers;
     }
 
-    return streamers;
-}
-
-function sortByFollowerNum(streamers: Array<Streamer>) {
-    return streamers
-        .sort((a, b) => {
-            if (b.follower_num == undefined) {
-                return -1;
-            }
-            if (a.follower_num == undefined) {
-                return 1;
-            }
-            return b.follower_num - a.follower_num;
-        });
+    private sortByFollowerNum(streamers: Array<Streamer>) {
+        return streamers
+            .sort((a, b) => {
+                if (b.follower_num == undefined) {
+                    return -1;
+                }
+                if (a.follower_num == undefined) {
+                    return 1;
+                }
+                return b.follower_num - a.follower_num;
+            });
+    }
 }

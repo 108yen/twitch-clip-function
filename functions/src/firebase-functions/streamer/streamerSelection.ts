@@ -36,23 +36,29 @@ export const streamerSelection = functions
         Find out new streamer
         ================================== */
         const removeTag = [`ASMR`, `Commissions`];
-        const removeId = [`126482446`,`9504944`];
+        const removeId = [`126482446`, `9504944`];
         const streams = await twitchStreamerApi.getJpStreams();
         const newStreamerIds = streams
             .filter(stream => {
                 if (stream.viewer_count == undefined || stream.user_id == undefined) {
                     return false;
                 }
+                //remove by tag or id
                 if (stream.tags?.some(tag => removeTag.includes(tag))) {
                     return false;
                 }
                 if (removeId.includes(stream.user_id)) {
                     return false;
                 }
-                if (stream.viewer_count! > 200 && !oldStreamerIds.includes(stream.user_id!)) {
-                    return true;
+                //remove less than 200 views live
+                if (stream.viewer_count! < 200) {
+                    return false;
                 }
-                return false;
+                //remove aleady exist ids
+                if (oldStreamerIds.includes(stream.user_id!)) {
+                    return false;
+                }
+                return true;
             })
             .map(e => e.user_id!);
         //get followe num, for each streamers

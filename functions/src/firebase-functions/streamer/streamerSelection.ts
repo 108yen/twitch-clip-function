@@ -7,7 +7,7 @@ import { ClipRepository } from "../../repositories/clip";
 export const streamerSelection = functions
     .region(`asia-northeast1`)
     .runWith({
-        timeoutSeconds: 540,
+        timeoutSeconds: 300,
         secrets: [
             `TWITCH_CLIENT_ID`,
             `TWITCH_CLIENT_SECRET`,
@@ -30,23 +30,12 @@ export const streamerSelection = functions
         Update existing streamer information
         ================================== */
         //get streamers info from twitch api
-        const oldStreamers: Array<Streamer> = [];
-        //for each streamers
-        for (const key in oldStreamerIds) {
-            const id = oldStreamerIds[key];
-            //get follower num from twitch api
-            const followerNum = await twitchStreamerApi
-                .getFollowerNum(id);
-            oldStreamers.push(new Streamer({
-                id: id,
-                follower_num: followerNum,
-            }))
-        }
+        const oldStreamers = await storeFolloweres(oldStreamerIds, twitchStreamerApi);
 
         /* ==================================
         Find out new streamer
         ================================== */
-        const removeTag = [`ASMR`,`Commissions`];
+        const removeTag = [`ASMR`, `Commissions`];
         const streams = await twitchStreamerApi.getJpStreams();
         const newStreamerIds = streams
             .filter(stream => {
@@ -62,26 +51,15 @@ export const streamerSelection = functions
                 return false;
             })
             .map(e => e.user_id!);
-        const newStreamers: Array<Streamer> = [];
         //get followe num, for each streamers
-        for (const key in newStreamerIds) {
-            const id = newStreamerIds[key];
-            const followerNum = await twitchStreamerApi
-                .getFollowerNum(id);
-            newStreamers.push(new Streamer({
-                id: id,
-                follower_num: followerNum,
-            }));
-        }
+        const newStreamers = await storeFolloweres(newStreamerIds, twitchStreamerApi);
         //Select streamers with top 200 followers
         const sumStreamers = sortByFollowerNum(oldStreamers.concat(newStreamers));
         const selectedStreamers = sumStreamers.slice(0, 200);
         const selectedStreamerIds = selectedStreamers.map(e => e.id);
         //push to firestore
-        const storedStreamers = await twitchStreamerApi.getStreamers(
-            selectedStreamerIds,
-            true,
-        )
+        const storedStreamers = await twitchStreamerApi
+            .getStreamers(selectedStreamerIds);
         //Re-enter the number of followers
         for (const key in storedStreamers) {
             const streamerInFollowerNum = selectedStreamers
@@ -115,6 +93,22 @@ export const streamerSelection = functions
         functions.logger.info(`add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${selectedStreamerIds.length})`);
     });
 
+async function storeFolloweres(ids: Array<string>, twitchStreamerApi: TwitchStreamerApi): Promise<Array<Streamer>> {
+    const streamers: Array<Streamer> = [];
+
+    for (const key in ids) {
+        const id = ids[key];
+        //get follower num from twitch api
+        const followerNum = await twitchStreamerApi
+            .getFollowerNum(id);
+        streamers.push(new Streamer({
+            id: id,
+            follower_num: followerNum,
+        }))
+    }
+
+    return streamers;
+}
 
 function sortByFollowerNum(streamers: Array<Streamer>) {
     return streamers

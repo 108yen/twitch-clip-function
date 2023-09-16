@@ -63,39 +63,22 @@ export class TwitchStreamerApi extends TwitchApi {
 
     async getStreamers(
         ids: Array<string>,
-        isId: boolean,
     ): Promise<Array<Streamer>> {
         const chunkSize = 100;
         const numChunks = Math.ceil(ids.length / chunkSize);
         let streamers: Array<Streamer> = [];
 
-        if (isId) {
-            for (let i = 0; i < numChunks; i++) {
-                streamers = streamers.concat(
-                    await this.getLeesThanOrEqualFiftyStreamers({
-                        logins: null,
-                        ids: ids.slice(i * chunkSize, (i + 1) * chunkSize),
-                    })
-                );
-            }
-        } else {
-            for (let i = 0; i < numChunks; i++) {
-                streamers = streamers.concat(
-                    await this.getLeesThanOrEqualFiftyStreamers({
-                        logins: ids.slice(i * chunkSize, (i + 1) * chunkSize),
-                        ids: null,
-                    })
-                );
-            }
+        for (let i = 0; i < numChunks; i++) {
+            streamers = streamers.concat(
+                await this.getLeesThanOrEqualFiftyStreamers({
+                    ids: ids.slice(i * chunkSize, (i + 1) * chunkSize),
+                })
+            );
         }
         return streamers;
     }
 
     private async getLeesThanOrEqualFiftyStreamers(props: {
-        logins: Array<string>,
-        ids: null,
-    } | {
-        logins: null,
         ids: Array<string>,
     }): Promise<Array<Streamer>> {
         const config: AxiosRequestConfig = {
@@ -105,17 +88,12 @@ export class TwitchStreamerApi extends TwitchApi {
                 Authorization: `Bearer ${this.token.access_token}`,
                 [`Client-Id`]: this.client_id,
             },
+            params: {
+                id: props.ids,
+            },
             paramsSerializer: { indexes: null }
         }
-        if (props.logins != null) {
-            config.params = {
-                login: props.logins
-            }
-        } else if (props.ids != null) {
-            config.params = {
-                id: props.ids
-            }
-        }
+
         const res = await axios(config)
             .catch((error) => {
                 functions.logger.error(`twitch apiからストリーマー情報の取得に失敗しました: ${error}`);

@@ -1,12 +1,13 @@
 import { StreamerRepository } from "../../../repositories/streamer";
 import { TwitchStreamerApi } from "../../../apis/streamer";
 import { Streamer } from "../../../models/streamer";
+import { Stream } from "../../../models/stream";
 import { ClipRepository } from "../../../repositories/clip";
 
 export class StreamerSelectionLogic {
-    streamerRepository = new StreamerRepository();
-    clipRepository = new ClipRepository();
-    twitchStreamerApi: TwitchStreamerApi;
+    private streamerRepository = new StreamerRepository();
+    private clipRepository = new ClipRepository();
+    private twitchStreamerApi: TwitchStreamerApi;
     constructor(twitchStreamerApi: TwitchStreamerApi) {
         this.twitchStreamerApi = twitchStreamerApi;
     }
@@ -19,11 +20,11 @@ export class StreamerSelectionLogic {
         return new StreamerSelectionLogic(twitchStreamerApi);
     }
 
-    async getOldStreamer(): Promise<Array<Streamer>> {
+    async getOldStreamer(): Promise<{ oldStreamers: Array<Streamer>, oldStreamerIds: Array<string> }> {
         const fetchStreamers = await this.streamerRepository.getStreamers();
         const oldStreamerIds = fetchStreamers.map(streamer => streamer.id);
         const oldStreamers = await this.storeFolloweres(oldStreamerIds, this.twitchStreamerApi);
-        return oldStreamers;
+        return { oldStreamers, oldStreamerIds };
     }
     async getJpLiveStreaming(): Promise<Array<Stream>> {
         const streams = await this.twitchStreamerApi.getJpStreams();
@@ -32,7 +33,7 @@ export class StreamerSelectionLogic {
     filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`];
         const removeId = [`126482446`, `9504944`];
-        const newStreamerIds = streams
+        const filteredId = streams
             .filter(stream => {
                 if (stream.viewer_count == undefined || stream.user_id == undefined) {
                     return false;
@@ -55,6 +56,9 @@ export class StreamerSelectionLogic {
                 return true;
             })
             .map(e => e.user_id!);
+        //remove duplicate
+        const newStreamerIds = filteredId
+            .filter((id, index) => filteredId.indexOf(id) === index);
         return newStreamerIds;
     }
     async getNewStreamerFollower(newStreamerIds: Array<string>): Promise<Array<Streamer>> {
@@ -120,7 +124,6 @@ export class StreamerSelectionLogic {
 
         return streamers;
     }
-
     private sortByFollowerNum(streamers: Array<Streamer>) {
         return streamers
             .sort((a, b) => {

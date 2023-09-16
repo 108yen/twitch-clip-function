@@ -18,8 +18,7 @@ export const streamerSelection = functions
         /* ==================================
         Update existing streamer information
         ================================== */
-        const oldStreamers = await findoutNewStreamer.getOldStreamer();
-        const oldStreamerIds = oldStreamers.map(e => e.id);
+        const { oldStreamers, oldStreamerIds } = await findoutNewStreamer.getOldStreamer();
 
         /* ==================================
         Find out new streamer

@@ -3,6 +3,7 @@ import { Token } from "../models/token";
 import { TwitchApi } from "./twitchApi";
 import * as functions from "firebase-functions";
 import { Streamer } from "../models/streamer";
+import { Stream } from "../models/stream";
 
 export class TwitchStreamerApi extends TwitchApi {
 

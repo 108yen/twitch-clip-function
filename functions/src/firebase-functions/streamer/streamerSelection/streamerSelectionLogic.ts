@@ -3,10 +3,12 @@ import { TwitchStreamerApi } from "../../../apis/streamer";
 import { Streamer } from "../../../models/streamer";
 import { Stream } from "../../../models/stream";
 import { ClipRepository } from "../../../repositories/clip";
+import { BatchRepository } from "../../..//repositories/batch";
 
 export class StreamerSelectionLogic {
     private streamerRepository = new StreamerRepository();
     private clipRepository = new ClipRepository();
+    private batchRepository = new BatchRepository();
     private twitchStreamerApi: TwitchStreamerApi;
     constructor(twitchStreamerApi: TwitchStreamerApi) {
         this.twitchStreamerApi = twitchStreamerApi;
@@ -32,7 +34,7 @@ export class StreamerSelectionLogic {
     }
     filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`];
-        const removeId = [`126482446`, `9504944`, `840446934`,`208760543`];
+        const removeId = [`126482446`, `9504944`, `840446934`, `208760543`];
         const filteredId = streams
             .filter(stream => {
                 if (stream.viewer_count == undefined || stream.user_id == undefined) {
@@ -99,14 +101,24 @@ export class StreamerSelectionLogic {
         removedStreamerIds: Array<string>,
         addedStreamerIds: Array<string>
     ) {
-
-        await this.streamerRepository.updateStreamers(storedStreamers);
+        this.streamerRepository
+            .batchUpdateStreamers(
+                storedStreamers,
+                await this.batchRepository.getBatch()
+            );
         for (const key in removedStreamerIds) {
-            await this.clipRepository.deleteClipDoc(removedStreamerIds[key]);
+            this.clipRepository.batchDeleteClipDoc(
+                removedStreamerIds[key],
+                await this.batchRepository.getBatch()
+            );
         }
         for (const key in addedStreamerIds) {
-            await this.clipRepository.createClipDoc(addedStreamerIds[key]);
+            this.clipRepository.batchCreateClipDoc(
+                addedStreamerIds[key],
+                await this.batchRepository.getBatch()
+            );
         }
+        await this.batchRepository.commitBatch();
     }
     private async storeFolloweres(ids: Array<string>, twitchStreamerApi: TwitchStreamerApi): Promise<Array<Streamer>> {
         const streamers: Array<Streamer> = [];

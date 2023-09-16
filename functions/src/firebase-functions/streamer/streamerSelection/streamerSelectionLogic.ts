@@ -92,7 +92,7 @@ export class StreamerSelectionLogic {
                 .find(e => e.id == storedStreamers[key].id);
             storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num;
         }
-        return storedStreamers;
+        return this.sortByFollowerNum(storedStreamers);
     }
     async updateFirestore(
         storedStreamers: Array<Streamer>,
@@ -100,7 +100,7 @@ export class StreamerSelectionLogic {
         addedStreamerIds: Array<string>
     ) {
 
-        await this.streamerRepository.updateStreamers(this.sortByFollowerNum(storedStreamers));
+        await this.streamerRepository.updateStreamers(storedStreamers);
         for (const key in removedStreamerIds) {
             await this.clipRepository.deleteClipDoc(removedStreamerIds[key]);
         }

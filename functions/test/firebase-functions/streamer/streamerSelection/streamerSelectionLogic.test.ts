@@ -4,6 +4,7 @@ import { Stream } from "../../../../src/models/stream";
 import { Streamer } from '../../../../src/models/streamer';
 import { StreamerRepository } from '../../../../src/repositories/streamer';
 import { ClipRepository } from '../../../../src/repositories/clip';
+import { BatchRepository } from '../../../../src/repositories/batch';
 
 jest.mock(`axios`);
 
@@ -51,6 +52,34 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             })
         ]);
     }, 100000)
+    test(`getOldStreamerのテスト:axiosエラー`, async () => {
+        (axios as any).mockRejectedValueOnce(new Error(`axios error test`));
+        const getStreamersSpy = jest
+            .spyOn(StreamerRepository.prototype, `getStreamers`)
+            .mockResolvedValue([
+                new Streamer({
+                    id: `49207184`,
+                    follower_num: 100,
+                }),
+                new Streamer({
+                    id: `545050196`,
+                    follower_num: 200,
+                })
+            ]);
+
+        await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError();
+        expect(getStreamersSpy).toHaveBeenCalled();
+    }, 100000)
+    test(`getOldStreamerのテスト:firestoreエラー`, async () => {
+        (axios as any).mockResolvedValueOnce({ data: { total: 400 } });
+        (axios as any).mockResolvedValueOnce({ data: { total: 500 } });
+        const getStreamersSpy = jest
+            .spyOn(StreamerRepository.prototype, `getStreamers`)
+            .mockRejectedValueOnce(new Error(`firestore error test`));
+
+        await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError();
+        expect(getStreamersSpy).toHaveBeenCalled();
+    }, 100000)
     test(`getJpLiveStreamingのテスト`, async () => {
         const mockData = [...Array(100)]
             .map((_, index) => new Stream({
@@ -72,7 +101,11 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             expect(stream.viewer_count).toEqual(index);
         }
     }, 100000)
-    test(`filterStreamsのテスト`, async () => {
+    test(`getJpLiveStreamingのテスト:axiosエラー`, async () => {
+        (axios as any).mockRejectedValueOnce(new Error(`axios error test`));
+        await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrowError();
+    }, 100000)
+    test(`filterStreamsのテスト`, () => {
         const oldStreamerIdsMockData = [
             `102631269`,
             `104363564`,
@@ -139,6 +172,13 @@ describe(`StreamerSelectionLogicのテスト`, () => {
                 follower_num: 500,
             })
         ]);
+    }, 100000)
+    test(`getNewStreamerFollowerのテスト:axiosエラー`, async () => {
+        (axios as any).mockRejectedValueOnce(new Error(`axios error test`));
+        const ids = [`49207184`, `545050196`];
+
+        expect(streamerSelectionLogic.getNewStreamerFollower(ids))
+            .rejects.toThrowError();
     }, 100000)
     test(`concatAndFilterのテスト`, () => {
         const oldStreamers = [...Array(195)]
@@ -211,16 +251,35 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         expect(storedStreamers).toEqual(expectData);
 
     }, 100000)
+    test(`updateStreamerInfoのテスト:axiosエラー`, async () => {
+        (axios as any).mockRejectedValueOnce(new Error(`axios error test`));
+
+        const selectedStreamers = [
+            new Streamer({
+                id: `49207184`,
+                follower_num: 100,
+            }),
+            new Streamer({
+                id: `545050196`,
+                follower_num: 200,
+            })
+        ];
+        expect(streamerSelectionLogic.updateStreamerInfo(selectedStreamers))
+            .rejects.toThrowError();
+    }, 100000)
     test(`updateFirestoreのテスト`, async () => {
         const updateStreamers = jest
-            .spyOn(StreamerRepository.prototype, `updateStreamers`)
-            .mockResolvedValue();
+            .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+            .mockImplementation();
         const deleteClipDocSpy = jest
-            .spyOn(ClipRepository.prototype, `deleteClipDoc`)
-            .mockResolvedValue();
+            .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
+            .mockImplementation();
         const createClipDocSpy = jest
-            .spyOn(ClipRepository.prototype, `createClipDoc`)
-            .mockResolvedValue();
+            .spyOn(ClipRepository.prototype, `batchCreateClipDoc`)
+            .mockImplementation();
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockResolvedValueOnce();
 
         const storedStreamers = [
             new Streamer({
@@ -268,5 +327,69 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1]);
         expect(createClipDocSpy).toHaveBeenCalledTimes(1);
         expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0]);
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1);
+    }, 100000)
+    test(`updateFirestoreのテスト:batchエラー`, async () => {
+        const updateStreamers = jest
+            .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+            .mockImplementation();
+        const deleteClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
+            .mockImplementation();
+        const createClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchCreateClipDoc`)
+            .mockImplementation();
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockRejectedValueOnce(new Error(`batch error test`));
+
+        const storedStreamers = [
+            new Streamer({
+                broadcaster_type: "partner",
+                created_at: "2013-09-19T13:21:29Z",
+                description: "",
+                display_name: "fps_shaka",
+                id: "49207184",
+                login: "fps_shaka",
+                offline_image_url: "https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg",
+                profile_image_url: "https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png",
+                type: "",
+                view_count: 0,
+                follower_num: 100,
+            }),
+            new Streamer({
+                broadcaster_type: "partner",
+                created_at: "2020-06-18T04:04:09Z",
+                description: "命尽き果てるまで",
+                display_name: "加藤純一です",
+                id: "545050196",
+                login: "kato_junichi0817",
+                offline_image_url: "",
+                profile_image_url: "https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png",
+                type: "",
+                view_count: 0,
+                follower_num: 200,
+            })
+        ];
+        const removeStreamerIds = [
+            `102631269`,
+            `104363564`,
+        ];
+        const addedStreamerIds = [
+            `126482446`
+        ];
+
+        await expect(streamerSelectionLogic
+            .updateFirestore(storedStreamers, removeStreamerIds, addedStreamerIds))
+            .rejects.toThrowError();
+
+        expect(updateStreamers).toHaveBeenCalledTimes(1);
+        expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers);
+        expect(deleteClipDocSpy).toHaveBeenCalledTimes(2);
+        expect(deleteClipDocSpy.mock.calls[0][0]).toEqual(removeStreamerIds[0]);
+        expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1]);
+        expect(createClipDocSpy).toHaveBeenCalledTimes(1);
+        expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0]);
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1);
     }, 100000)
 })

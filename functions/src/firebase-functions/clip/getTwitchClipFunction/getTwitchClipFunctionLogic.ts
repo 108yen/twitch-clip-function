@@ -31,6 +31,7 @@ export class GetTwitchClipFunctionLogic {
             if (Object.prototype.hasOwnProperty.call(streamers, key)) {
                 const streamer = streamers[key];
                 const clipDoc = await this.getClipForEachPeriods(streamer.id);
+                clipDoc.sort();
 
                 //push to firestore
                 await this.clipRepository.updateClip(streamer.id, clipDoc);

@@ -34,7 +34,8 @@ export class TwitchStreamerApi extends TwitchApi {
         }
         const res = await axios(config)
             .catch((error) => {
-                console.error(`twitch apiからストリーマー情報の取得に失敗しました: ${error}`);
+                functions.logger.error(`TwitchStreamerApi/getJpStreams/axios: ${error}`);
+                throw new Error(error);
             });
         return res?.data.data;
     }
@@ -56,7 +57,8 @@ export class TwitchStreamerApi extends TwitchApi {
         }
         const res = await axios(config)
             .catch((error) => {
-                functions.logger.error(`twitch apiからフォロワー数の取得に失敗しました: ${error}`);
+                functions.logger.error(`TwitchStreamerApi/getFollowerNum/axios: ${error}`);
+                throw new Error(error);
             });
         return res?.data.total;
     }
@@ -97,7 +99,8 @@ export class TwitchStreamerApi extends TwitchApi {
 
         const res = await axios(config)
             .catch((error) => {
-                functions.logger.error(`twitch apiからストリーマー情報の取得に失敗しました: ${error}`);
+                functions.logger.error(`TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers/axios:: ${error}`);
+                throw new Error(error);                
             });
 
         return res?.data.data;

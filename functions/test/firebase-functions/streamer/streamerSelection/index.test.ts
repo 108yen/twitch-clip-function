@@ -1,10 +1,10 @@
 import 'jest'
 import { describe } from 'node:test'
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
-import { testEnv } from '../../../test/setUp';
-import { streamerSelection } from '../../../src/firebase-functions/streamer/streamerSelection'
-import { StreamerRepository } from '../../../src/repositories/streamer';
-import { ClipRepository } from '../../../src/repositories/clip';
+import { testEnv } from '../../../setUp';
+import { streamerSelection } from '../../../../src/firebase-functions/streamer/streamerSelection'
+import { StreamerRepository } from '../../../../src/repositories/streamer';
+import { ClipRepository } from '../../../../src/repositories/clip';
 
 describe(`streamerSelectionのテスト`, () => {
     let wrappedStreamerSelection: WrappedScheduledFunction;

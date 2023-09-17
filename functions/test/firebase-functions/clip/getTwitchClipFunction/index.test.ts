@@ -7,6 +7,7 @@ import { StreamerRepository } from '../../../../src/repositories/streamer';
 import { ClipDoc } from '../../../../src/models/clipDoc';
 import { Clip } from '../../../../src/models/clip';
 import { ClipRepository } from '../../../../src/repositories/clip';
+// import fs from "fs";
 
 describe(`getTwitchClipFunctionのテスト`, () => {
     let wrappedGetTwitchClipFuntion: WrappedScheduledFunction;
@@ -20,6 +21,16 @@ describe(`getTwitchClipFunctionのテスト`, () => {
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.getStreamers();
         const oldClipDocs = new Map<string, ClipDoc>();
+
+        //!mockdata作成
+        // const mock1 = await clipRepository.getClip(`49207184`);
+        // const mock2 = await clipRepository.getClip(`545050196`);
+        // const json1 = JSON.stringify(Object.fromEntries(mock1.clipsMap.entries()));
+        // fs.writeFileSync(`data/clipDoc/49207184.json`, json1);
+        // const json2 = JSON.stringify(Object.fromEntries(mock2.clipsMap.entries()));
+        // fs.writeFileSync(`data/clipDoc/545050196.json`, json2);
+
+
         //準備 データを消す
         const initedClipDoc = new ClipDoc({
             clipsMap: new Map<string, Array<Clip>>([

@@ -4,12 +4,14 @@ import { TwitchClipApi } from '../../src/apis/clip';
 import { Clip } from '../../src/models/clip';
 
 describe(`TwitchClipApiのテスト`, () => {
-    test(`getClips:期間指定`, async () => {
-
-        const twitchClipApi = await TwitchClipApi.init(
+    let twitchClipApi: TwitchClipApi;
+    beforeAll(async () => {
+        twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
+    })
+    test(`getClips:期間指定`, async () => {
 
         const now = new Date(); // get present date
         const daysAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000); //days ago
@@ -33,11 +35,6 @@ describe(`TwitchClipApiのテスト`, () => {
         }
     })
     test(`getClips:期間未指定`, async () => {
-
-        const twitchClipApi = await TwitchClipApi.init(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
         
         const result: Array<Clip> = await twitchClipApi.getClips(
             203654142,

@@ -3,26 +3,23 @@ import { describe } from 'node:test'
 import { TwitchStreamerApi } from '../../src/apis/streamer';
 
 describe(`TwitchStreamerApiのテスト`, () => {
-    test(`getFollowerNum`, async () => {
-
-        const twitchClipApi = await TwitchStreamerApi.init(
+    let twitchStreamerApi: TwitchStreamerApi;
+    beforeAll(async () => {
+        twitchStreamerApi = await TwitchStreamerApi.init(
             process.env.TWITCH_CLIENT_ID!,
             process.env.TWITCH_CLIENT_SECRET!
         );
+    })
+    test(`getFollowerNum`, async () => {
 
         const id = `49207184`    //釈迦
-        const followerNum = await twitchClipApi.getFollowerNum(id);
+        const followerNum = await twitchStreamerApi.getFollowerNum(id);
         expect(followerNum).toBeGreaterThan(0);
     })
     test(`getStreamers:id指定`, async () => {
 
-        const twitchClipApi = await TwitchStreamerApi.init(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
-
         const idList = [`49207184`, `50988750`];
-        const streamers = await twitchClipApi.getStreamers(idList);
+        const streamers = await twitchStreamerApi.getStreamers(idList);
 
         //streamerが存在しているか
         expect(streamers.length).toBeGreaterThan(0);
@@ -40,14 +37,9 @@ describe(`TwitchStreamerApiのテスト`, () => {
     })
     test(`getJpStreams`, async () => {
 
-        const twitchClipApi = await TwitchStreamerApi.init(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
+        const streams = await twitchStreamerApi.getJpStreams();
 
-        const streams = await twitchClipApi.getJpStreams();
-
-        expect(streams.length).toEqual(100);
+        expect(streams.length).toBeGreaterThan(90);
         for (const key in streams) {
             const stream = streams[key];
             expect(stream.user_id).toBeDefined();

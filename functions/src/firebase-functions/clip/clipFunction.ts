@@ -4,7 +4,7 @@ import { BatchRepository } from '../../../src/repositories/batch';
 import { ClipRepository } from '../../../src/repositories/clip';
 import { StreamerRepository } from '../../../src/repositories/streamer';
 
-export class ClipFunction{
+export abstract class ClipFunction{
     protected streamerRepository = new StreamerRepository();
     protected clipRepository = new ClipRepository();
     protected batchRepository = new BatchRepository(10);
@@ -23,4 +23,6 @@ export class ClipFunction{
     async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers();
     }
+
+    abstract getClipForEeachStreamers(streamers: Array<Streamer>):Promise<void>;
 }

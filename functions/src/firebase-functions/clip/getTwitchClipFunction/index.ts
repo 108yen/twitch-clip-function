@@ -19,5 +19,5 @@ export const getTwitchClipFunction = functions
         const streamers = await getTwitchClipFunctionLogic
             .getStreamers();
         await getTwitchClipFunctionLogic
-            .getClipForEachStreamers(streamers);
+            .getClipForEeachStreamers(streamers);
     });

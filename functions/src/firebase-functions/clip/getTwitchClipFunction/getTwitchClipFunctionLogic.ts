@@ -9,7 +9,7 @@ export class GetTwitchClipFunctionLogic extends ClipFunction {
         return new GetTwitchClipFunctionLogic(twitchClipApi);
     }
 
-    async getClipForEachStreamers(streamers: Array<Streamer>) {
+    async getClipForEeachStreamers(streamers: Array<Streamer>) {
         const summary = new ClipDoc();
         for (const key in streamers) {
             if (Object.prototype.hasOwnProperty.call(streamers, key)) {

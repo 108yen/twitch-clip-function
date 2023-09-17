@@ -48,37 +48,45 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
             const clipDoc = await clipRepository.getClip(element.id);
 
             //各期間のクリップがあるか
-            const allPeriodClips = clipDoc.clipsMap.get(`all`);
-            expect(allPeriodClips).toBeDefined();
+            const clips = clipDoc.clipsMap.get(`all`);
+            expect(clips).toBeDefined();
             //大体90以上だけど、たまに0とかある
-            // expect(allPeriodClips!.length).toEqual(100);
-            if (allPeriodClips!.length < 10) {
-                console.debug(`num:${allPeriodClips!.length}, ${element.display_name}`);
+            // expect(clips!.length).toEqual(100);
+            if (clips!.length < 10) {
+                console.debug(`num:${clips!.length}, ${element.display_name}`);
             }
             //  中身の要素確認
-            for (const key_j in allPeriodClips!) {
-                const element = allPeriodClips[key_j];
+            for (const key_j in clips!) {
+                const element = clips[key_j];
                 expect(element.title).toBeDefined();
                 expect(element.view_count).toBeDefined();
                 expect(element.created_at).toBeDefined();
                 expect(element.broadcaster_name).toBeDefined();
                 expect(element.embed_url).toBeDefined();
             }
+            //順番チェック
+            for (let index = 0; index < clips!.length - 1; index++) {
+                expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
+            }
         }
         //全体のランキング
         const clipDoc = await clipRepository.getClip(`summary`);
-        const allPeriodClips = clipDoc.clipsMap.get(`all`);
-        expect(allPeriodClips).toBeDefined();
-        expect(allPeriodClips!.length).toEqual(100);
+        const clips = clipDoc.clipsMap.get(`all`);
+        expect(clips).toBeDefined();
+        expect(clips!.length).toEqual(100);
 
         //  中身の要素確認
-        for (const key_j in allPeriodClips!) {
-            const element = allPeriodClips[key_j];
+        for (const key_j in clips!) {
+            const element = clips[key_j];
             expect(element.title).toBeDefined();
             expect(element.view_count).toBeDefined();
             expect(element.created_at).toBeDefined();
             expect(element.broadcaster_name).toBeDefined();
             expect(element.embed_url).toBeDefined();
+        }
+        //順番チェック
+        for (let index = 0; index < clips!.length - 1; index++) {
+            expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
         }
 
     }, 300000)

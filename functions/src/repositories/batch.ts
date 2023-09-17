@@ -4,16 +4,20 @@ import * as functions from "firebase-functions";
 export class BatchRepository {
     private batch: FirebaseFirestore.WriteBatch;
     private chunck = 0;
-    constructor() {
+    chunckLimit: number;
+    constructor(chunckLimit = 400) {
+        this.chunckLimit = chunckLimit;
         this.batch = db.batch();
     }
     async getBatch() {
-        if (this.chunck > 400) {
+        if (this.chunck > this.chunckLimit) {
             await this.commitBatch();
         }
         this.chunck++;
         return this.batch;
     }
+
+    //batch commit request need less than 10MiB
     async commitBatch() {
         this.chunck = 0;
         await this.batch

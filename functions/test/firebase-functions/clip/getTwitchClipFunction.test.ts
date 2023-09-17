@@ -14,9 +14,9 @@ describe(`getTwitchClipFunctionのテスト`, () => {
     beforeAll(() => {
         wrappedGetTwitchClipFuntion = testEnv.wrap(getTwitchClipFunction);
     })
-    
+
     test(`更新`, async () => {
-        
+
         const clipRepository = new ClipRepository();
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.getStreamers();
@@ -77,6 +77,7 @@ describe(`getTwitchClipFunctionのテスト`, () => {
         }
         //全体のランキング
         const clipDoc = await clipRepository.getClip(`summary`);
+
         const periods = [`day`, `week`, `month`, `year`];
         for (const key in periods) {
             const period = periods[key];
@@ -97,7 +98,7 @@ describe(`getTwitchClipFunctionのテスト`, () => {
             for (let index = 0; index < clips.length - 1; index++) {
                 expect(clips[index].view_count!).toBeGreaterThanOrEqual(clips[index + 1].view_count!);
             }
-            
+
         }
 
     }, 540000)

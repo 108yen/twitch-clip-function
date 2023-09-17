@@ -27,6 +27,10 @@ export class ClipRepository {
             });
     }
 
+    batchUpdateClip(clipId: string, clipDoc: ClipDoc, batch: FirebaseFirestore.WriteBatch) {
+        batch.set(clipDocRef({ clipId: clipId }), clipDoc, { merge: true });
+    }
+
     async createClipDoc(clipId: string) {
         await clipDocRef({ clipId: clipId })
             .set(new ClipDoc())

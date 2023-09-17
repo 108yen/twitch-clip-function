@@ -4,10 +4,12 @@ import { StreamerRepository } from "../../../repositories/streamer";
 import { TwitchClipApi } from "../../../apis/clip";
 import { Clip } from "../../../models/clip";
 import { Streamer } from "../../../models/streamer";
+import { BatchRepository } from "../../../repositories/batch";
 
 export class GetTwitchClipFunctionLogic {
     private streamerRepository = new StreamerRepository();
     private clipRepository = new ClipRepository();
+    private batchRepository = new BatchRepository(10);
     private twitchClipApi: TwitchClipApi;
     constructor(twitchClipApi: TwitchClipApi) {
         this.twitchClipApi = twitchClipApi;
@@ -21,7 +23,7 @@ export class GetTwitchClipFunctionLogic {
         return new GetTwitchClipFunctionLogic(twitchClipApi);
     }
 
-    async getStreamers():Promise<Array<Streamer>> {
+    async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers();
     }
 
@@ -34,16 +36,26 @@ export class GetTwitchClipFunctionLogic {
                 clipDoc.sort();
 
                 //push to firestore
-                await this.clipRepository.updateClip(streamer.id, clipDoc);
+                this.clipRepository.batchUpdateClip(
+                    streamer.id,
+                    clipDoc,
+                    await this.batchRepository.getBatch()
+                );
                 summary.clipDocConcat(clipDoc);
             }
         }
         summary.sort();
+
         //push to firestore
-        await this.clipRepository.updateClip(`summary`, summary);
+        this.clipRepository.batchUpdateClip(
+            `summary`,
+            summary,
+            await this.batchRepository.getBatch()
+        );
+        await this.batchRepository.commitBatch();
     }
 
-    private async getClipForEachPeriods(streamerId: string):Promise<ClipDoc> {
+    private async getClipForEachPeriods(streamerId: string): Promise<ClipDoc> {
         const periods: { [key: string]: number } = {
             day: 1,
             week: 7,
@@ -62,11 +74,11 @@ export class GetTwitchClipFunctionLogic {
                 );
             }
         }
-        
+
         return clipDoc;
     }
 
-   private async getClips(period: number,streamerId:string):Promise<Array<Clip>> {
+    private async getClips(period: number, streamerId: string): Promise<Array<Clip>> {
         const now = new Date(); // get present date
         const daysAgo = new Date(now.getTime() - period * 24 * 60 * 60 * 1000); //days ago
         const clips = await this.twitchClipApi.getClips(
@@ -76,5 +88,5 @@ export class GetTwitchClipFunctionLogic {
         )
         return clips;
     }
-    
+
 }

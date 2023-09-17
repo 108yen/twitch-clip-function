@@ -1,18 +1,17 @@
 import 'jest'
 import { describe } from 'node:test'
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
-import { testEnv } from '../../../test/setUp';
-import { streamerSelection } from '../../../src/firebase-functions/streamer/streamerSelection'
-import { StreamerRepository } from '../../../src/repositories/streamer';
-import { ClipRepository } from '../../../src/repositories/clip';
+import { testEnv } from '../../../setUp';
+import { streamerSelection } from '../../../../src/firebase-functions/streamer/streamerSelection'
+import { StreamerRepository } from '../../../../src/repositories/streamer';
+import { ClipRepository } from '../../../../src/repositories/clip';
 
 describe(`streamerSelectionのテスト`, () => {
     let wrappedStreamerSelection: WrappedScheduledFunction;
     beforeAll(() => {
         wrappedStreamerSelection = testEnv.wrap(streamerSelection);
     })
-
-    test(`更新`, async () => {
+    test(`streamerSelectionの実行テスト`, async () => {
 
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
@@ -53,7 +52,7 @@ describe(`streamerSelectionのテスト`, () => {
             expect(element.follower_num).toBeDefined();
         }
         //順番チェック
-        for (let index = 0; index < newStreamer.length-1; index++) {
+        for (let index = 0; index < newStreamer.length - 1; index++) {
             expect(newStreamer[index].follower_num!).toBeGreaterThanOrEqual(newStreamer[index + 1].follower_num!);
         }
         //重複チェック

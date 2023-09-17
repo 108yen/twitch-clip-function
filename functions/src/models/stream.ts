@@ -1,4 +1,4 @@
-class Stream {
+export class Stream {
     id?: string;  // "40952121085",
     user_id?: string;  // "101051819",
     user_login?: string;  // "afro",

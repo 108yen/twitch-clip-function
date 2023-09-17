@@ -19,6 +19,7 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
         const streamerRepository = new StreamerRepository();
         const clipRepository = new ClipRepository();
         const streamers = await streamerRepository.getStreamers();
+        const oldClipDocs = new Map<string, ClipDoc>();
         //準備 データを消す
         const initedClipDoc = new ClipDoc({
             clipsMap: new Map<string, Array<Clip>>([
@@ -27,12 +28,20 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
         });
         for (const key in streamers) {
             const element = streamers[key];
+            oldClipDocs.set(
+                element.id,
+                await clipRepository.getClip(element.id),
+            );
             try {
                 await clipRepository.updateClip(element.id, initedClipDoc);
             } catch (error) {
                 functions.logger.debug(`初期化エラー: ${error}`);
             }
         }
+        oldClipDocs.set(
+            `summary`,
+            await clipRepository.getClip(`summary`),
+        );
         try {
             await clipRepository.updateClip(`summary`, initedClipDoc);
         } catch (error) {
@@ -44,8 +53,8 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
 
         //各ストリーマーのクリップ
         for (const key in streamers) {
-            const element = streamers[key];
-            const clipDoc = await clipRepository.getClip(element.id);
+            const streamer = streamers[key];
+            const clipDoc = await clipRepository.getClip(streamer.id);
 
             //各期間のクリップがあるか
             const clips = clipDoc.clipsMap.get(`all`);
@@ -53,21 +62,32 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
             //大体90以上だけど、たまに0とかある
             // expect(clips!.length).toEqual(100);
             if (clips!.length < 10) {
-                console.debug(`num:${clips!.length}, ${element.display_name}`);
+                console.debug(`num:${clips!.length}, ${streamer.display_name}`);
             }
             //  中身の要素確認
             for (const key_j in clips!) {
-                const element = clips[key_j];
-                expect(element.title).toBeDefined();
-                expect(element.view_count).toBeDefined();
-                expect(element.created_at).toBeDefined();
-                expect(element.broadcaster_name).toBeDefined();
-                expect(element.embed_url).toBeDefined();
+                const clip = clips[key_j];
+                expect(clip.title).toBeDefined();
+                expect(clip.view_count).toBeDefined();
+                expect(clip.created_at).toBeDefined();
+                expect(clip.broadcaster_name).toBeDefined();
+                expect(clip.embed_url).toBeDefined();
             }
             //順番チェック
             for (let index = 0; index < clips!.length - 1; index++) {
                 expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
             }
+            //all以外に影響を与えていないか
+            clipDoc.clipsMap.set(
+                `all`,
+                []
+            );
+            const oldClipDoc = oldClipDocs.get(streamer.id)!;
+            oldClipDoc.clipsMap.set(
+                `all`,
+                []
+            );
+            expect(clipDoc).toEqual(oldClipDoc);
         }
         //全体のランキング
         const clipDoc = await clipRepository.getClip(`summary`);
@@ -88,6 +108,17 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
         for (let index = 0; index < clips!.length - 1; index++) {
             expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
         }
+        //all以外に影響を与えていないか
+        clipDoc.clipsMap.set(
+            `all`,
+            []
+        );
+        const oldClipDoc = oldClipDocs.get(`summary`)!;
+        oldClipDoc.clipsMap.set(
+            `all`,
+            []
+        );
+        expect(clipDoc).toEqual(oldClipDoc);
 
     }, 300000)
 })

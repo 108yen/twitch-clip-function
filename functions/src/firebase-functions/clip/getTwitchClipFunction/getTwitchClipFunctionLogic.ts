@@ -14,7 +14,7 @@ export class GetTwitchClipFunctionLogic extends ClipFunction {
         for (const key in streamers) {
             if (Object.prototype.hasOwnProperty.call(streamers, key)) {
                 const streamer = streamers[key];
-                const clipDoc = await this.getClipForEeachPeriods(streamer.id);
+                const clipDoc = await this.getClipDoc(streamer.id);
                 clipDoc.sort();
 
                 //push to firestore
@@ -37,7 +37,7 @@ export class GetTwitchClipFunctionLogic extends ClipFunction {
         await this.batchRepository.commitBatch();
     }
 
-    private async getClipForEeachPeriods(streamerId: string): Promise<ClipDoc> {
+    private async getClipDoc(streamerId: string): Promise<ClipDoc> {
         const periods: { [key: string]: number } = {
             day: 1,
             week: 7,

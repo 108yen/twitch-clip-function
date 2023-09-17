@@ -16,7 +16,7 @@ export class GetYearRankingFunctionLogic extends ClipFunction {
         //get for each streamer's clips
         for (const key in streamers) {
             const streamer = streamers[key];
-            const clipDoc = await this.getClipForEeachPeriods(streamer);
+            const clipDoc = await this.getClipDoc(streamer);
             if (clipDoc) {
                 clipDoc.sort();
                 this.clipRepository.batchUpdateClip(
@@ -38,7 +38,7 @@ export class GetYearRankingFunctionLogic extends ClipFunction {
         await this.batchRepository.commitBatch();
     }
 
-    private async getClipForEeachPeriods(streamer: Streamer): Promise<ClipDoc | undefined> {
+    private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         if (!streamer.created_at) {
             functions.logger.error(`${streamer.display_name}: created_at is undefined`);
             return;

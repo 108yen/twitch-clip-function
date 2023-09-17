@@ -24,5 +24,5 @@ export abstract class ClipFunction{
         return await this.streamerRepository.getStreamers();
     }
 
-    abstract getClipForEeachStreamers(streamers: Array<Streamer>):Promise<void>;
+    abstract getClipForEeachStreamers(streamers: Array<Streamer>): Promise<void>;
 }

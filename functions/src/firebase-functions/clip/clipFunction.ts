@@ -1,8 +1,8 @@
-import { TwitchClipApi } from '../../../src/apis/clip';
-import { Streamer } from '../../../src/models/streamer';
-import { BatchRepository } from '../../../src/repositories/batch';
-import { ClipRepository } from '../../../src/repositories/clip';
-import { StreamerRepository } from '../../../src/repositories/streamer';
+import { TwitchClipApi } from '../../apis/clip';
+import { Streamer } from '../../models/streamer';
+import { BatchRepository } from '../../repositories/batch';
+import { ClipRepository } from '../../repositories/clip';
+import { StreamerRepository } from '../../repositories/streamer';
 
 export abstract class ClipFunction{
     protected streamerRepository = new StreamerRepository();

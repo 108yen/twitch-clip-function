@@ -3,7 +3,6 @@ import { describe } from 'node:test'
 import { getTwitchClipForAllRankingFunction } from '../../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
 import { testEnv } from '../../../../test/setUp';
-import * as functions from 'firebase-functions';
 import { StreamerRepository } from '../../../../src/repositories/streamer';
 import { ClipDoc } from '../../../../src/models/clipDoc';
 import { ClipRepository } from '../../../../src/repositories/clip';
@@ -32,21 +31,13 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
                 element.id,
                 await clipRepository.getClip(element.id),
             );
-            try {
-                await clipRepository.updateClip(element.id, initedClipDoc);
-            } catch (error) {
-                functions.logger.debug(`初期化エラー: ${error}`);
-            }
+            await clipRepository.updateClip(element.id, initedClipDoc);
         }
         oldClipDocs.set(
             `summary`,
             await clipRepository.getClip(`summary`),
         );
-        try {
-            await clipRepository.updateClip(`summary`, initedClipDoc);
-        } catch (error) {
-            functions.logger.debug(`初期化エラー: ${error}`);
-        }
+        await clipRepository.updateClip(`summary`, initedClipDoc);
 
         //実行
         await wrappedGetTwitchClipForAllRankingFunction();
@@ -78,15 +69,9 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
                 expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
             }
             //all以外に影響を与えていないか
-            clipDoc.clipsMap.set(
-                `all`,
-                []
-            );
+            clipDoc.clipsMap.delete(`all`);
             const oldClipDoc = oldClipDocs.get(streamer.id)!;
-            oldClipDoc.clipsMap.set(
-                `all`,
-                []
-            );
+            oldClipDoc.clipsMap.delete(`all`);
             expect(clipDoc).toEqual(oldClipDoc);
         }
         //全体のランキング
@@ -109,15 +94,9 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
             expect(clips![index].view_count!).toBeGreaterThanOrEqual(clips![index + 1].view_count!);
         }
         //all以外に影響を与えていないか
-        clipDoc.clipsMap.set(
-            `all`,
-            []
-        );
+        clipDoc.clipsMap.delete(`all`);
         const oldClipDoc = oldClipDocs.get(`summary`)!;
-        oldClipDoc.clipsMap.set(
-            `all`,
-            []
-        );
+        oldClipDoc.clipsMap.delete(`all`);
         expect(clipDoc).toEqual(oldClipDoc);
 
     }, 300000)

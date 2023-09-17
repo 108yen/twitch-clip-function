@@ -160,14 +160,15 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         clips
                     )
                 }
+                expect(args[1]).toEqual(result);
+
                 //順番チェック
                 for (const [_, clips] of args[1].clipsMap) {
+                    expect(clips.length).toBeGreaterThanOrEqual(96);
                     for (let index = 0; index < clips.length - 1; index++) {
                         expect(clips[index].view_count!).toBeGreaterThanOrEqual(clips[index + 1].view_count!);
                     }
                 }
-
-                expect(args[1]).toEqual(result);
             }
         }
     }, 100000)

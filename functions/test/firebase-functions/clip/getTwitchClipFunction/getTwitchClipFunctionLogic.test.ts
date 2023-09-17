@@ -171,6 +171,20 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                 }
 
                 expect(args[1]).toEqual(result);
+                //順番チェック
+                for (const [period, clips] of args[1].clipsMap) {
+                    //数は安定しない
+                    if (period==`day`) {
+                        expect(clips.length).toBeGreaterThanOrEqual(66);
+                    } else if(period==`week`) {
+                        expect(clips.length).toBeGreaterThanOrEqual(84);
+                    } else {
+                        expect(clips.length).toBeGreaterThanOrEqual(94);
+                    }
+                    for (let index = 0; index < clips.length - 1; index++) {
+                        expect(clips[index].view_count!).toBeGreaterThanOrEqual(clips[index + 1].view_count!);
+                    }
+                }
             }
         }
     }, 100000)

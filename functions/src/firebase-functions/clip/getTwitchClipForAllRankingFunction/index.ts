@@ -1,9 +1,9 @@
 import * as functions from "firebase-functions";
-import { ClipDoc } from "../../models/clipDoc";
-import { ClipRepository } from "../../repositories/clip";
-import { StreamerRepository } from "../../repositories/streamer";
-import { TwitchClipApi } from "../../apis/clip";
-import { Clip } from "../../models/clip";
+import { ClipDoc } from "../../../models/clipDoc";
+import { ClipRepository } from "../../../repositories/clip";
+import { StreamerRepository } from "../../../repositories/streamer";
+import { TwitchClipApi } from "../../../apis/clip";
+import { Clip } from "../../../models/clip";
 
 //get twitch clip every month 1st and 16 for all ranking
 export const getTwitchClipForAllRankingFunction = functions

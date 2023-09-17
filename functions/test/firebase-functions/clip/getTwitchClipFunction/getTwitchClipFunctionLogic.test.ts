@@ -60,7 +60,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         await expect(getTwitchClipFunctionLogic.getStreamers()).rejects.toThrowError();
         expect(getStreamersSpy).toHaveBeenCalled();
     }, 100000)
-    test(`getClipForEachStreamersのテスト`, async () => {
+    test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
@@ -77,6 +77,8 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                             const element = jsonObj[i][j] as Clip;
                             clips.push(element);
                         }
+                        //シャッフル
+                        // clips.sort((a, b) => 0.5 - Math.random());
                         result.clipsMap.set(
                             i,
                             clips
@@ -108,7 +110,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ];
 
-        await getTwitchClipFunctionLogic.getClipForEachStreamers(streamer);
+        await getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer);
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(8);
@@ -172,7 +174,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             }
         }
     }, 100000)
-    test(`getClipForEachStreamersのテスト:axiosエラー`, async () => {
+    test(`getClipForEeachStreamersのテスト:axiosエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockRejectedValue(new Error(`axios error test`));
@@ -188,7 +190,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ];
 
-        await expect(getTwitchClipFunctionLogic.getClipForEachStreamers(streamer))
+        await expect(getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer))
             .rejects.toThrowError();
 
         //呼び出し回数チェック
@@ -197,7 +199,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         expect(commitBatchSpy).not.toHaveBeenCalled();
 
     }, 100000)
-    test(`getClipForEachStreamersのテスト:firestoreエラー`, async () => {
+    test(`getClipForEeachStreamersのテスト:firestoreエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
@@ -245,7 +247,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ];
 
-        await expect(getTwitchClipFunctionLogic.getClipForEachStreamers(streamer))
+        await expect(getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer))
             .rejects.toThrowError();
 
         //呼び出し回数チェック

@@ -1,38 +1,20 @@
 import { ClipDoc } from "../../../models/clipDoc";
-import { ClipRepository } from "../../../repositories/clip";
-import { StreamerRepository } from "../../../repositories/streamer";
-import { TwitchClipApi } from "../../../apis/clip";
 import { Clip } from "../../../models/clip";
 import { Streamer } from "../../../models/streamer";
-import { BatchRepository } from "../../../repositories/batch";
+import { ClipFunction } from "../clipFunction";
 
-export class GetTwitchClipFunctionLogic {
-    private streamerRepository = new StreamerRepository();
-    private clipRepository = new ClipRepository();
-    private batchRepository = new BatchRepository(10);
-    private twitchClipApi: TwitchClipApi;
-    constructor(twitchClipApi: TwitchClipApi) {
-        this.twitchClipApi = twitchClipApi;
-    }
-
+export class GetTwitchClipFunctionLogic extends ClipFunction {
     public static async init() {
-        const twitchClipApi = await TwitchClipApi.init(
-            process.env.TWITCH_CLIENT_ID!,
-            process.env.TWITCH_CLIENT_SECRET!
-        );
+        const twitchClipApi = await this.getTwitchClipApi();
         return new GetTwitchClipFunctionLogic(twitchClipApi);
     }
 
-    async getStreamers(): Promise<Array<Streamer>> {
-        return await this.streamerRepository.getStreamers();
-    }
-
-    async getClipForEachStreamers(streamers: Array<Streamer>) {
+    async getClipForEeachStreamers(streamers: Array<Streamer>) {
         const summary = new ClipDoc();
         for (const key in streamers) {
             if (Object.prototype.hasOwnProperty.call(streamers, key)) {
                 const streamer = streamers[key];
-                const clipDoc = await this.getClipForEachPeriods(streamer.id);
+                const clipDoc = await this.getClipForEeachPeriods(streamer.id);
                 clipDoc.sort();
 
                 //push to firestore
@@ -55,7 +37,7 @@ export class GetTwitchClipFunctionLogic {
         await this.batchRepository.commitBatch();
     }
 
-    private async getClipForEachPeriods(streamerId: string): Promise<ClipDoc> {
+    private async getClipForEeachPeriods(streamerId: string): Promise<ClipDoc> {
         const periods: { [key: string]: number } = {
             day: 1,
             week: 7,

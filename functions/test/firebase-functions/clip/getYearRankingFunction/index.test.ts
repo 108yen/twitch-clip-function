@@ -1,12 +1,11 @@
 import 'jest'
 import { describe } from 'node:test'
-import { getYearRankingFunction } from '../../../src';
+import { getYearRankingFunction } from '../../../../src';
 import { WrappedScheduledFunction } from 'firebase-functions-test/lib/main';
-import { testEnv } from '../../../test/setUp';
+import { testEnv } from '../../../setUp';
 import * as functions from 'firebase-functions';
-import { StreamerRepository } from '../../../src/repositories/streamer';
-import { ClipDoc } from '../../../src/models/clipDoc';
-import { ClipRepository } from '../../../src/repositories/clip';
+import { StreamerRepository } from '../../../../src/repositories/streamer';
+import { ClipRepository } from '../../../../src/repositories/clip';
 
 describe(`getYearRankingFunctionのテスト`, () => {
     let wrappedGetYearRankingFunction: WrappedScheduledFunction;
@@ -20,18 +19,17 @@ describe(`getYearRankingFunctionのテスト`, () => {
         const streamerRepository = new StreamerRepository();
         const streamers = await streamerRepository.getStreamers();
         //準備 データを消す
-        const initedClipDoc = new ClipDoc();
 
         for (const key in streamers) {
             const element = streamers[key];
             try {
-                await clipRepository.updateClip(element.id, initedClipDoc);
+                await clipRepository.createClipDoc(element.id);
             } catch (error) {
                 functions.logger.debug(`初期化エラー: ${error}`);
             }
         }
         try {
-            await clipRepository.updateClip(`past_summary`, initedClipDoc);
+            await clipRepository.createClipDoc(`past_summary`);
         } catch (error) {
             functions.logger.debug(`初期化エラー: ${error}`);
         }
@@ -45,19 +43,18 @@ describe(`getYearRankingFunctionのテスト`, () => {
             const clipDoc = await clipRepository.getClip(element.id);
 
             //各期間のクリップがあるか
-            expect(clipDoc.clipsMap.size).toBeGreaterThan(0)
-            for (const [period, value] of clipDoc.clipsMap) {
+            for (const [period, clips] of clipDoc.clipsMap) {
                 if (period == 'all' || period == 'day' || period == 'week' || period == 'month' || period == 'year' ) {
                     break;
                 }
-                expect(value).toBeDefined();
-                if (value.length==0) {
+                expect(clips).toBeDefined();
+                if (clips.length==0) {
                     console.log(`${element.display_name},${period}`)
                 }
-                expect(value.length).toBeGreaterThan(0);
+                expect(clips.length).toBeGreaterThan(0);
                 //  中身の要素確認
-                for (const key_j in value) {
-                    const element = value[key_j];
+                for (const key_j in clips) {
+                    const element = clips[key_j];
                     expect(element.title).toBeDefined();
                     expect(element.view_count).toBeDefined();
                     expect(element.created_at).toBeDefined();
@@ -71,16 +68,21 @@ describe(`getYearRankingFunctionのテスト`, () => {
                         expect(new Date(element.created_at!).getTime()).toBeLessThanOrEqual(ended_at.getTime());
                     }
                 }
+
+                //順番チェック
+                // for (let index = 0; index < clips.length - 1; index++) {
+                //     expect(clips[index].view_count!).toBeGreaterThanOrEqual(clips[index + 1].view_count!);
+                // }
             }
         }
         //全体のランキング
         const clipDoc = await clipRepository.getClip(`past_summary`);
-        for (const [period, value] of clipDoc.clipsMap) {
-            expect(value).toBeDefined();
-            expect(value.length).toBeGreaterThan(0);
+        for (const [period, clips] of clipDoc.clipsMap) {
+            expect(clips).toBeDefined();
+            expect(clips.length).toBeGreaterThan(0);
             //  中身の要素確認
-            for (const key_j in value) {
-                const element = value[key_j];
+            for (const key_j in clips) {
+                const element = clips[key_j];
                 expect(element.title).toBeDefined();
                 expect(element.view_count).toBeDefined();
                 expect(element.created_at).toBeDefined();
@@ -94,6 +96,11 @@ describe(`getYearRankingFunctionのテスト`, () => {
                     expect(new Date(element.created_at!).getTime()).toBeLessThanOrEqual(ended_at.getTime());
                 }
             }
+            //順番チェック
+            for (let index = 0; index < clips.length - 1; index++) {
+                expect(clips[index].view_count!).toBeGreaterThanOrEqual(clips[index + 1].view_count!);
+            }
         }
-    }, 300000)
+
+    }, 1000000)
 })

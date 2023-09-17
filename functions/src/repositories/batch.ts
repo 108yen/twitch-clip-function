@@ -4,7 +4,7 @@ import * as functions from "firebase-functions";
 export class BatchRepository {
     private batch: FirebaseFirestore.WriteBatch;
     private chunck = 0;
-    chunckLimit: number;
+    private chunckLimit: number;
     constructor(chunckLimit = 400) {
         this.chunckLimit = chunckLimit;
         this.batch = db.batch();

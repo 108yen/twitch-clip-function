@@ -6,6 +6,7 @@ import { ClipDoc } from '../../../../src/models/clipDoc';
 import { Streamer } from '../../../../src/models/streamer';
 import { ClipRepository } from '../../../../src/repositories/clip';
 import { StreamerRepository } from '../../../../src/repositories/streamer';
+import { BatchRepository } from "../../../../src/repositories/batch";
 import fs from "fs";
 
 jest.mock(`axios`);
@@ -84,15 +85,17 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                             clips
                         )
                     }
-                    return result.clipsMap.get(`${started_at!.getFullYear()}`)!;
+                    
+                    const res = result.clipsMap.get(`${started_at!.getFullYear()}`)!;
+                    return res;
                 }
             );
         const updateClipDocSpy = jest
-            .spyOn(ClipRepository.prototype, `updateClip`)
+            .spyOn(ClipRepository.prototype, `batchUpdateClip`)
             .mockImplementation();
-        // const commitBatchSpy = jest
-        //     .spyOn(BatchRepository.prototype, `commitBatch`)
-        //     .mockResolvedValue();
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockResolvedValue();
 
         const streamer = [
             new Streamer({
@@ -116,7 +119,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
         const expectCallGetClips = (currentYear - 2016) + (currentYear - 2020);
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips);
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3);
-        // expect(commitBatchSpy).toHaveBeenCalledTimes(1);
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1);
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
@@ -168,4 +171,100 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
             }
         }
     }, 100000)
+    test(`getClipForEeachStreamersのテスト:axiosエラー`, async () => {
+        const getClipsSpy = jest
+            .spyOn(TwitchClipApi.prototype, `getClips`)
+            .mockRejectedValue(new Error(`axios error test`));
+        const updateClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+            .mockImplementation();
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockResolvedValue();
+        
+        const streamer = [
+            new Streamer({
+                id: `49207184`,
+                display_name: `fps_shaka`,
+                created_at: `2013-09-19T13:21:29Z`,
+                follower_num: 100,
+            }),
+            new Streamer({
+                id: `545050196`,
+                display_name: `加藤純一です`,
+                created_at: `2020-06-18T04:04:09Z`,
+                follower_num: 200,
+            })
+        ];
+
+        await expect(getYearRankingFunctionLogic.getClipForEeachStreamers(streamer))
+            .rejects.toThrowError();
+        
+        //呼び出し回数チェック
+        expect(getClipsSpy).toHaveBeenCalledTimes(1);
+        expect(updateClipDocSpy).not.toHaveBeenCalled();
+        expect(commitBatchSpy).not.toHaveBeenCalled();
+    })
+    test(`getClipForEeachStreamersのテスト:firestoreエラー`, async () => {
+        const getClipsSpy = jest
+            .spyOn(TwitchClipApi.prototype, `getClips`)
+            .mockImplementation(
+                async (
+                    broadcaster_id: number,
+                    started_at?: Date,
+                    _ended_at?: Date,
+                ) => {
+                    const jsonObj = JSON.parse(fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`));
+                    const result = new ClipDoc();
+                    for (const i in jsonObj) {
+                        const clips: Array<Clip> = [];
+                        for (const j in jsonObj[i]) {
+                            const element = jsonObj[i][j] as Clip;
+                            clips.push(element);
+                        }
+                        //シャッフル
+                        // clips.sort((a, b) => 0.5 - Math.random());
+                        result.clipsMap.set(
+                            i,
+                            clips
+                        )
+                    }
+
+                    const res = result.clipsMap.get(`${started_at!.getFullYear()}`)!;
+                    return res;
+                }
+            );
+        const updateClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+            .mockImplementation();
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockRejectedValue(new Error(`batch commit error test`));
+
+        const streamer = [
+            new Streamer({
+                id: `49207184`,
+                display_name: `fps_shaka`,
+                created_at: `2013-09-19T13:21:29Z`,
+                follower_num: 100,
+            }),
+            new Streamer({
+                id: `545050196`,
+                display_name: `加藤純一です`,
+                created_at: `2020-06-18T04:04:09Z`,
+                follower_num: 200,
+            })
+        ];
+
+
+        await expect(getYearRankingFunctionLogic.getClipForEeachStreamers(streamer))
+            .rejects.toThrowError();
+
+        //呼び出し回数チェック
+        const currentYear = new Date().getFullYear();
+        const expectCallGetClips = (currentYear - 2016) + (currentYear - 2020);
+        expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips);
+        expect(updateClipDocSpy).toHaveBeenCalledTimes(3);
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1);
+    })
 })

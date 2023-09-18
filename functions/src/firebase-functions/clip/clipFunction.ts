@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TwitchClipApi } from "../../apis/clip"
 import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"

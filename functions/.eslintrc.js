@@ -17,7 +17,20 @@ module.exports = {
     ignorePatterns: [`/lib/**/*`],
     plugins: [`node`, `@typescript-eslint`, `import`],
     rules: {
-        quotes: [`error`, `backtick`]
+        quotes: [`error`, `backtick`],
+        "import/order": [
+            `warn`,
+            {
+                "groups": [`builtin`, `external`, `internal`, `parent`, `sibling`, `index`, `object`, `type`],
+                "newlines-between": `always`,
+                "pathGroupsExcludedImportTypes": [`builtin`],
+                "alphabetize": { "order": `asc`, "caseInsensitive": true },
+                "pathGroups": [
+                    { "pattern": `src/types/**`, "group": `internal`, "position": `before` },
+                    { "pattern": `src/repositories/**`, "group": `internal`, "position": `before` },
+                ]
+            }
+        ]
     },
     settings: {
         'import/resolver': {

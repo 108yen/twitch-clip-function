@@ -3,7 +3,6 @@ import firebaseFunctinosTest from "firebase-functions-test"
 
 import * as devServiceAccountKey from "../keys/dev_service_account_key.json"
 import * as devTwitchApiKey from "../keys/dev_twitch_api_key.json"
-import "@types/jest"
 
 process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID
 process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET

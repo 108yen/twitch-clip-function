@@ -14,7 +14,7 @@
     "resolveJsonModule": true,
     "types": [
       "@types/node",
-      "jest"
+      "@types/jest"
     ]
   },
   "compileOnSave": true,

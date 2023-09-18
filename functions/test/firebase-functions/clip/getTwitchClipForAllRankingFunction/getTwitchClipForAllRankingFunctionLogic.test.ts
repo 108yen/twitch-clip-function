@@ -1,3 +1,4 @@
+import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
@@ -16,7 +17,8 @@ jest.mock(`axios`)
 describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
     let getTwitchClipForAllRankingFunctionLogic: GetTwitchClipForAllRankingFunctionLogic
     beforeAll(async () => {
-        ;(axios as any).mockResolvedValueOnce({
+        const mockedAxios = axios as jest.MockedFunction<typeof axios>
+        mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
                 expire_in: 0,
@@ -41,8 +43,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                 })
             ])
 
-        const streamers =
-            await getTwitchClipForAllRankingFunctionLogic.getStreamers()
+        const streamers = await getTwitchClipForAllRankingFunctionLogic.getStreamers()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -71,10 +72,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(async (broadcaster_id: number) => {
                 const jsonObj = JSON.parse(
-                    fs.readFileSync(
-                        `data/clipDoc/${broadcaster_id}.json`,
-                        `utf-8`
-                    )
+                    fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                 )
                 const result = new ClipDoc()
                 for (const i in jsonObj) {
@@ -87,7 +85,9 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                     // clips.sort((a, b) => 0.5 - Math.random());
                     result.clipsMap.set(i, clips)
                 }
-                return result.clipsMap.get(`all`)!
+                const clips = result.clipsMap.get(`all`)
+                assert(typeof clips !== `undefined`, `clips is undefind`)
+                return clips
             })
         const updateClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchUpdateClip`)
@@ -101,9 +101,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ]
 
-        await getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(
-            streamer
-        )
+        await getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(2)
@@ -112,12 +110,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    updateClipDocSpy.mock.calls,
-                    key
-                )
-            ) {
+            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
                 const args = updateClipDocSpy.mock.calls[key]
                 // !debug summaryのモックデータ作成
                 // if (args[0] == `summary`) {
@@ -160,12 +153,16 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
 
                 expect(args[1]).toEqual(result)
                 //順番チェック
-                for (const [_, value] of args[1].clipsMap) {
-                    //数は安定しない
+                for (const [, value] of args[1].clipsMap) {
                     expect(value.length).toEqual(100)
                     for (let index = 0; index < value.length - 1; index++) {
-                        expect(value[index].view_count!).toBeGreaterThanOrEqual(
-                            value[index + 1].view_count!
+                        const currentClipViewConut = clips[index].view_count
+                        const nextClipViewCount = clips[index + 1].view_count
+                        const message = `clips.view_count is undefind`
+                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(typeof nextClipViewCount === `number`, message)
+                        expect(currentClipViewConut).toBeGreaterThanOrEqual(
+                            nextClipViewCount
                         )
                     }
                 }
@@ -189,9 +186,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(
-                streamer
-            )
+            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -204,10 +199,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(async (broadcaster_id: number) => {
                 const jsonObj = JSON.parse(
-                    fs.readFileSync(
-                        `data/clipDoc/${broadcaster_id}.json`,
-                        `utf-8`
-                    )
+                    fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                 )
                 const result = new ClipDoc()
                 for (const i in jsonObj) {
@@ -220,7 +212,9 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                     // clips.sort((a, b) => 0.5 - Math.random());
                     result.clipsMap.set(i, clips)
                 }
-                return result.clipsMap.get(`all`)!
+                const clips = result.clipsMap.get(`all`)
+                assert(typeof clips !== `undefined`, `clips is undefind`)
+                return clips
             })
         const updateClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchUpdateClip`)
@@ -235,9 +229,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(
-                streamer
-            )
+            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

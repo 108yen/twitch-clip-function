@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
-import "@types/jest"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { GetTwitchClipFunctionLogic } from "../../../../src/firebase-functions/clip/getTwitchClipFunction/getTwitchClipFunctionLogic"
@@ -88,9 +88,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                     const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
                     const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
                     const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
-                    if (!started_at) {
-                        throw new Error(`started_at is undefind`)
-                    }
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)
@@ -101,9 +99,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                     } else {
                         clips = result.clipsMap.get(`year`)
                     }
-                    if (!clips) {
-                        throw new Error(`clips is undefind`)
-                    }
+                    assert(typeof clips !== `undefined`, `clips is undefind`)
                     return clips
                 }
             )
@@ -192,9 +188,9 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                     for (let index = 0; index < clips.length - 1; index++) {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
-                        if (!currentClipViewConut || !nextClipViewCount) {
-                            throw new Error(`clips.view_count is undefind`)
-                        }
+                        const message = `clips.view_count is undefind`
+                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
                         )
@@ -249,9 +245,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                     const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
                     const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
                     const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
-                    if (!started_at) {
-                        throw new Error(`started_at is undefind`)
-                    }
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)
@@ -262,10 +256,8 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                     } else {
                         clips = result.clipsMap.get(`year`)
                     }
-                    if (!clips) {
-                        throw new Error(`clips is undefind`)
-                    }
-                    return clips;
+                    assert(typeof clips !== `undefined`, `clips is undefind`)
+                    return clips
                 }
             )
         const updateClipDocSpy = jest

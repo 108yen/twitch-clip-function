@@ -12,7 +12,8 @@ export const getTwitchClipFunction = functions
     .pubsub.schedule(`0 0,6,12,18 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
-        const getTwitchClipFunctionLogic = await GetTwitchClipFunctionLogic.init()
+        const getTwitchClipFunctionLogic =
+            await GetTwitchClipFunctionLogic.init()
 
         const streamers = await getTwitchClipFunctionLogic.getStreamers()
         await getTwitchClipFunctionLogic.getClipForEeachStreamers(streamers)

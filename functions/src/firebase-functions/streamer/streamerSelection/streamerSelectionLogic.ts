@@ -39,9 +39,18 @@ export class StreamerSelectionLogic {
         const streams = await this.twitchStreamerApi.getJpStreams()
         return streams
     }
-    filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
+    filterStreams(
+        streams: Array<Stream>,
+        oldStreamerIds: Array<string>
+    ): Array<string> {
         const removeTag = [`ASMR`, `Commissions`]
-        const removeId = [`496970086`, `126482446`, `9504944`, `840446934`, `208760543`]
+        const removeId = [
+            `496970086`,
+            `126482446`,
+            `9504944`,
+            `840446934`,
+            `208760543`
+        ]
         const filteredId = streams
             .filter((stream) => {
                 const viewer_count = stream.viewer_count
@@ -82,9 +91,14 @@ export class StreamerSelectionLogic {
         )
         return newStreamers
     }
-    concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
+    concatAndFilter(
+        oldStreamers: Array<Streamer>,
+        newStreamers: Array<Streamer>
+    ) {
         //Select streamers with top 200 followers
-        const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers))
+        const sumStreamers = this.sortByFollowerNum(
+            oldStreamers.concat(newStreamers)
+        )
         const selectedStreamers = sumStreamers.slice(0, 200)
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
         const newStreamerIds = newStreamers.map((e) => e.id)
@@ -109,7 +123,8 @@ export class StreamerSelectionLogic {
             const streamerInFollowerNum = selectedStreamers.find(
                 (e) => e.id == storedStreamers[key].id
             )
-            storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num
+            storedStreamers[key].follower_num =
+                streamerInFollowerNum?.follower_num
         }
         return this.sortByFollowerNum(storedStreamers)
     }

@@ -15,22 +15,42 @@ module.exports = {
     ],
     parser: `@typescript-eslint/parser`,
     ignorePatterns: [`/lib/**/*`],
-    plugins: [`node`, `@typescript-eslint`, `import`],
+    plugins: [
+        `node`,
+        `@typescript-eslint`,
+        `import`
+    ],
     rules: {
         quotes: [`error`, `backtick`],
+        "array-element-newline": [`error`,
+            {
+                "ArrayExpression":"consistent",
+                "multiline":true,
+                "minItems": 3
+            },
+        ],
+        "prettier/prettier": ["error", { "printWidth": 90 }],
         "import/order": [
             `warn`,
             {
-                "groups": [`builtin`, `external`, `internal`, `parent`, `sibling`, `index`, `object`, `type`],
+                "groups": [
+                    `builtin`,
+                    `external`,
+                    `internal`,
+                    `parent`,
+                    `sibling`,
+                    `index`,
+                    `object`,
+                    `type`
+                ],
                 "newlines-between": `always`,
                 "pathGroupsExcludedImportTypes": [`builtin`],
                 "alphabetize": { "order": `asc`, "caseInsensitive": true },
                 "pathGroups": [
-                    { "pattern": `src/types/**`, "group": `internal`, "position": `before` },
-                    { "pattern": `src/repositories/**`, "group": `internal`, "position": `before` },
+                    { "pattern": `src/types/**`, "group": `internal`, "position": `before` }, { "pattern": `src/repositories/**`, "group": `internal`, "position": `before` },
                 ]
             }
-        ]
+        ],
     },
     settings: {
         'import/resolver': {

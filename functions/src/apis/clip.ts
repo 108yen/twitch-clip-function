@@ -44,10 +44,12 @@ export class TwitchClipApi extends TwitchApi {
             config.params.started_at = started_at.toISOString()
             config.params.ended_at = ended_at.toISOString()
         }
-        const res = await axios<{ data: Array<Clip> }>(config).catch((error) => {
-            functions.logger.error(`TwitchClipApi/getClips/axios: ${error}`)
-            throw new Error(error)
-        })
+        const res = await axios<{ data: Array<Clip> }>(config).catch(
+            (error) => {
+                functions.logger.error(`TwitchClipApi/getClips/axios: ${error}`)
+                throw new Error(error)
+            }
+        )
         const clips = res?.data.data
         assert(
             typeof clips !== `undefined`,

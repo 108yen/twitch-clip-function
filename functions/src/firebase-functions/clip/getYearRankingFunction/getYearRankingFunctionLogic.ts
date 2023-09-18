@@ -77,7 +77,10 @@ export class GetYearRankingFunctionLogic extends ClipFunction {
         return clipDoc
     }
 
-    private async getClips(year: number, streamerId: string): Promise<Array<Clip>> {
+    private async getClips(
+        year: number,
+        streamerId: string
+    ): Promise<Array<Clip>> {
         const started_at = new Date(year, 0, 1, 0, 0, 0)
         const ended_at = new Date(year, 11, 31, 23, 59, 59)
         const clips = await this.twitchClipApi.getClips(

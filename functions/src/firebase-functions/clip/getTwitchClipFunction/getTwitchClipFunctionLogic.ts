@@ -57,7 +57,10 @@ export class GetTwitchClipFunctionLogic extends ClipFunction {
         return clipDoc
     }
 
-    private async getClips(period: number, streamerId: string): Promise<Array<Clip>> {
+    private async getClips(
+        period: number,
+        streamerId: string
+    ): Promise<Array<Clip>> {
         const now = new Date() // get present date
         const daysAgo = new Date(now.getTime() - period * 24 * 60 * 60 * 1000) //days ago
         const clips = await this.twitchClipApi.getClips(

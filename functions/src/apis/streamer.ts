@@ -35,10 +35,14 @@ export class TwitchStreamerApi extends TwitchApi {
             },
             paramsSerializer: { indexes: null }
         }
-        const res = await axios<{ data: Array<Stream> }>(config).catch((error) => {
-            functions.logger.error(`TwitchStreamerApi/getJpStreams/axios: ${error}`)
-            throw new Error(error)
-        })
+        const res = await axios<{ data: Array<Stream> }>(config).catch(
+            (error) => {
+                functions.logger.error(
+                    `TwitchStreamerApi/getJpStreams/axios: ${error}`
+                )
+                throw new Error(error)
+            }
+        )
         const streams = res?.data.data
         assert(
             typeof streams !== `undefined`,
@@ -62,13 +66,17 @@ export class TwitchStreamerApi extends TwitchApi {
             }
         }
         const res = await axios<{ total: number }>(config).catch((error) => {
-            functions.logger.error(`TwitchStreamerApi/getFollowerNum/axios: ${error}`)
+            functions.logger.error(
+                `TwitchStreamerApi/getFollowerNum/axios: ${error}`
+            )
             throw new Error(error)
         })
         const followerNum = res?.data.total
         assert(
             typeof followerNum === `number`,
-            new Error(`TwitchStreamerApi/getFollowerNum: followerNum is not number`)
+            new Error(
+                `TwitchStreamerApi/getFollowerNum: followerNum is not number`
+            )
         )
 
         return followerNum
@@ -105,12 +113,14 @@ export class TwitchStreamerApi extends TwitchApi {
             paramsSerializer: { indexes: null }
         }
 
-        const res = await axios<{ data: Array<Streamer> }>(config).catch((error) => {
-            functions.logger.error(
-                `TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers/axios: ${error}`
-            )
-            throw new Error(error)
-        })
+        const res = await axios<{ data: Array<Streamer> }>(config).catch(
+            (error) => {
+                functions.logger.error(
+                    `TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers/axios: ${error}`
+                )
+                throw new Error(error)
+            }
+        )
         const streamer = res?.data.data
         assert(
             typeof streamer !== `undefined`,

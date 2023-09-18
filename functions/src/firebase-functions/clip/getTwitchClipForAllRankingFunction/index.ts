@@ -15,6 +15,9 @@ export const getTwitchClipForAllRankingFunction = functions
         const getTwitchClipForAllRankingFunctionLogic =
             await GetTwitchClipForAllRankingFunctionLogic.init()
 
-        const streamers = await getTwitchClipForAllRankingFunctionLogic.getStreamers()
-        await getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamers)
+        const streamers =
+            await getTwitchClipForAllRankingFunctionLogic.getStreamers()
+        await getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(
+            streamers
+        )
     })

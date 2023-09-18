@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
-import "@types/jest"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { GetYearRankingFunctionLogic } from "../../../../src/firebase-functions/clip/getYearRankingFunction/getYearRankingFunctionLogic"
@@ -84,14 +84,9 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         // clips.sort((a, b) => 0.5 - Math.random());
                         result.clipsMap.set(i, clips)
                     }
-                    if (!started_at) {
-                        throw new Error(`started_at is undefind`)
-                    }
-
+                    assert(typeof started_at !== `undefined`, `start_ed at is undefined`)
                     const res = result.clipsMap.get(`${started_at.getFullYear()}`)
-                    if (!res) {
-                        throw new Error(`response is undefind`)
-                    }
+                    assert(typeof res !== `undefined`, `response is undefined`)
                     return res
                 }
             )
@@ -172,9 +167,9 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                     for (let index = 0; index < clips.length - 1; index++) {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
-                        if (!currentClipViewConut || !nextClipViewCount) {
-                            throw new Error(`clips.view_count is undefind`)
-                        }
+                        const message = `clips.view_count is undefind`
+                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
                         )
@@ -237,14 +232,9 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         // clips.sort((a, b) => 0.5 - Math.random());
                         result.clipsMap.set(i, clips)
                     }
-
-                    if (!started_at) {
-                        throw new Error(`started_at is undefind`)
-                    }
+                    assert(typeof started_at !== `undefined`, `start_ed at is undefined`)
                     const res = result.clipsMap.get(`${started_at.getFullYear()}`)
-                    if (!res) {
-                        throw new Error(`response is undefind`)
-                    }
+                    assert(typeof res !== `undefined`, `response is undefined`)
                     return res
                 }
             )

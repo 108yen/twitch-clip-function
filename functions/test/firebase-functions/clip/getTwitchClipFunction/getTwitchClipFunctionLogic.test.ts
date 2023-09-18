@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
@@ -16,7 +18,8 @@ jest.mock(`axios`)
 describe(`getTwitchClipFunctionLogicのテスト`, () => {
     let getTwitchClipFunctionLogic: GetTwitchClipFunctionLogic
     beforeAll(async () => {
-        ;(axios as any).mockResolvedValueOnce({
+        const mockedAxios = axios as jest.MockedFunction<typeof axios>
+        mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
                 expire_in: 0,
@@ -59,25 +62,16 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(
-            getTwitchClipFunctionLogic.getStreamers()
-        ).rejects.toThrowError()
+        await expect(getTwitchClipFunctionLogic.getStreamers()).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (
-                    broadcaster_id: number,
-                    started_at?: Date,
-                    _ended_at?: Date
-                ) => {
+                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(
-                            `data/clipDoc/${broadcaster_id}.json`,
-                            `utf-8`
-                        )
+                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -91,23 +85,22 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(
-                        today.getTime() - 2 * 24 * 60 * 60 * 1000
-                    )
-                    const week = new Date(
-                        today.getTime() - 8 * 24 * 60 * 60 * 1000
-                    )
-                    const month = new Date(
-                        today.getTime() - 31 * 24 * 60 * 60 * 1000
-                    )
-                    if (started_at!.getTime() > day.getTime()) {
-                        return result.clipsMap.get(`day`)!
-                    } else if (started_at!.getTime() > week.getTime()) {
-                        return result.clipsMap.get(`week`)!
-                    } else if (started_at!.getTime() > month.getTime()) {
-                        return result.clipsMap.get(`month`)!
+                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
+                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
+                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
+                    let clips: Array<Clip> | undefined
+                    if (started_at.getTime() > day.getTime()) {
+                        clips = result.clipsMap.get(`day`)
+                    } else if (started_at.getTime() > week.getTime()) {
+                        clips = result.clipsMap.get(`week`)
+                    } else if (started_at.getTime() > month.getTime()) {
+                        clips = result.clipsMap.get(`month`)
+                    } else {
+                        clips = result.clipsMap.get(`year`)
                     }
-                    return result.clipsMap.get(`year`)!
+                    assert(typeof clips !== `undefined`, `clips is undefind`)
+                    return clips
                 }
             )
         const updateClipDocSpy = jest
@@ -131,12 +124,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    updateClipDocSpy.mock.calls,
-                    key
-                )
-            ) {
+            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
                 const args = updateClipDocSpy.mock.calls[key]
                 const checkPeriods = [`day`, `week`, `month`, `year`]
                 // !debug summaryのモックデータ作成
@@ -198,8 +186,13 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         expect(clips.length).toBeGreaterThanOrEqual(93)
                     }
                     for (let index = 0; index < clips.length - 1; index++) {
-                        expect(clips[index].view_count!).toBeGreaterThanOrEqual(
-                            clips[index + 1].view_count!
+                        const currentClipViewConut = clips[index].view_count
+                        const nextClipViewCount = clips[index + 1].view_count
+                        const message = `clips.view_count is undefind`
+                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(typeof nextClipViewCount === `number`, message)
+                        expect(currentClipViewConut).toBeGreaterThanOrEqual(
+                            nextClipViewCount
                         )
                     }
                 }
@@ -235,16 +228,9 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (
-                    broadcaster_id: number,
-                    started_at?: Date,
-                    _ended_at?: Date
-                ) => {
+                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(
-                            `data/clipDoc/${broadcaster_id}.json`,
-                            `utf-8`
-                        )
+                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -256,23 +242,22 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(
-                        today.getTime() - 2 * 24 * 60 * 60 * 1000
-                    )
-                    const week = new Date(
-                        today.getTime() - 8 * 24 * 60 * 60 * 1000
-                    )
-                    const month = new Date(
-                        today.getTime() - 31 * 24 * 60 * 60 * 1000
-                    )
-                    if (started_at!.getTime() > day.getTime()) {
-                        return result.clipsMap.get(`day`)!
-                    } else if (started_at!.getTime() > week.getTime()) {
-                        return result.clipsMap.get(`week`)!
-                    } else if (started_at!.getTime() > month.getTime()) {
-                        return result.clipsMap.get(`month`)!
+                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
+                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
+                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
+                    let clips: Array<Clip> | undefined
+                    if (started_at.getTime() > day.getTime()) {
+                        clips = result.clipsMap.get(`day`)
+                    } else if (started_at.getTime() > week.getTime()) {
+                        clips = result.clipsMap.get(`week`)
+                    } else if (started_at.getTime() > month.getTime()) {
+                        clips = result.clipsMap.get(`month`)
+                    } else {
+                        clips = result.clipsMap.get(`year`)
                     }
-                    return result.clipsMap.get(`year`)!
+                    assert(typeof clips !== `undefined`, `clips is undefind`)
+                    return clips
                 }
             )
         const updateClipDocSpy = jest

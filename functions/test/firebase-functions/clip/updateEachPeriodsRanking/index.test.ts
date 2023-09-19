@@ -3,7 +3,7 @@ import { describe } from "node:test"
 
 import { WrappedScheduledFunction } from "firebase-functions-test/lib/main"
 
-import { getTwitchClipFunction } from "../../../../src"
+import { updateEachPeriodsRanking } from "../../../../src"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../src/repositories/clip"
@@ -11,10 +11,10 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
 // import fs from "fs";
 
-describe(`getTwitchClipFunctionのテスト`, () => {
-    let wrappedGetTwitchClipFuntion: WrappedScheduledFunction
+describe(`updateEachPeriodsRankingのテスト`, () => {
+    let wrappedUpdateEachPeriodsRanking: WrappedScheduledFunction
     beforeAll(() => {
-        wrappedGetTwitchClipFuntion = testEnv.wrap(getTwitchClipFunction)
+        wrappedUpdateEachPeriodsRanking = testEnv.wrap(updateEachPeriodsRanking)
     })
 
     test(`更新`, async () => {
@@ -42,14 +42,17 @@ describe(`getTwitchClipFunctionのテスト`, () => {
         })
         for (const key in streamers) {
             const element = streamers[key]
-            oldClipDocs.set(element.id, await clipRepository.getClip(element.id))
+            oldClipDocs.set(
+                element.id,
+                await clipRepository.getClip(element.id)
+            )
             await clipRepository.updateClip(element.id, initedClipDoc)
         }
         oldClipDocs.set(`summary`, await clipRepository.getClip(`summary`))
         await clipRepository.updateClip(`summary`, initedClipDoc)
 
         //実行
-        await wrappedGetTwitchClipFuntion()
+        await wrappedUpdateEachPeriodsRanking()
 
         //各ストリーマーのクリップ
         for (const key in streamers) {
@@ -84,7 +87,9 @@ describe(`getTwitchClipFunctionのテスト`, () => {
                     const message = `clips.view_count is undefind`
                     assert(typeof currentClipViewConut === `number`, message)
                     assert(typeof nextClipViewCount === `number`, message)
-                    expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
+                    expect(currentClipViewConut).toBeGreaterThanOrEqual(
+                        nextClipViewCount
+                    )
                 }
                 //all以外に影響を与えていないか
                 clipDoc.clipsMap.delete(period)
@@ -121,7 +126,9 @@ describe(`getTwitchClipFunctionのテスト`, () => {
                 const message = `clips.view_count is undefind`
                 assert(typeof currentClipViewConut === `number`, message)
                 assert(typeof nextClipViewCount === `number`, message)
-                expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
+                expect(currentClipViewConut).toBeGreaterThanOrEqual(
+                    nextClipViewCount
+                )
             }
 
             //all以外に影響を与えていないか

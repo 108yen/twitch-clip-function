@@ -9,14 +9,14 @@ if (admin.apps.length === 0) {
 }
 
 //deploy function
-import { getTwitchClipForAllRankingFunction } from "./firebase-functions/clip/getTwitchClipForAllRankingFunction"
-import { getTwitchClipFunction } from "./firebase-functions/clip/getTwitchClipFunction"
-import { getYearRankingFunction } from "./firebase-functions/clip/getYearRankingFunction"
+import { updateAllRanking } from "./firebase-functions/clip/updateAllRanking"
+import { updateEachPeriodsRanking } from "./firebase-functions/clip/updateEachPeriodsRanking"
+import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 
 export {
     streamerSelection,
-    getTwitchClipFunction,
-    getYearRankingFunction,
-    getTwitchClipForAllRankingFunction
+    updateEachPeriodsRanking,
+    updatePastRanking,
+    updateAllRanking
 }

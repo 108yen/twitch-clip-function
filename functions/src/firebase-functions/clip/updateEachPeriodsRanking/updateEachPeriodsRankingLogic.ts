@@ -3,10 +3,17 @@ import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
-export class GetTwitchClipFunctionLogic extends ClipFunction {
+export class UpdateEachPeriodsRankingLogic extends ClipFunction {
+    periods: { [key: string]: number } = {
+        day: 1,
+        week: 7,
+        month: 30,
+        year: 365
+    }
+
     public static async init() {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new GetTwitchClipFunctionLogic(twitchClipApi)
+        return new UpdateEachPeriodsRankingLogic(twitchClipApi)
     }
 
     async getClipForEeachStreamers(streamers: Array<Streamer>) {
@@ -38,17 +45,10 @@ export class GetTwitchClipFunctionLogic extends ClipFunction {
     }
 
     private async getClipDoc(streamerId: string): Promise<ClipDoc> {
-        const periods: { [key: string]: number } = {
-            day: 1,
-            week: 7,
-            month: 30,
-            year: 365
-        }
-
         const clipDoc = new ClipDoc()
-        for (const key in periods) {
-            if (Object.prototype.hasOwnProperty.call(periods, key)) {
-                const period = periods[key]
+        for (const key in this.periods) {
+            if (Object.prototype.hasOwnProperty.call(this.periods, key)) {
+                const period = this.periods[key]
                 const clips = await this.getClips(period, streamerId)
                 clipDoc.clipsMap.set(key, clips)
             }

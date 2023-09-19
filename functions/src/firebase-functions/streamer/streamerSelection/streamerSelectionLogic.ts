@@ -7,6 +7,7 @@ import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
 
 export class StreamerSelectionLogic {
+    STREAMER_NUM_LIMIT = 210
     private streamerRepository = new StreamerRepository()
     private clipRepository = new ClipRepository()
     private batchRepository = new BatchRepository()
@@ -99,11 +100,11 @@ export class StreamerSelectionLogic {
         const sumStreamers = this.sortByFollowerNum(
             oldStreamers.concat(newStreamers)
         )
-        const selectedStreamers = sumStreamers.slice(0, 200)
+        const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
         const newStreamerIds = newStreamers.map((e) => e.id)
         const removedStreamerIds = sumStreamers
-            .slice(200)
+            .slice(this.STREAMER_NUM_LIMIT)
             .map((e) => e.id)
             .filter((id) => newStreamerIds.indexOf(id) == -1)
         const addedStreamerIds = selectedStreamerIds.filter(

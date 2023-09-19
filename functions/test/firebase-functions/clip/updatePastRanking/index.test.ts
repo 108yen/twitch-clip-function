@@ -3,16 +3,16 @@ import { describe } from "node:test"
 
 import { WrappedScheduledFunction } from "firebase-functions-test/lib/main"
 
-import { getYearRankingFunction } from "../../../../src"
+import { updatePastRanking } from "../../../../src"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
 
-describe(`getYearRankingFunctionのテスト`, () => {
-    let wrappedGetYearRankingFunction: WrappedScheduledFunction
+describe(`updatePastRankingのテスト`, () => {
+    let wrappedUpdatePastRanking: WrappedScheduledFunction
     beforeAll(() => {
-        wrappedGetYearRankingFunction = testEnv.wrap(getYearRankingFunction)
+        wrappedUpdatePastRanking = testEnv.wrap(updatePastRanking)
     })
 
     test(`更新`, async () => {
@@ -35,7 +35,7 @@ describe(`getYearRankingFunctionのテスト`, () => {
         await clipRepository.createClipDoc(`past_summary`)
 
         //実行
-        await wrappedGetYearRankingFunction()
+        await wrappedUpdatePastRanking()
 
         //各ストリーマーのクリップ
         for (const key in streamers) {
@@ -79,9 +79,9 @@ describe(`getYearRankingFunctionのテスト`, () => {
                         expect(
                             new Date(clip.created_at).getTime()
                         ).toBeGreaterThanOrEqual(started_at.getTime())
-                        expect(new Date(clip.created_at).getTime()).toBeLessThanOrEqual(
-                            ended_at.getTime()
-                        )
+                        expect(
+                            new Date(clip.created_at).getTime()
+                        ).toBeLessThanOrEqual(ended_at.getTime())
                     }
                 }
                 clipDoc.clipsMap.delete(period)
@@ -116,12 +116,12 @@ describe(`getYearRankingFunctionのテスト`, () => {
                         typeof clip.created_at !== `undefined`,
                         `created_at is undefined`
                     )
-                    expect(new Date(clip.created_at).getTime()).toBeGreaterThanOrEqual(
-                        started_at.getTime()
-                    )
-                    expect(new Date(clip.created_at).getTime()).toBeLessThanOrEqual(
-                        ended_at.getTime()
-                    )
+                    expect(
+                        new Date(clip.created_at).getTime()
+                    ).toBeGreaterThanOrEqual(started_at.getTime())
+                    expect(
+                        new Date(clip.created_at).getTime()
+                    ).toBeLessThanOrEqual(ended_at.getTime())
                 }
             }
             //順番チェック
@@ -131,7 +131,9 @@ describe(`getYearRankingFunctionのテスト`, () => {
                 const message = `clips.view_count is undefind`
                 assert(typeof currentClipViewConut === `number`, message)
                 assert(typeof nextClipViewCount === `number`, message)
-                expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
+                expect(currentClipViewConut).toBeGreaterThanOrEqual(
+                    nextClipViewCount
+                )
             }
         }
     }, 1000000)

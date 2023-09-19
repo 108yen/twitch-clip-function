@@ -5,7 +5,7 @@ import fs from "fs"
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
-import { GetTwitchClipFunctionLogic } from "../../../../src/firebase-functions/clip/getTwitchClipFunction/getTwitchClipFunctionLogic"
+import { UpdateEachPeriodsRankingLogic } from "../../../../src/firebase-functions/clip/updateEachPeriodsRanking/updateEachPeriodsRankingLogic"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
@@ -15,8 +15,8 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 
 jest.mock(`axios`)
 
-describe(`getTwitchClipFunctionLogicのテスト`, () => {
-    let getTwitchClipFunctionLogic: GetTwitchClipFunctionLogic
+describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
+    let updateEachPeriodsRankingLogic: UpdateEachPeriodsRankingLogic
     beforeAll(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -26,7 +26,8 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                 token_type: `test`
             }
         })
-        getTwitchClipFunctionLogic = await GetTwitchClipFunctionLogic.init()
+        updateEachPeriodsRankingLogic =
+            await UpdateEachPeriodsRankingLogic.init()
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {
@@ -43,7 +44,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await getTwitchClipFunctionLogic.getStreamers()
+        const streamers = await updateEachPeriodsRankingLogic.getStreamers()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -62,16 +63,25 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(getTwitchClipFunctionLogic.getStreamers()).rejects.toThrowError()
+        await expect(
+            updateEachPeriodsRankingLogic.getStreamers()
+        ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
+                async (
+                    broadcaster_id: number,
+                    started_at?: Date,
+                    _ended_at?: Date
+                ) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                        fs.readFileSync(
+                            `data/clipDoc/${broadcaster_id}.json`,
+                            `utf-8`
+                        )
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -85,10 +95,19 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
-                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
-                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
-                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
+                    const day = new Date(
+                        today.getTime() - 2 * 24 * 60 * 60 * 1000
+                    )
+                    const week = new Date(
+                        today.getTime() - 8 * 24 * 60 * 60 * 1000
+                    )
+                    const month = new Date(
+                        today.getTime() - 31 * 24 * 60 * 60 * 1000
+                    )
+                    assert(
+                        typeof started_at !== `undefined`,
+                        `started_at is undefind`
+                    )
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)
@@ -115,7 +134,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ]
 
-        await getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer)
+        await updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(8)
@@ -124,7 +143,12 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    updateClipDocSpy.mock.calls,
+                    key
+                )
+            ) {
                 const args = updateClipDocSpy.mock.calls[key]
                 const checkPeriods = [`day`, `week`, `month`, `year`]
                 // !debug summaryのモックデータ作成
@@ -189,7 +213,10 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
                         const message = `clips.view_count is undefind`
-                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(
+                            typeof currentClipViewConut === `number`,
+                            message
+                        )
                         assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
@@ -216,7 +243,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -228,9 +255,16 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
+                async (
+                    broadcaster_id: number,
+                    started_at?: Date,
+                    _ended_at?: Date
+                ) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                        fs.readFileSync(
+                            `data/clipDoc/${broadcaster_id}.json`,
+                            `utf-8`
+                        )
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -242,10 +276,19 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
-                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
-                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
-                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
+                    const day = new Date(
+                        today.getTime() - 2 * 24 * 60 * 60 * 1000
+                    )
+                    const week = new Date(
+                        today.getTime() - 8 * 24 * 60 * 60 * 1000
+                    )
+                    const month = new Date(
+                        today.getTime() - 31 * 24 * 60 * 60 * 1000
+                    )
+                    assert(
+                        typeof started_at !== `undefined`,
+                        `started_at is undefind`
+                    )
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)
@@ -273,7 +316,7 @@ describe(`getTwitchClipFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipFunctionLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

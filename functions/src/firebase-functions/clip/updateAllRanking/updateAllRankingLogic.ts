@@ -3,10 +3,10 @@ import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
-export class GetTwitchClipForAllRankingFunctionLogic extends ClipFunction {
+export class UpdateAllRankingLogic extends ClipFunction {
     public static async init() {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new GetTwitchClipForAllRankingFunctionLogic(twitchClipApi)
+        return new UpdateAllRankingLogic(twitchClipApi)
     }
 
     async getClipForEeachStreamers(streamers: Array<Streamer>): Promise<void> {

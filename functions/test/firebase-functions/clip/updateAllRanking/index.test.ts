@@ -3,18 +3,18 @@ import { describe } from "node:test"
 
 import { WrappedScheduledFunction } from "firebase-functions-test/lib/main"
 
-import { getTwitchClipForAllRankingFunction } from "../../../../src"
+import { updateAllRanking } from "../../../../src"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
-import { testEnv } from "../../../../test/setUp"
+import { testEnv } from "../../../setUp"
 
-describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
-    let wrappedGetTwitchClipForAllRankingFunction: WrappedScheduledFunction
+describe(`updateAllRankingのテスト`, () => {
+    let wrappedUpdateAllRanking: WrappedScheduledFunction
     beforeAll(() => {
-        wrappedGetTwitchClipForAllRankingFunction = testEnv.wrap(
-            getTwitchClipForAllRankingFunction
+        wrappedUpdateAllRanking = testEnv.wrap(
+            updateAllRanking
         )
     })
 
@@ -36,7 +36,7 @@ describe(`getTwitchClipForAllRankingFunctionのテスト`, () => {
         await clipRepository.updateClip(`summary`, initedClipDoc)
 
         //実行
-        await wrappedGetTwitchClipForAllRankingFunction()
+        await wrappedUpdateAllRanking()
 
         //各ストリーマーのクリップ
         for (const key in streamers) {

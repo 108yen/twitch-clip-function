@@ -4,7 +4,7 @@ import fs from "fs"
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
-import { GetTwitchClipForAllRankingFunctionLogic } from "../../../../src/firebase-functions/clip/getTwitchClipForAllRankingFunction/getTwitchClipForAllRankingFunctionLogic"
+import { UpdateAllRankingLogic } from "../../../../src/firebase-functions/clip/updateAllRanking/updateAllRankingLogic"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
@@ -14,8 +14,8 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 
 jest.mock(`axios`)
 
-describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
-    let getTwitchClipForAllRankingFunctionLogic: GetTwitchClipForAllRankingFunctionLogic
+describe(`UpdateAllRankingLogicのテスト`, () => {
+    let updateAllRankingLogic: UpdateAllRankingLogic
     beforeAll(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -25,8 +25,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                 token_type: `test`
             }
         })
-        getTwitchClipForAllRankingFunctionLogic =
-            await GetTwitchClipForAllRankingFunctionLogic.init()
+        updateAllRankingLogic = await UpdateAllRankingLogic.init()
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {
@@ -43,7 +42,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await getTwitchClipForAllRankingFunctionLogic.getStreamers()
+        const streamers = await updateAllRankingLogic.getStreamers()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -63,7 +62,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
         await expect(
-            getTwitchClipForAllRankingFunctionLogic.getStreamers()
+            updateAllRankingLogic.getStreamers()
         ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
@@ -72,7 +71,10 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(async (broadcaster_id: number) => {
                 const jsonObj = JSON.parse(
-                    fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                    fs.readFileSync(
+                        `data/clipDoc/${broadcaster_id}.json`,
+                        `utf-8`
+                    )
                 )
                 const result = new ClipDoc()
                 for (const i in jsonObj) {
@@ -101,7 +103,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             new Streamer({ id: `545050196` })
         ]
 
-        await getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
+        await updateAllRankingLogic.getClipForEeachStreamers(streamer)
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(2)
@@ -110,7 +112,12 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    updateClipDocSpy.mock.calls,
+                    key
+                )
+            ) {
                 const args = updateClipDocSpy.mock.calls[key]
                 // !debug summaryのモックデータ作成
                 // if (args[0] == `summary`) {
@@ -159,7 +166,10 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
                         const message = `clips.view_count is undefind`
-                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(
+                            typeof currentClipViewConut === `number`,
+                            message
+                        )
                         assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
@@ -186,7 +196,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
+            updateAllRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -199,7 +209,10 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(async (broadcaster_id: number) => {
                 const jsonObj = JSON.parse(
-                    fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                    fs.readFileSync(
+                        `data/clipDoc/${broadcaster_id}.json`,
+                        `utf-8`
+                    )
                 )
                 const result = new ClipDoc()
                 for (const i in jsonObj) {
@@ -229,7 +242,7 @@ describe(`getTwitchClipForAllRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getTwitchClipForAllRankingFunctionLogic.getClipForEeachStreamers(streamer)
+            updateAllRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

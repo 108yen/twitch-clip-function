@@ -1,19 +1,22 @@
+import { TwitchClipApi } from "../../../apis/clip"
 import { Clip } from "../../../models/clip"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
+type Periods = { [key: string]: { started_at: Date; ended_at: Date } }
+
 export class UpdateEachPeriodsRankingLogic extends ClipFunction {
-    periods: { [key: string]: number } = {
-        day: 1,
-        week: 7,
-        month: 30,
-        year: 365
+    periods: Periods
+
+    constructor(twitchClipApi: TwitchClipApi, periods: Periods) {
+        super(twitchClipApi)
+        this.periods = periods
     }
 
-    public static async init() {
+    public static async init(periods: Periods) {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new UpdateEachPeriodsRankingLogic(twitchClipApi)
+        return new UpdateEachPeriodsRankingLogic(twitchClipApi, periods)
     }
 
     async getClipForEeachStreamers(streamers: Array<Streamer>) {
@@ -58,15 +61,13 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     }
 
     private async getClips(
-        period: number,
+        period: { started_at: Date; ended_at: Date },
         streamerId: string
     ): Promise<Array<Clip>> {
-        const now = new Date() // get present date
-        const daysAgo = new Date(now.getTime() - period * 24 * 60 * 60 * 1000) //days ago
         const clips = await this.twitchClipApi.getClips(
             parseInt(streamerId),
-            daysAgo,
-            now
+            period.started_at,
+            period.ended_at
         )
         return clips
     }

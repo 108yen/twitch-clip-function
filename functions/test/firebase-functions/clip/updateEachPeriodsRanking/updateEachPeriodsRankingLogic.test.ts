@@ -26,8 +26,19 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                 token_type: `test`
             }
         })
+        const today = new Date()
+        function daysAgo(day: number) {
+            const today = new Date()
+            return new Date(today.getTime() - day * 24 * 60 * 60 * 1000)
+        }
+        const periods = {
+            day: { started_at: daysAgo(1), ended_at: today },
+            week: { started_at: daysAgo(7), ended_at: today },
+            month: { started_at: daysAgo(30), ended_at: today },
+            year: { started_at: daysAgo(365), ended_at: today }
+        }
         updateEachPeriodsRankingLogic =
-            await UpdateEachPeriodsRankingLogic.init()
+            await UpdateEachPeriodsRankingLogic.init(periods)
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {

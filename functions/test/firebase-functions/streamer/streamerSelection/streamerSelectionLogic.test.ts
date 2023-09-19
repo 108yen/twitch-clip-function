@@ -70,7 +70,9 @@ describe(`StreamerSelectionLogicのテスト`, () => {
                 })
             ])
 
-        await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError()
+        await expect(
+            streamerSelectionLogic.getOldStreamer()
+        ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getOldStreamerのテスト:firestoreエラー`, async () => {
@@ -80,7 +82,9 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError()
+        await expect(
+            streamerSelectionLogic.getOldStreamer()
+        ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getJpLiveStreamingのテスト`, async () => {
@@ -108,7 +112,9 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     }, 100000)
     test(`getJpLiveStreamingのテスト:axiosエラー`, async () => {
         mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
-        await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrowError()
+        await expect(
+            streamerSelectionLogic.getJpLiveStreaming()
+        ).rejects.toThrowError()
     }, 100000)
     test(`filterStreamsのテスト`, () => {
         const oldStreamerIdsMockData = [`102631269`, `104363564`]
@@ -163,7 +169,8 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
         const ids = [`49207184`, `545050196`]
 
-        const newStreamers = await streamerSelectionLogic.getNewStreamerFollower(ids)
+        const newStreamers =
+            await streamerSelectionLogic.getNewStreamerFollower(ids)
 
         expect(newStreamers).toEqual([
             new Streamer({
@@ -180,10 +187,13 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
         const ids = [`49207184`, `545050196`]
 
-        expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrowError()
+        expect(
+            streamerSelectionLogic.getNewStreamerFollower(ids)
+        ).rejects.toThrowError()
     }, 100000)
     test(`concatAndFilterのテスト`, () => {
-        const oldStreamers = [...Array(195)].map(
+        const streamerNumLimit = 210
+        const oldStreamers = [...Array(streamerNumLimit - 5)].map(
             (_, index) =>
                 new Streamer({
                     id: `${index}`,
@@ -193,16 +203,20 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const newStreamers = [...Array(10)].map(
             (_, index) =>
                 new Streamer({
-                    id: `${index + 195}`,
-                    follower_num: 500 - index
+                    id: `${index + streamerNumLimit - 5}`,
+                    follower_num: 600 - index
                 })
         )
         const { selectedStreamers, removedStreamerIds, addedStreamerIds } =
             streamerSelectionLogic.concatAndFilter(oldStreamers, newStreamers)
 
-        const expectSelectedStreamers = newStreamers.concat(oldStreamers).slice(0, 200)
+        const expectSelectedStreamers = newStreamers
+            .concat(oldStreamers)
+            .slice(0, streamerNumLimit)
         expect(selectedStreamers).toEqual(expectSelectedStreamers)
-        expect(removedStreamerIds).toEqual(oldStreamers.map((e) => e.id).slice(-5))
+        expect(removedStreamerIds).toEqual(
+            oldStreamers.map((e) => e.id).slice(-5)
+        )
         expect(addedStreamerIds).toEqual(newStreamers.map((e) => e.id))
     }, 100000)
     test(`updateStreamerInfoのテスト`, async () => {

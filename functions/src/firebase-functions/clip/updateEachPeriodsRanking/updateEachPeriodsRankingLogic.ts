@@ -4,7 +4,7 @@ import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
-type Periods = { [key: string]: { started_at: Date; ended_at: Date } }
+type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
 
 export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     periods: Periods
@@ -61,7 +61,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     }
 
     private async getClips(
-        period: { started_at: Date; ended_at: Date },
+        period: { started_at?: Date; ended_at?: Date },
         streamerId: string
     ): Promise<Array<Clip>> {
         const clips = await this.twitchClipApi.getClips(

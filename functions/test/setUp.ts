@@ -1,12 +1,12 @@
+import * as admin from "firebase-admin"
+import firebaseFunctinosTest from "firebase-functions-test"
 
-import * as admin from 'firebase-admin'
-import firebaseFunctinosTest from 'firebase-functions-test'
-import * as devServiceAccountKey from '../keys/dev_service_account_key.json'
-import * as devTwitchApiKey from '../keys/dev_twitch_api_key.json'
+import * as devServiceAccountKey from "../keys/dev_service_account_key.json"
+import * as devTwitchApiKey from "../keys/dev_twitch_api_key.json"
 
-process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID;
-process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET;
-process.env.FIRESTORE_EMULATOR_HOST = "localhost:8080";
+process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID
+process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET
+process.env.FIRESTORE_EMULATOR_HOST = `localhost:8080`
 
 // サービスアカウントを環境変数から取得
 const devServiceAccount = {
@@ -27,9 +27,7 @@ admin.initializeApp({
     databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`
 })
 
-export const testEnv = firebaseFunctinosTest(
-    {
-        databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`,
-        projectId: `${devServiceAccount.projectId}`
-    }
-)
+export const testEnv = firebaseFunctinosTest({
+    databaseURL: `https://${devServiceAccount.projectId}.firebaseio.com`,
+    projectId: `${devServiceAccount.projectId}`
+})

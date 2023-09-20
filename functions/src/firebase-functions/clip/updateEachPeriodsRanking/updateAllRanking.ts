@@ -7,7 +7,7 @@ export const updateAllRanking = functions
         timeoutSeconds: 540,
         secrets: [`TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`]
     })
-    .pubsub.schedule(`0 0,6,12,18 * * *`)
+    .pubsub.schedule(`0 1 1,16 * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const updateEachPeriodsRanking = new UpdateOnePeriodRanking("all")

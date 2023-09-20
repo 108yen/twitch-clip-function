@@ -7,10 +7,10 @@ import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
-export class GetYearRankingFunctionLogic extends ClipFunction {
+export class UpdatePastRankingLogic extends ClipFunction {
     public static async init() {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new GetYearRankingFunctionLogic(twitchClipApi)
+        return new UpdatePastRankingLogic(twitchClipApi)
     }
 
     async getClipForEeachStreamers(streamers: Array<Streamer>) {

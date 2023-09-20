@@ -7,6 +7,7 @@ import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
 
 export class StreamerSelectionLogic {
+    STREAMER_NUM_LIMIT = 250
     private streamerRepository = new StreamerRepository()
     private clipRepository = new ClipRepository()
     private batchRepository = new BatchRepository()
@@ -65,8 +66,8 @@ export class StreamerSelectionLogic {
                 if (removeId.includes(user_id)) {
                     return false
                 }
-                //remove less than 200 views live
-                if (viewer_count < 200) {
+                //remove less than 500 views live
+                if (viewer_count < 500) {
                     return false
                 }
                 //remove aleady exist ids
@@ -99,11 +100,11 @@ export class StreamerSelectionLogic {
         const sumStreamers = this.sortByFollowerNum(
             oldStreamers.concat(newStreamers)
         )
-        const selectedStreamers = sumStreamers.slice(0, 200)
+        const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
         const newStreamerIds = newStreamers.map((e) => e.id)
         const removedStreamerIds = sumStreamers
-            .slice(200)
+            .slice(this.STREAMER_NUM_LIMIT)
             .map((e) => e.id)
             .filter((id) => newStreamerIds.indexOf(id) == -1)
         const addedStreamerIds = selectedStreamerIds.filter(

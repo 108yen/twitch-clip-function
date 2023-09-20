@@ -5,7 +5,7 @@ import fs from "fs"
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
-import { GetYearRankingFunctionLogic } from "../../../../src/firebase-functions/clip/getYearRankingFunction/getYearRankingFunctionLogic"
+import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
@@ -15,8 +15,8 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 
 jest.mock(`axios`)
 
-describe(`GetYearRankingFunctionLogicのテスト`, () => {
-    let getYearRankingFunctionLogic: GetYearRankingFunctionLogic
+describe(`UpdatePastRankingLogicのテスト`, () => {
+    let updatePastRankingLogic: UpdatePastRankingLogic
     beforeAll(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -26,7 +26,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                 token_type: `test`
             }
         })
-        getYearRankingFunctionLogic = await GetYearRankingFunctionLogic.init()
+        updatePastRankingLogic = await UpdatePastRankingLogic.init()
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {
@@ -43,7 +43,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await getYearRankingFunctionLogic.getStreamers()
+        const streamers = await updatePastRankingLogic.getStreamers()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -62,16 +62,25 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(getYearRankingFunctionLogic.getStreamers()).rejects.toThrowError()
+        await expect(
+            updatePastRankingLogic.getStreamers()
+        ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
+                async (
+                    broadcaster_id: number,
+                    started_at?: Date,
+                    _ended_at?: Date
+                ) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                        fs.readFileSync(
+                            `data/clipDoc/${broadcaster_id}.json`,
+                            `utf-8`
+                        )
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -84,8 +93,13 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         // clips.sort((a, b) => 0.5 - Math.random());
                         result.clipsMap.set(i, clips)
                     }
-                    assert(typeof started_at !== `undefined`, `start_ed at is undefined`)
-                    const res = result.clipsMap.get(`${started_at.getFullYear()}`)
+                    assert(
+                        typeof started_at !== `undefined`,
+                        `start_ed at is undefined`
+                    )
+                    const res = result.clipsMap.get(
+                        `${started_at.getFullYear()}`
+                    )
                     assert(typeof res !== `undefined`, `response is undefined`)
                     return res
                 }
@@ -112,7 +126,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
             })
         ]
 
-        await getYearRankingFunctionLogic.getClipForEeachStreamers(streamer)
+        await updatePastRankingLogic.getClipForEeachStreamers(streamer)
 
         //呼び出し回数チェック
         const currentYear = new Date().getFullYear()
@@ -123,7 +137,12 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
+            if (
+                Object.prototype.hasOwnProperty.call(
+                    updateClipDocSpy.mock.calls,
+                    key
+                )
+            ) {
                 const args = updateClipDocSpy.mock.calls[key]
                 // !debug summaryのモックデータ作成
                 // if (args[0] == `past_summary`) {
@@ -168,7 +187,10 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
                         const message = `clips.view_count is undefind`
-                        assert(typeof currentClipViewConut === `number`, message)
+                        assert(
+                            typeof currentClipViewConut === `number`,
+                            message
+                        )
                         assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
@@ -205,7 +227,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getYearRankingFunctionLogic.getClipForEeachStreamers(streamer)
+            updatePastRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -217,9 +239,16 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
+                async (
+                    broadcaster_id: number,
+                    started_at?: Date,
+                    _ended_at?: Date
+                ) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
+                        fs.readFileSync(
+                            `data/clipDoc/${broadcaster_id}.json`,
+                            `utf-8`
+                        )
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -232,8 +261,13 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
                         // clips.sort((a, b) => 0.5 - Math.random());
                         result.clipsMap.set(i, clips)
                     }
-                    assert(typeof started_at !== `undefined`, `start_ed at is undefined`)
-                    const res = result.clipsMap.get(`${started_at.getFullYear()}`)
+                    assert(
+                        typeof started_at !== `undefined`,
+                        `start_ed at is undefined`
+                    )
+                    const res = result.clipsMap.get(
+                        `${started_at.getFullYear()}`
+                    )
                     assert(typeof res !== `undefined`, `response is undefined`)
                     return res
                 }
@@ -261,7 +295,7 @@ describe(`GetYearRankingFunctionLogicのテスト`, () => {
         ]
 
         await expect(
-            getYearRankingFunctionLogic.getClipForEeachStreamers(streamer)
+            updatePastRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

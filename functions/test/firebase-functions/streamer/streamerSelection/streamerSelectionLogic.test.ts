@@ -123,7 +123,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             new Stream({
                 user_id: `49207184`,
                 tags: [``],
-                viewer_count: 300
+                viewer_count: 500
             }),
             //重複削除
             new Stream({
@@ -192,7 +192,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         ).rejects.toThrowError()
     }, 100000)
     test(`concatAndFilterのテスト`, () => {
-        const streamerNumLimit = 210
+        const streamerNumLimit = 250
         const oldStreamers = [...Array(streamerNumLimit - 5)].map(
             (_, index) =>
                 new Streamer({

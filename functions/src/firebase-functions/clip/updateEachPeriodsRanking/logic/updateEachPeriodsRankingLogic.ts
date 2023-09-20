@@ -1,8 +1,8 @@
-import { TwitchClipApi } from "../../../apis/clip"
-import { Clip } from "../../../models/clip"
-import { ClipDoc } from "../../../models/clipDoc"
-import { Streamer } from "../../../models/streamer"
-import { ClipFunction } from "../clipFunction"
+import { TwitchClipApi } from "../../../../apis/clip"
+import { Clip } from "../../../../models/clip"
+import { ClipDoc } from "../../../../models/clipDoc"
+import { Streamer } from "../../../../models/streamer"
+import { ClipFunction } from "../../clipFunction"
 
 type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
 

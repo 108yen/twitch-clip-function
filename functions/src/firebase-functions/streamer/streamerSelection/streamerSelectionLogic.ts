@@ -7,7 +7,7 @@ import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
 
 export class StreamerSelectionLogic {
-    STREAMER_NUM_LIMIT = 210
+    STREAMER_NUM_LIMIT = 250
     private streamerRepository = new StreamerRepository()
     private clipRepository = new ClipRepository()
     private batchRepository = new BatchRepository()
@@ -66,8 +66,8 @@ export class StreamerSelectionLogic {
                 if (removeId.includes(user_id)) {
                     return false
                 }
-                //remove less than 200 views live
-                if (viewer_count < 200) {
+                //remove less than 500 views live
+                if (viewer_count < 500) {
                     return false
                 }
                 //remove aleady exist ids

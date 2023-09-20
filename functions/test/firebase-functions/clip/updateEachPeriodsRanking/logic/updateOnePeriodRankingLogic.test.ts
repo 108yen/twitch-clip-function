@@ -4,14 +4,14 @@ import fs from "fs"
 
 import axios from "axios"
 
-import { TwitchClipApi } from "../../../../src/apis/clip"
-import { UpdateEachPeriodsRankingLogic } from "../../../../src/firebase-functions/clip/updateEachPeriodsRanking/updateEachPeriodsRankingLogic"
-import { Clip } from "../../../../src/models/clip"
-import { ClipDoc } from "../../../../src/models/clipDoc"
-import { Streamer } from "../../../../src/models/streamer"
-import { BatchRepository } from "../../../../src/repositories/batch"
-import { ClipRepository } from "../../../../src/repositories/clip"
-import { StreamerRepository } from "../../../../src/repositories/streamer"
+import { TwitchClipApi } from "../../../../../src/apis/clip"
+import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
+import { Clip } from "../../../../../src/models/clip"
+import { ClipDoc } from "../../../../../src/models/clipDoc"
+import { Streamer } from "../../../../../src/models/streamer"
+import { BatchRepository } from "../../../../../src/repositories/batch"
+import { ClipRepository } from "../../../../../src/repositories/clip"
+import { StreamerRepository } from "../../../../../src/repositories/streamer"
 
 jest.mock(`axios`)
 

@@ -4,18 +4,18 @@ import fs from "fs"
 
 import axios from "axios"
 
-import { TwitchClipApi } from "../../../../src/apis/clip"
-import { UpdateOnePeriodRanking } from "../../../../src/firebase-functions/clip/updateEachPeriodsRanking/updateEachPeriodsRanking"
-import { Clip } from "../../../../src/models/clip"
-import { ClipDoc } from "../../../../src/models/clipDoc"
-import { Streamer } from "../../../../src/models/streamer"
-import { BatchRepository } from "../../../../src/repositories/batch"
-import { ClipRepository } from "../../../../src/repositories/clip"
-import { StreamerRepository } from "../../../../src/repositories/streamer"
+import { TwitchClipApi } from "../../../../../src/apis/clip"
+import { UpdateOnePeriodRanking } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/UpdateOnePeriodRanking"
+import { Clip } from "../../../../../src/models/clip"
+import { ClipDoc } from "../../../../../src/models/clipDoc"
+import { Streamer } from "../../../../../src/models/streamer"
+import { BatchRepository } from "../../../../../src/repositories/batch"
+import { ClipRepository } from "../../../../../src/repositories/clip"
+import { StreamerRepository } from "../../../../../src/repositories/streamer"
 
 jest.mock(`axios`)
 
-describe(`UpdateEachPeriodsRankingのテスト`, () => {
+describe(`UpdateOnePeriodRankingのテスト`, () => {
     beforeEach(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -98,8 +98,8 @@ async function eachPeriods(period: string, days?: number) {
         .mockResolvedValue()
 
     //実行
-    const updateEachPeriodsRanking = new UpdateOnePeriodRanking(period, days)
-    await expect(updateEachPeriodsRanking.run()).resolves.not.toThrowError()
+    const updateOnehPeriodRanking = new UpdateOnePeriodRanking(period, days)
+    await expect(updateOnehPeriodRanking.run()).resolves.not.toThrowError()
 
     //test
     expect(getStreamersSpy).toHaveBeenCalledTimes(1)

@@ -24,12 +24,10 @@ module.exports = {
         quotes: [`error`, `backtick`],
         "array-element-newline": [`error`,
             {
-                "ArrayExpression":"consistent",
                 "multiline":true,
                 "minItems": 3
             },
         ],
-        "prettier/prettier": ["error", { "printWidth": 90 }],
         "import/order": [
             `warn`,
             {

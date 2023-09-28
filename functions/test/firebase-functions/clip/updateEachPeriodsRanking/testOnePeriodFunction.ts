@@ -1,8 +1,8 @@
 import assert from "assert"
 
+import * as functions from "firebase-functions"
 import { WrappedScheduledFunction } from "firebase-functions-test/lib/main"
 
-import * as functions from "firebase-functions"
 import { Clip } from "../../../../src/models/clip"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../src/repositories/clip"
@@ -13,8 +13,7 @@ export async function testOnePeriodFunction(
     cloudFunction: functions.CloudFunction<unknown>,
     period: string
 ) {
-    const wrappedFunction: WrappedScheduledFunction =
-        testEnv.wrap(cloudFunction)
+    const wrappedFunction: WrappedScheduledFunction = testEnv.wrap(cloudFunction)
 
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
@@ -64,9 +63,7 @@ export async function testOnePeriodFunction(
             const message = `clips.view_count is undefind`
             assert(typeof currentClipViewConut === `number`, message)
             assert(typeof nextClipViewCount === `number`, message)
-            expect(currentClipViewConut).toBeGreaterThanOrEqual(
-                nextClipViewCount
-            )
+            expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
         }
         //all以外に影響を与えていないか
         clipDoc.clipsMap.delete(period)

@@ -28,19 +28,19 @@ describe(`UpdateOnePeriodRankingのテスト`, () => {
     })
     afterEach(() => jest.restoreAllMocks())
     test(`dayランキング更新テスト`, async () => {
-        await eachPeriods("day", 1)
+        await eachPeriods(`day`, 1)
     })
     test(`weekランキング更新テスト`, async () => {
-        await eachPeriods("week", 7)
+        await eachPeriods(`week`, 7)
     })
     test(`monthランキング更新テスト`, async () => {
-        await eachPeriods("month", 30)
+        await eachPeriods(`month`, 30)
     })
     test(`yearランキング更新テスト`, async () => {
-        await eachPeriods("year", 365)
+        await eachPeriods(`year`, 365)
     })
     test(`allランキング更新テスト`, async () => {
-        await eachPeriods("all")
+        await eachPeriods(`all`)
     })
 })
 
@@ -62,16 +62,9 @@ async function eachPeriods(period: string, days?: number) {
     const getClipsSpy = jest
         .spyOn(TwitchClipApi.prototype, `getClips`)
         .mockImplementation(
-            async (
-                broadcaster_id: number,
-                started_at?: Date,
-                _ended_at?: Date
-            ) => {
+            async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
                 const jsonObj = JSON.parse(
-                    fs.readFileSync(
-                        `data/clipDoc/${broadcaster_id}.json`,
-                        `utf-8`
-                    )
+                    fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                 )
                 const result = new ClipDoc()
                 for (const i in jsonObj) {

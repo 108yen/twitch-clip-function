@@ -37,8 +37,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             month: { started_at: daysAgo(30), ended_at: today },
             year: { started_at: daysAgo(365), ended_at: today }
         }
-        updateEachPeriodsRankingLogic =
-            await UpdateEachPeriodsRankingLogic.init(periods)
+        updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(periods)
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {
@@ -74,25 +73,16 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(
-            updateEachPeriodsRankingLogic.getStreamers()
-        ).rejects.toThrowError()
+        await expect(updateEachPeriodsRankingLogic.getStreamers()).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (
-                    broadcaster_id: number,
-                    started_at?: Date,
-                    _ended_at?: Date
-                ) => {
+                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(
-                            `data/clipDoc/${broadcaster_id}.json`,
-                            `utf-8`
-                        )
+                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -106,19 +96,10 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(
-                        today.getTime() - 2 * 24 * 60 * 60 * 1000
-                    )
-                    const week = new Date(
-                        today.getTime() - 8 * 24 * 60 * 60 * 1000
-                    )
-                    const month = new Date(
-                        today.getTime() - 31 * 24 * 60 * 60 * 1000
-                    )
-                    assert(
-                        typeof started_at !== `undefined`,
-                        `started_at is undefind`
-                    )
+                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
+                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
+                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)
@@ -141,7 +122,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .mockResolvedValue()
 
         const streamer = [
-            new Streamer({ id: `49207184` }),
+            new Streamer({ id: `49207184` }), 
             new Streamer({ id: `545050196` })
         ]
 
@@ -154,14 +135,14 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    updateClipDocSpy.mock.calls,
-                    key
-                )
-            ) {
+            if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
                 const args = updateClipDocSpy.mock.calls[key]
-                const checkPeriods = [`day`, `week`, `month`, `year`]
+                const checkPeriods = [
+                    `day`, //
+                    `week`,
+                    `month`,
+                    `year`
+                ]
                 // !debug summaryのモックデータ作成
                 // if (args[0] == `summary`) {
                 //     console.debug(`summary called`);
@@ -224,10 +205,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                         const currentClipViewConut = clips[index].view_count
                         const nextClipViewCount = clips[index + 1].view_count
                         const message = `clips.view_count is undefind`
-                        assert(
-                            typeof currentClipViewConut === `number`,
-                            message
-                        )
+                        assert(typeof currentClipViewConut === `number`, message)
                         assert(typeof nextClipViewCount === `number`, message)
                         expect(currentClipViewConut).toBeGreaterThanOrEqual(
                             nextClipViewCount
@@ -266,16 +244,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(
-                async (
-                    broadcaster_id: number,
-                    started_at?: Date,
-                    _ended_at?: Date
-                ) => {
+                async (broadcaster_id: number, started_at?: Date, _ended_at?: Date) => {
                     const jsonObj = JSON.parse(
-                        fs.readFileSync(
-                            `data/clipDoc/${broadcaster_id}.json`,
-                            `utf-8`
-                        )
+                        fs.readFileSync(`data/clipDoc/${broadcaster_id}.json`, `utf-8`)
                     )
                     const result = new ClipDoc()
                     for (const i in jsonObj) {
@@ -287,19 +258,10 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                         result.clipsMap.set(i, clips)
                     }
                     const today = new Date()
-                    const day = new Date(
-                        today.getTime() - 2 * 24 * 60 * 60 * 1000
-                    )
-                    const week = new Date(
-                        today.getTime() - 8 * 24 * 60 * 60 * 1000
-                    )
-                    const month = new Date(
-                        today.getTime() - 31 * 24 * 60 * 60 * 1000
-                    )
-                    assert(
-                        typeof started_at !== `undefined`,
-                        `started_at is undefind`
-                    )
+                    const day = new Date(today.getTime() - 2 * 24 * 60 * 60 * 1000)
+                    const week = new Date(today.getTime() - 8 * 24 * 60 * 60 * 1000)
+                    const month = new Date(today.getTime() - 31 * 24 * 60 * 60 * 1000)
+                    assert(typeof started_at !== `undefined`, `started_at is undefind`)
                     let clips: Array<Clip> | undefined
                     if (started_at.getTime() > day.getTime()) {
                         clips = result.clipsMap.get(`day`)

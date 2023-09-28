@@ -1,27 +1,113 @@
 import assert from "assert"
+import fs from "fs"
 import { describe } from "node:test"
 
+import axios from "axios"
 import { WrappedScheduledFunction } from "firebase-functions-test/lib/main"
 
+import { TwitchStreamerApi } from "../../../../src/apis/streamer"
 import { streamerSelection } from "../../../../src/firebase-functions/streamer/streamerSelection"
+import { Stream } from "../../../../src/models/stream"
+import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
 
+jest.mock(`axios`)
+
 describe(`streamerSelectionのテスト`, () => {
     let wrappedStreamerSelection: WrappedScheduledFunction
+    const mockedAxios = axios as jest.MockedFunction<typeof axios>
     beforeAll(() => {
         wrappedStreamerSelection = testEnv.wrap(streamerSelection)
+        mockedAxios.mockResolvedValueOnce({
+            data: {
+                access_token: `test`,
+                expire_in: 0,
+                token_type: `test`
+            }
+        })
     })
+    beforeEach(async () => {
+        const oldStreamer: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/streamerSelection/oldStreamer.json`, `utf-8`)
+        )
+        const streamerRepository = new StreamerRepository()
+        const clipRepository = new ClipRepository()
+        await streamerRepository.updateStreamers(oldStreamer)
+        for (const streamer of oldStreamer) {
+            await clipRepository.createClipDoc(streamer.id)
+        }
+    })
+    afterEach(async () => {
+        const streamerRepository = new StreamerRepository()
+        const clipRepository = new ClipRepository()
+        const streamers = await streamerRepository.getStreamers()
+        for (const streamer of streamers) {
+            await clipRepository.deleteClipDoc(streamer.id)
+        }
+        await streamerRepository.updateStreamers([])
+    })
+    // test(`mock作成`, async () => {
+    //     const streamerRepository = new StreamerRepository()
+    //     const streamers = await streamerRepository.getStreamers()
+    //     //mock作成
+    //     const json = JSON.stringify(streamers)
+    //     fs.writeFileSync(`test/test_data/streamerSelection/oldStreamer.json`, json)
+    // })
     test(`streamerSelectionの実行テスト`, async () => {
+        //準備
         const streamerRepository = new StreamerRepository()
         const clipRepository = new ClipRepository()
 
         const oldStreamer = await streamerRepository.getStreamers()
         const oldStreamerIds = oldStreamer.map((e) => e.id)
+        //mock
+        const getJpStreamsSpy = jest
+            .spyOn(TwitchStreamerApi.prototype, `getJpStreams`)
+            .mockImplementation(async () => {
+                const streams: Array<Stream> = JSON.parse(
+                    fs.readFileSync(
+                        `test/test_data/streamerSelection/jpStreams.json`,
+                        `utf-8`
+                    )
+                )
+                return streams
+            })
+        const oldStreamrsMockData: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/streamerSelection/oldStreamer.json`, `utf-8`)
+        )
+        const newStreamrsMockData: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/streamerSelection/newStreamer.json`, `utf-8`)
+        )
+        const allStreamersMockData = newStreamrsMockData.concat(oldStreamrsMockData)
+        const getFollowerNumSpy = jest
+            .spyOn(TwitchStreamerApi.prototype, `getFollowerNum`)
+            .mockImplementation(async (id: string) => {
+                const streamer = allStreamersMockData.find(
+                    (streamer) => streamer.id == id
+                )
+                assert(typeof streamer?.follower_num !== `undefined`)
+                return streamer.follower_num
+            })
+        const getStreamers = jest
+            .spyOn(TwitchStreamerApi.prototype, `getStreamers`)
+            .mockImplementation(async (ids: Array<string>) => {
+                return allStreamersMockData
+                    .map((streamer) => {
+                        streamer.follower_num = undefined
+                        return streamer
+                    })
+                    .filter((streamer) => ids.includes(streamer.id))
+            })
 
         //実行
         await wrappedStreamerSelection()
+
+        //呼び出し回数チェック
+        expect(getJpStreamsSpy).toHaveBeenCalledTimes(1)
+        expect(getFollowerNumSpy).toHaveBeenCalledTimes(251)
+        expect(getStreamers).toHaveBeenCalledTimes(1)
 
         const newStreamer = await streamerRepository.getStreamers()
         const newStreamerIds = newStreamer.map((e) => e.id)

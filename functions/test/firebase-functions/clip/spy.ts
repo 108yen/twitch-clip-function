@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker"
 
-import { Clip } from "../../../../src/models/clip"
+import { Clip } from "../../../src/models/clip"
 
 export async function getClipsSpyImp(
     broadcaster_id: number,

@@ -9,7 +9,7 @@ import { Streamer } from "../../../../../src/models/streamer"
 import { BatchRepository } from "../../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../../src/repositories/streamer"
-import { getClipsSpyImp } from "../spy"
+import { getClipsSpyImp } from "../../spy"
 
 jest.mock(`axios`)
 

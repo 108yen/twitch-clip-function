@@ -20,8 +20,7 @@ import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
-
-import { getClipsSpyImp } from "./spy"
+import { getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
 describe(`update***Rankingのテスト`, () => {
@@ -52,32 +51,13 @@ describe(`update***Rankingのテスト`, () => {
             }
             await clipRepository.updateClip(id, clipDoc)
         }
-        await streamerRepository.updateStreamers([
-            new Streamer({
-                broadcaster_type: `partner`,
-                created_at: `2013-09-19T13:21:29Z`,
-                description: ``,
-                display_name: `fps_shaka`,
-                id: `49207184`,
-                login: `fps_shaka`,
-                offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-                profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-                type: ``,
-                view_count: 0
-            }),
-            new Streamer({
-                broadcaster_type: `partner`,
-                created_at: `2020-06-18T04:04:09Z`,
-                description: `命尽き果てるまで`,
-                display_name: `加藤純一です`,
-                id: `545050196`,
-                login: `kato_junichi0817`,
-                offline_image_url: ``,
-                profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
-                type: ``,
-                view_count: 0
-            })
-        ])
+        const streamers: Array<Streamer> = JSON.parse(
+            fs.readFileSync(
+                `test/test_data/updateEachPeriodsRanking/streamer.json`,
+                `utf-8`
+            )
+        )
+        await streamerRepository.updateStreamers(streamers)
     })
     beforeEach(() => {
         mockedAxios.mockResolvedValueOnce({

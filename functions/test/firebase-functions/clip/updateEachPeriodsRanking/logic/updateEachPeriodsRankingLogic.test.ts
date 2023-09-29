@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import assert from "assert"
 
-import { faker } from "@faker-js/faker"
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../../src/apis/clip"
 import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
-import { Clip } from "../../../../../src/models/clip"
 import { Streamer } from "../../../../../src/models/streamer"
 import { BatchRepository } from "../../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../../src/repositories/streamer"
+
+import { getClipsSpyImp } from "./spy"
 
 jest.mock(`axios`)
 
@@ -78,7 +78,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
     test(`getClipForEeachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
-            .mockImplementation(createClipsMock)
+            .mockImplementation(getClipsSpyImp)
         const updateClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchUpdateClip`)
             .mockImplementation()
@@ -148,7 +148,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
     test(`getClipForEeachStreamersのテスト:firestoreエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
-            .mockImplementation(createClipsMock)
+            .mockImplementation(getClipsSpyImp)
         const updateClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchUpdateClip`)
             .mockImplementation()
@@ -171,40 +171,3 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
     }, 100000)
 })
-
-async function createClipsMock(
-    broadcaster_id: number,
-    started_at?: Date,
-    ended_at?: Date
-) {
-    assert(typeof started_at !== `undefined`)
-    assert(typeof ended_at !== `undefined`)
-    const display_name = faker.person.fullName()
-    const clips: Array<Clip> = [...Array(100).keys()].map(
-        (_) =>
-            new Clip({
-                embed_url: faker.internet.url(),
-                broadcaster_id: broadcaster_id.toString(),
-                created_at: faker.date
-                    .between({
-                        from: started_at,
-                        to: ended_at
-                    })
-                    .toISOString(),
-                language: `ja`,
-                broadcaster_name: display_name,
-                title: faker.lorem.sentence(3),
-                thumbnail_url: faker.internet.url(),
-                url: faker.internet.url(),
-                duration: faker.number.float({ precision: 0.1 }),
-                creator_id: faker.string.uuid(),
-                creator_name: faker.person.fullName(),
-                id: faker.string.uuid(),
-                view_count: faker.number.int(),
-                is_featured: faker.datatype.boolean(),
-                video_id: ``,
-                game_id: faker.string.numeric(10)
-            })
-    )
-    return clips
-}

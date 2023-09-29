@@ -1,25 +1,21 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
+import dotenv from "dotenv"
 import * as admin from "firebase-admin"
 import firebaseFunctinosTest from "firebase-functions-test"
 
-import * as devServiceAccountKey from "../keys/dev_service_account_key.json"
-import * as devTwitchApiKey from "../keys/dev_twitch_api_key.json"
-
-process.env.TWITCH_CLIENT_ID = devTwitchApiKey.TWITCH_CLIENT_ID
-process.env.TWITCH_CLIENT_SECRET = devTwitchApiKey.TWITCH_CLIENT_SECRET
-process.env.FIRESTORE_EMULATOR_HOST = `localhost:8080`
-
+dotenv.config({ path: `.env` })
 // サービスアカウントを環境変数から取得
 const devServiceAccount = {
-    type: devServiceAccountKey.type,
-    projectId: devServiceAccountKey.project_id,
-    privateKeyId: devServiceAccountKey.private_key_id,
-    privateKey: devServiceAccountKey.private_key.replace(/\\n/g, `\n`),
-    clientEmail: devServiceAccountKey.client_email,
-    clientId: devServiceAccountKey.client_id,
-    authUri: devServiceAccountKey.auth_uri,
-    tokenUri: devServiceAccountKey.token_uri,
-    authProviderX509CertUrl: devServiceAccountKey.auth_provider_x509_cert_url,
-    clientC509CertUrl: devServiceAccountKey.client_x509_cert_url
+    type: process.env.TYPE!,
+    projectId: process.env.PROJECT_ID!,
+    privateKeyId: process.env.PRIVATE_KEY_ID!,
+    privateKey: process.env.PRIVATE_KEY!.replace(/\\n/g, `\n`),
+    clientEmail: process.env.CLIENT_EMAIL!,
+    clientId: process.env.CLIENT_ID!,
+    authUri: process.env.AUTH_URI!,
+    tokenUri: process.env.TOKEN_URI!,
+    authProviderX509CertUrl: process.env.AUTH_PROVIDER_X509_CERT_URL!,
+    clientC509CertUrl: process.env.CLIENT_X509_CERT_URL!
 }
 
 admin.initializeApp({

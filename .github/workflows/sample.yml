@@ -1,8 +1,8 @@
 name: static analysis and  test
 'on':
   push:
-    # paths: #functions/が変わった時のみ動かす
-    #   - 'functions/**'
+    paths: #functions/が変わった時のみ動かす
+      - 'functions/**'
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,5 +20,5 @@ jobs:
         run: npm run lint
         working-directory: ./functions
       - name: test
-        run: firebase emulators:exec 'npm test' --project=twitch-clip-66e5b --only firestore --import test/test_data/firestore
+        run: firebase emulators:exec 'npm test' --project=twitch-clip-dev --only firestore --import test/test_data/firestore
         working-directory: ./functions

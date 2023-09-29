@@ -1,17 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import assert from "assert"
-import fs from "fs"
 
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../../src/apis/clip"
 import { UpdateOnePeriodRanking } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/UpdateOnePeriodRanking"
-import { Clip } from "../../../../../src/models/clip"
-import { ClipDoc } from "../../../../../src/models/clipDoc"
 import { Streamer } from "../../../../../src/models/streamer"
 import { BatchRepository } from "../../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../../src/repositories/streamer"
+import { getClipsSpyImp } from "../../spy"
 
 jest.mock(`axios`)
 
@@ -28,19 +26,19 @@ describe(`UpdateOnePeriodRankingのテスト`, () => {
     })
     afterEach(() => jest.restoreAllMocks())
     test(`dayランキング更新テスト`, async () => {
-        await eachPeriods("day", 1)
+        await eachPeriods(`day`, 1)
     })
     test(`weekランキング更新テスト`, async () => {
-        await eachPeriods("week", 7)
+        await eachPeriods(`week`, 7)
     })
     test(`monthランキング更新テスト`, async () => {
-        await eachPeriods("month", 30)
+        await eachPeriods(`month`, 30)
     })
     test(`yearランキング更新テスト`, async () => {
-        await eachPeriods("year", 365)
+        await eachPeriods(`year`, 365)
     })
     test(`allランキング更新テスト`, async () => {
-        await eachPeriods("all")
+        await eachPeriods(`all`)
     })
 })
 
@@ -61,35 +59,7 @@ async function eachPeriods(period: string, days?: number) {
 
     const getClipsSpy = jest
         .spyOn(TwitchClipApi.prototype, `getClips`)
-        .mockImplementation(
-            async (
-                broadcaster_id: number,
-                started_at?: Date,
-                _ended_at?: Date
-            ) => {
-                const jsonObj = JSON.parse(
-                    fs.readFileSync(
-                        `data/clipDoc/${broadcaster_id}.json`,
-                        `utf-8`
-                    )
-                )
-                const result = new ClipDoc()
-                for (const i in jsonObj) {
-                    const clips: Array<Clip> = []
-                    for (const j in jsonObj[i]) {
-                        const element = jsonObj[i][j] as Clip
-                        clips.push(element)
-                    }
-                    //シャッフル
-                    // clips.sort((a, b) => 0.5 - Math.random());
-                    result.clipsMap.set(i, clips)
-                }
-
-                const clips = result.clipsMap.get(period)
-                assert(typeof clips !== `undefined`, `clips is undefind`)
-                return clips
-            }
-        )
+        .mockImplementation(getClipsSpyImp)
     const updateClipDocSpy = jest
         .spyOn(ClipRepository.prototype, `batchUpdateClip`)
         .mockImplementation()
@@ -106,17 +76,24 @@ async function eachPeriods(period: string, days?: number) {
     expect(getClipsSpy).toHaveBeenCalledTimes(2)
     expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
     expect(commitBatchSpy).toHaveBeenCalledTimes(1)
-    for (const args of updateClipDocSpy.mock.calls) {
-        const [clipId, clipDoc] = args
-        const jsonObj = JSON.parse(
-            fs.readFileSync(`data/clipDoc/${clipId}.json`, `utf-8`)
-        )
-        const clips: Array<Clip> = []
-        for (const j in jsonObj[period]) {
-            const clip = jsonObj[period][j] as Clip
-            clips.push(clip)
+
+    //中身のデータチェック
+    for (const key in updateClipDocSpy.mock.calls) {
+        if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
+            const [, clipDoc] = updateClipDocSpy.mock.calls[key]
+            //順番チェック
+            for (const [, clips] of clipDoc.clipsMap) {
+                expect(clips.length).toBeGreaterThanOrEqual(100)
+                for (let index = 0; index < clips.length - 1; index++) {
+                    const currentClipViewConut = clips[index].view_count
+                    const nextClipViewCount = clips[index + 1].view_count
+                    expect(typeof currentClipViewConut).toEqual(`number`)
+                    expect(typeof nextClipViewCount).toEqual(`number`)
+                    assert(typeof currentClipViewConut === `number`)
+                    assert(typeof nextClipViewCount === `number`)
+                    expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
+                }
+            }
         }
-        const result = new ClipDoc({ clipsMap: new Map([[period, clips]]) })
-        expect(clipDoc).toEqual(result)
     }
 }

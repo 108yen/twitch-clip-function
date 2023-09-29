@@ -1,6 +1,6 @@
 import { faker } from "@faker-js/faker"
 
-import { Clip } from "../../../../../src/models/clip"
+import { Clip } from "../../../../src/models/clip"
 
 export async function getClipsSpyImp(
     broadcaster_id: number,
@@ -19,7 +19,7 @@ export async function getClipsSpyImp(
                       })
                       .toISOString()
 
-        return new Clip({
+        return {
             embed_url: faker.internet.url(),
             broadcaster_id: broadcaster_id.toString(),
             created_at: created_at,
@@ -36,7 +36,7 @@ export async function getClipsSpyImp(
             is_featured: faker.datatype.boolean(),
             video_id: ``,
             game_id: faker.string.numeric(10)
-        })
+        }
     })
     return clips
 }

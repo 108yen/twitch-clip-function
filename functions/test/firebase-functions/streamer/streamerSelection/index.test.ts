@@ -20,6 +20,8 @@ describe(`streamerSelectionのテスト`, () => {
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
     beforeAll(() => {
         wrappedStreamerSelection = testEnv.wrap(streamerSelection)
+    })
+    beforeEach(async () => {
         mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
@@ -27,8 +29,7 @@ describe(`streamerSelectionのテスト`, () => {
                 token_type: `test`
             }
         })
-    })
-    beforeEach(async () => {
+
         const oldStreamer: Array<Streamer> = JSON.parse(
             fs.readFileSync(`test/test_data/streamerSelection/oldStreamer.json`, `utf-8`)
         )
@@ -47,6 +48,7 @@ describe(`streamerSelectionのテスト`, () => {
             await clipRepository.deleteClipDoc(streamer.id)
         }
         await streamerRepository.updateStreamers([])
+        jest.restoreAllMocks()
     })
     // test(`mock作成`, async () => {
     //     const streamerRepository = new StreamerRepository()
@@ -151,5 +153,5 @@ describe(`streamerSelectionのテスト`, () => {
         //重複チェック
         const newStreamerIdSets = new Set(newStreamerIds)
         expect(newStreamerIdSets.size).toEqual(newStreamerIds.length)
-    }, 100000)
+    }, 20000)
 })

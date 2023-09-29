@@ -23,6 +23,7 @@ import { testEnv } from "../../../setUp"
 import { getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
+
 describe(`update***Rankingのテスト`, () => {
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
     beforeAll(async () => {
@@ -31,10 +32,7 @@ describe(`update***Rankingのテスト`, () => {
         const ids = [`49207184`, `545050196`, `summary`]
         for (const id of ids) {
             const jsonObj = JSON.parse(
-                fs.readFileSync(
-                    `test/test_data/updateEachPeriodsRanking/oldClipDoc/${id}.json`,
-                    `utf-8`
-                )
+                fs.readFileSync(`test/test_data/clip/oldClipDoc/${id}.json`, `utf-8`)
             )
             const clipDoc = new ClipDoc()
             for (const period in jsonObj) {
@@ -52,10 +50,7 @@ describe(`update***Rankingのテスト`, () => {
             await clipRepository.updateClip(id, clipDoc)
         }
         const streamers: Array<Streamer> = JSON.parse(
-            fs.readFileSync(
-                `test/test_data/updateEachPeriodsRanking/streamer.json`,
-                `utf-8`
-            )
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
         await streamerRepository.updateStreamers(streamers)
     })

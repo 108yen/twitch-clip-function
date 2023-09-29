@@ -76,7 +76,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             .mockResolvedValue()
 
         const streamer: Array<Streamer> = JSON.parse(
-            fs.readFileSync(`test/test_data/updatePastRanking/streamer.json`, `utf-8`)
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
         await updatePastRankingLogic.getClipForEeachStreamers(streamer)
@@ -122,7 +122,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             .mockResolvedValue()
 
         const streamer: Array<Streamer> = JSON.parse(
-            fs.readFileSync(`test/test_data/updatePastRanking/streamer.json`, `utf-8`)
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
         await expect(
@@ -146,7 +146,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             .mockRejectedValue(new Error(`batch commit error test`))
 
         const streamer: Array<Streamer> = JSON.parse(
-            fs.readFileSync(`test/test_data/updatePastRanking/streamer.json`, `utf-8`)
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
         await expect(

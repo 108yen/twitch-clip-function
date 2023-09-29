@@ -1,8 +1,8 @@
 name: static analysis and  test
 'on':
   push:
-    # paths: #functions/が変わった時のみ動かす
-    #   - 'functions/**'
+    paths: #functions/が変わった時のみ動かす
+      - 'functions/**'
 jobs:
   test:
     runs-on: ubuntu-latest

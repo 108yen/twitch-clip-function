@@ -95,7 +95,8 @@ describe(`update***Rankingのテスト`, () => {
         for (const id of ids) {
             await clipRepository.deleteClipDoc(id)
         }
-        await clipRepository.updateClip(`summary`, new ClipDoc())
+        await clipRepository.deleteClipDoc(`summary`)
+        await clipRepository.createClipDoc(`summary`)
         await streamerRepository.updateStreamers([])
     })
     afterEach(() => jest.restoreAllMocks())

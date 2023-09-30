@@ -9,7 +9,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     periods: Periods
 
     constructor(twitchClipApi: TwitchClipApi, periods: Periods) {
-        super(twitchClipApi)
+        super(twitchClipApi, `summary`)
         this.periods = periods
     }
 
@@ -18,32 +18,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
         return new UpdateEachPeriodsRankingLogic(twitchClipApi, periods)
     }
 
-    async getClipForEeachStreamers(streamers: Array<Streamer>) {
-        const summary = new ClipDoc()
-        for (const streamer of streamers) {
-            const clipDoc = await this.getClipDoc(streamer)
-            clipDoc.sort()
-
-            //push to firestore
-            this.clipRepository.batchUpdateClip(
-                streamer.id,
-                clipDoc,
-                await this.batchRepository.getBatch()
-            )
-            summary.clipDocConcat(clipDoc)
-        }
-        summary.sort()
-
-        //push to firestore
-        this.clipRepository.batchUpdateClip(
-            `summary`,
-            summary,
-            await this.batchRepository.getBatch()
-        )
-        await this.batchRepository.commitBatch()
-    }
-
-    private async getClipDoc(streamer: Streamer): Promise<ClipDoc> {
+    async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         const clipDoc = new ClipDoc()
         for (const key in this.periods) {
             if (Object.prototype.hasOwnProperty.call(this.periods, key)) {

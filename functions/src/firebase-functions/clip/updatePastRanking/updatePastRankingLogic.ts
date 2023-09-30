@@ -9,38 +9,11 @@ import { ClipFunction } from "../clipFunction"
 export class UpdatePastRankingLogic extends ClipFunction {
     public static async init() {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new UpdatePastRankingLogic(twitchClipApi)
+        return new UpdatePastRankingLogic(twitchClipApi, `past_summary`)
     }
 
-    async getClipForEeachStreamers(streamers: Array<Streamer>) {
-        //for summary ranking
-        const summary = new ClipDoc()
-        //get for each streamer's clips
-        for (const key in streamers) {
-            const streamer = streamers[key]
-            const clipDoc = await this.getClipDoc(streamer)
-            if (clipDoc) {
-                clipDoc.sort()
-                this.clipRepository.batchUpdateClip(
-                    streamer.id,
-                    clipDoc,
-                    await this.batchRepository.getBatch()
-                )
-
-                summary.clipDocConcat(clipDoc)
-                summary.sort()
-            }
-        }
-        //post summary clips to firestore
-        this.clipRepository.batchUpdateClip(
-            `past_summary`,
-            summary,
-            await this.batchRepository.getBatch()
-        )
-        await this.batchRepository.commitBatch()
-    }
-
-    private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
+    //todo:リファクタリング（updateEachPeriodsRankingと合わせる）
+    async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         assert(
             typeof streamer.created_at === `string`,
             new Error(

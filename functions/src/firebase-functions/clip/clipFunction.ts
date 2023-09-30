@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
+import { ClipDoc } from "../../models/clipDoc"
 import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
@@ -11,8 +12,10 @@ export abstract class ClipFunction {
     protected clipRepository = new ClipRepository()
     protected batchRepository = new BatchRepository(10)
     protected twitchClipApi: TwitchClipApi
-    constructor(twitchClipApi: TwitchClipApi) {
+    protected summaryType: `summary` | `past_summary`
+    constructor(twitchClipApi: TwitchClipApi, summaryType: `summary` | `past_summary`) {
         this.twitchClipApi = twitchClipApi
+        this.summaryType = summaryType
     }
     protected static async getTwitchClipApi() {
         const twitchClipApi = await TwitchClipApi.init(
@@ -25,6 +28,35 @@ export abstract class ClipFunction {
     async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers()
     }
+
+    async getClipForEeachStreamers(streamers: Array<Streamer>) {
+        //for summary ranking
+        const summary = new ClipDoc()
+        //get for each streamer's clips
+        for (const streamer of streamers) {
+            const clipDoc = await this.getClipDoc(streamer)
+            if (clipDoc) {
+                clipDoc.sort()
+                this.clipRepository.batchUpdateClip(
+                    streamer.id,
+                    clipDoc,
+                    await this.batchRepository.getBatch()
+                )
+
+                summary.clipDocConcat(clipDoc)
+                summary.sort()
+            }
+        }
+        //post summary clips to firestore
+        this.clipRepository.batchUpdateClip(
+            this.summaryType,
+            summary,
+            await this.batchRepository.getBatch()
+        )
+        await this.batchRepository.commitBatch()
+    }
+
+    abstract getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined>
 
     protected async getClips(
         period: { started_at?: Date; ended_at?: Date },
@@ -50,6 +82,4 @@ export abstract class ClipFunction {
 
         return result
     }
-
-    abstract getClipForEeachStreamers(streamers: Array<Streamer>): Promise<void>
 }

@@ -57,6 +57,7 @@ describe(`streamerSelectionのテスト`, () => {
     //     const json = JSON.stringify(streamers)
     //     fs.writeFileSync(`test/test_data/streamerSelection/oldStreamer.json`, json)
     // })
+    test.todo(`clipDoc内のストリーマー情報も更新する`)
     test(`streamerSelectionの実行テスト`, async () => {
         //準備
         const streamerRepository = new StreamerRepository()

@@ -13,6 +13,7 @@ import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
+import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
@@ -117,15 +118,11 @@ describe(`updatePastRankingのテスト`, () => {
                 }
                 expect(clips).toBeDefined()
                 expect(clips.length).toEqual(100)
-                //  中身の要素確認
+                clipElementCheck(clips)
+                clipOrderCheck(clips)
+                //期間通りになっているかの確認
                 for (const key_j in clips) {
                     const clip = clips[key_j]
-                    expect(clip.title).toBeDefined()
-                    expect(clip.view_count).toBeDefined()
-                    expect(clip.created_at).toBeDefined()
-                    expect(clip.broadcaster_name).toBeDefined()
-                    expect(clip.embed_url).toBeDefined()
-                    //期間通りになっているかの確認
                     const year = parseInt(period)
                     const started_at = new Date(year, 0, 1, 0, 0, 0)
                     const ended_at = new Date(year, 11, 31, 23, 59, 59)
@@ -142,18 +139,6 @@ describe(`updatePastRankingのテスト`, () => {
                 }
                 clipDoc.clipsMap.delete(period)
                 oldClipDoc.clipsMap.delete(period)
-
-                //順番チェック
-                for (let index = 0; index < clips.length - 1; index++) {
-                    const currentClipViewConut = clips[index].view_count
-                    const nextClipViewCount = clips[index + 1].view_count
-                    const message = `clips.view_count is undefind`
-                    expect(typeof currentClipViewConut).toEqual(`number`)
-                    expect(typeof nextClipViewCount).toEqual(`number`)
-                    assert(typeof currentClipViewConut === `number`, message)
-                    assert(typeof nextClipViewCount === `number`, message)
-                    expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
-                }
             }
             //ほかに影響を与えていないか
             expect(clipDoc).toEqual(oldClipDoc)
@@ -162,15 +147,12 @@ describe(`updatePastRankingのテスト`, () => {
         const clipDoc = await clipRepository.getClip(`past_summary`)
         for (const [period, clips] of clipDoc.clipsMap) {
             expect(clips).toBeDefined()
-            expect(clips.length).toBeGreaterThan(0)
+            expect(clips.length).toEqual(100)
+            clipElementCheck(clips)
+            clipOrderCheck(clips)
             //  中身の要素確認
             for (const key_j in clips) {
                 const clip = clips[key_j]
-                expect(clip.title).toBeDefined()
-                expect(clip.view_count).toBeDefined()
-                expect(clip.created_at).toBeDefined()
-                expect(clip.broadcaster_name).toBeDefined()
-                expect(clip.embed_url).toBeDefined()
                 if (!isNaN(Number(period))) {
                     const year = parseInt(period)
                     const started_at = new Date(year, 0, 1, 0, 0, 0)
@@ -186,17 +168,6 @@ describe(`updatePastRankingのテスト`, () => {
                         ended_at.getTime()
                     )
                 }
-            }
-            //順番チェック
-            for (let index = 0; index < clips.length - 1; index++) {
-                const currentClipViewConut = clips[index].view_count
-                const nextClipViewCount = clips[index + 1].view_count
-                const message = `clips.view_count is undefind`
-                expect(typeof currentClipViewConut).toEqual(`number`)
-                expect(typeof nextClipViewCount).toEqual(`number`)
-                assert(typeof currentClipViewConut === `number`, message)
-                assert(typeof nextClipViewCount === `number`, message)
-                expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
             }
         }
     }, 1000000)

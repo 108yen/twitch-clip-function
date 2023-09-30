@@ -1,6 +1,6 @@
 import * as functions from "firebase-functions"
 
-import { UpdateOnePeriodRanking } from "./logic/UpdateOnePeriodRanking"
+import { UpdateOnePeriodRanking } from "./logic/updateOnePeriodRanking"
 
 export const updateMonthRanking = functions
     .region(`asia-northeast1`)

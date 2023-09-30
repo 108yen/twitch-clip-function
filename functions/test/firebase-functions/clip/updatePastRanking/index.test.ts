@@ -147,7 +147,7 @@ describe(`updatePastRankingのテスト`, () => {
         const clipDoc = await clipRepository.getClip(`past_summary`)
         for (const [period, clips] of clipDoc.clipsMap) {
             expect(clips).toBeDefined()
-            expect(clips.length).toBeGreaterThan(100)
+            expect(clips.length).toEqual(100)
             clipElementCheck(clips)
             clipOrderCheck(clips)
             //  中身の要素確認

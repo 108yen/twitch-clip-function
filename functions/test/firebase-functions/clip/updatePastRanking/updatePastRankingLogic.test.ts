@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
@@ -10,8 +9,8 @@ import { Streamer } from "../../../../src/models/streamer"
 import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
-import { getClipsSpyImp } from "../spy"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
+import { getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
 
@@ -96,7 +95,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
                 //順番チェック
                 for (const [_, clips] of args[1].clipsMap) {
-                    expect(clips.length).toBeGreaterThanOrEqual(100)
+                    expect(clips.length).toEqual(100)
                     clipOrderCheck(clips)
                     clipElementCheck(clips)
                 }

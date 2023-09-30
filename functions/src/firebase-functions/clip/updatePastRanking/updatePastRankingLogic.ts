@@ -2,7 +2,6 @@ import assert from "assert"
 
 import * as functions from "firebase-functions"
 
-import { Clip } from "../../../models/clip"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
@@ -63,7 +62,12 @@ export class UpdatePastRankingLogic extends ClipFunction {
         //get foreach year clip ranking
         const clipDoc = new ClipDoc()
         for (let year = start_year; year < current_year; year++) {
-            const clips = await this.getClips(year, streamer.id)
+            const started_at = new Date(year, 0, 1, 0, 0, 0)
+            const ended_at = new Date(year, 11, 31, 23, 59, 59)
+            const clips = await this.getClips(
+                { started_at: started_at, ended_at: ended_at },
+                streamer.id
+            )
             //if exist
             if (clips.length != 0) {
                 const addStreamerinfoClip = this.addStreamerinfoToClips(clips, streamer)
@@ -76,20 +80,5 @@ export class UpdatePastRankingLogic extends ClipFunction {
         }
 
         return clipDoc
-    }
-
-    //!親クラスに上げる
-    private async getClips(
-        year: number,
-        streamerId: string
-    ): Promise<Array<Clip>> {
-        const started_at = new Date(year, 0, 1, 0, 0, 0)
-        const ended_at = new Date(year, 11, 31, 23, 59, 59)
-        const clips = await this.twitchClipApi.getClips(
-            parseInt(streamerId),
-            started_at,
-            ended_at
-        )
-        return clips
     }
 }

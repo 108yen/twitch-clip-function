@@ -26,6 +26,18 @@ export abstract class ClipFunction {
         return await this.streamerRepository.getStreamers()
     }
 
+    protected async getClips(
+        period: { started_at?: Date; ended_at?: Date },
+        streamerId: string
+    ): Promise<Array<Clip>> {
+        const clips = await this.twitchClipApi.getClips(
+            parseInt(streamerId),
+            period.started_at,
+            period.ended_at
+        )
+        return clips
+    }
+
     protected addStreamerinfoToClips(clips: Array<Clip>, streamer: Streamer) {
         const result: Array<Clip> = []
         for (const clip of clips) {

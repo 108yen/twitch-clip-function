@@ -1,5 +1,4 @@
 import { TwitchClipApi } from "../../../../apis/clip"
-import { Clip } from "../../../../models/clip"
 import { ClipDoc } from "../../../../models/clipDoc"
 import { Streamer } from "../../../../models/streamer"
 import { ClipFunction } from "../../clipFunction"
@@ -57,17 +56,5 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
         }
 
         return clipDoc
-    }
-
-    private async getClips(
-        period: { started_at?: Date; ended_at?: Date },
-        streamerId: string
-    ): Promise<Array<Clip>> {
-        const clips = await this.twitchClipApi.getClips(
-            parseInt(streamerId),
-            period.started_at,
-            period.ended_at
-        )
-        return clips
     }
 }

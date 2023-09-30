@@ -1,6 +1,7 @@
 import axios from "axios"
 
 import { StreamerSelectionLogic } from "../../../../src/firebase-functions/streamer/streamerSelection/streamerSelectionLogic"
+import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Stream } from "../../../../src/models/stream"
 import { Streamer } from "../../../../src/models/streamer"
 import { BatchRepository } from "../../../../src/repositories/batch"
@@ -208,7 +209,6 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         expect(removedStreamerIds).toEqual(oldStreamers.map((e) => e.id).slice(-5))
         expect(addedStreamerIds).toEqual(newStreamers.map((e) => e.id))
     }, 100000)
-    test.todo(`clipDoc内にも情報の格納`)
     test(`updateStreamerInfoのテスト`, async () => {
         const mockData = [
             new Streamer({
@@ -273,14 +273,17 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         ).rejects.toThrowError()
     }, 100000)
     test(`updateFirestoreのテスト`, async () => {
-        const updateStreamers = jest
-            .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
-            .mockImplementation()
+        // const updateStreamers = jest
+        //     .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+        //     .mockImplementation()
         const deleteClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
             .mockImplementation()
         const createClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchCreateClipDoc`)
+            .mockImplementation()
+        const updateClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchUpdateClip`)
             .mockImplementation()
         const commitBatchSpy = jest
             .spyOn(BatchRepository.prototype, `commitBatch`)
@@ -315,7 +318,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             })
         ]
         const removeStreamerIds = [`102631269`, `104363564`]
-        const addedStreamerIds = [`126482446`]
+        const addedStreamerIds = [`545050196`]
 
         await streamerSelectionLogic.updateFirestore(
             storedStreamers,
@@ -323,14 +326,24 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             addedStreamerIds
         )
 
-        expect(updateStreamers).toHaveBeenCalledTimes(1)
-        expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)
         expect(deleteClipDocSpy).toHaveBeenCalledTimes(2)
         expect(deleteClipDocSpy.mock.calls[0][0]).toEqual(removeStreamerIds[0])
         expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1])
         expect(createClipDocSpy).toHaveBeenCalledTimes(1)
         expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0])
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+
+        //削除
+        // expect(updateStreamers).toHaveBeenCalledTimes(1)
+        // expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)
+        //追加
+        expect(updateClipDocSpy).toHaveBeenCalledTimes(2)
+        expect(updateClipDocSpy.mock.calls[0][1]).toEqual(
+            new ClipDoc({ streamerInfo: storedStreamers[0] })
+        )
+        expect(updateClipDocSpy.mock.calls[1][1]).toEqual(
+            new ClipDoc({ streamerInfo: storedStreamers[1] })
+        )
     }, 100000)
     test(`updateFirestoreのテスト:batchエラー`, async () => {
         const updateStreamers = jest

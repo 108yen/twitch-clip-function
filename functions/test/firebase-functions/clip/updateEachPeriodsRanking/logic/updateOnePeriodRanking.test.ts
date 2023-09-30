@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import fs from "fs"
 
 import axios from "axios"
 
 import { TwitchClipApi } from "../../../../../src/apis/clip"
-import { UpdateOnePeriodRanking } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/UpdateOnePeriodRanking"
+import { UpdateOnePeriodRanking } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateOnePeriodRanking"
 import { Streamer } from "../../../../../src/models/streamer"
 import { BatchRepository } from "../../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../../src/repositories/clip"
@@ -43,19 +44,13 @@ describe(`UpdateOnePeriodRankingのテスト`, () => {
 })
 
 async function eachPeriods(period: string, days?: number) {
+    const streamer: Array<Streamer> = JSON.parse(
+        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
+    )
     //準備
     const getStreamersSpy = jest
         .spyOn(StreamerRepository.prototype, `getStreamers`)
-        .mockResolvedValue([
-            new Streamer({
-                id: `49207184`,
-                follower_num: 100
-            }),
-            new Streamer({
-                id: `545050196`,
-                follower_num: 200
-            })
-        ])
+        .mockResolvedValue(streamer)
 
     const getClipsSpy = jest
         .spyOn(TwitchClipApi.prototype, `getClips`)

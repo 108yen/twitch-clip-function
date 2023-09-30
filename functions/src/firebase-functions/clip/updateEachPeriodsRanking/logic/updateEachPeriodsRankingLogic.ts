@@ -21,20 +21,17 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
 
     async getClipForEeachStreamers(streamers: Array<Streamer>) {
         const summary = new ClipDoc()
-        for (const key in streamers) {
-            if (Object.prototype.hasOwnProperty.call(streamers, key)) {
-                const streamer = streamers[key]
-                const clipDoc = await this.getClipDoc(streamer.id)
-                clipDoc.sort()
+        for (const streamer of streamers) {
+            const clipDoc = await this.getClipDoc(streamer)
+            clipDoc.sort()
 
-                //push to firestore
-                this.clipRepository.batchUpdateClip(
-                    streamer.id,
-                    clipDoc,
-                    await this.batchRepository.getBatch()
-                )
-                summary.clipDocConcat(clipDoc)
-            }
+            //push to firestore
+            this.clipRepository.batchUpdateClip(
+                streamer.id,
+                clipDoc,
+                await this.batchRepository.getBatch()
+            )
+            summary.clipDocConcat(clipDoc)
         }
         summary.sort()
 
@@ -47,13 +44,15 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
         await this.batchRepository.commitBatch()
     }
 
-    private async getClipDoc(streamerId: string): Promise<ClipDoc> {
+    private async getClipDoc(streamer: Streamer): Promise<ClipDoc> {
         const clipDoc = new ClipDoc()
         for (const key in this.periods) {
             if (Object.prototype.hasOwnProperty.call(this.periods, key)) {
                 const period = this.periods[key]
-                const clips = await this.getClips(period, streamerId)
-                clipDoc.clipsMap.set(key, clips)
+                const clips = await this.getClips(period, streamer.id)
+                const addStreamerinfoClip = this.addStreamerinfoToClips(clips, streamer)
+
+                clipDoc.clipsMap.set(key, addStreamerinfoClip)
             }
         }
 

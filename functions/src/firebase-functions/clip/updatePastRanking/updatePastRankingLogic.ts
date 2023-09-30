@@ -66,7 +66,8 @@ export class UpdatePastRankingLogic extends ClipFunction {
             const clips = await this.getClips(year, streamer.id)
             //if exist
             if (clips.length != 0) {
-                clipDoc.clipsMap.set(year.toString(), clips)
+                const addStreamerinfoClip = this.addStreamerinfoToClips(clips, streamer)
+                clipDoc.clipsMap.set(year.toString(), addStreamerinfoClip)
             }
         }
         if (clipDoc.clipsMap.size == 0) {
@@ -77,6 +78,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
         return clipDoc
     }
 
+    //!親クラスに上げる
     private async getClips(
         year: number,
         streamerId: string

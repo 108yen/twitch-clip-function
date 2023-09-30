@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { TwitchClipApi } from "../../apis/clip"
+import { Clip } from "../../models/clip"
 import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
@@ -23,6 +24,19 @@ export abstract class ClipFunction {
 
     async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers()
+    }
+
+    protected addStreamerinfoToClips(clips: Array<Clip>, streamer: Streamer) {
+        const result: Array<Clip> = []
+        for (const clip of clips) {
+            const addStreamerinfoClip = new Clip({
+                ...clip,
+                profile_image_url: streamer.profile_image_url
+            })
+            result.push(addStreamerinfoClip)
+        }
+
+        return result
     }
 
     abstract getClipForEeachStreamers(streamers: Array<Streamer>): Promise<void>

@@ -14,7 +14,7 @@ export function clipElementCheck(clips: Array<Clip>) {
         expect(clip.broadcaster_id).toBeDefined()
         expect(clip.broadcaster_name).toBeDefined()
         //追加情報
-        // expect(clip.broadcaster_avator_url).toBeDefined()
+        expect(clip.profile_image_url).toBeDefined()
     }
 }
 

@@ -12,7 +12,6 @@ export class UpdatePastRankingLogic extends ClipFunction {
         return new UpdatePastRankingLogic(twitchClipApi, `past_summary`)
     }
 
-    //todo:リファクタリング（updateEachPeriodsRankingと合わせる）
     async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         assert(
             typeof streamer.created_at === `string`,

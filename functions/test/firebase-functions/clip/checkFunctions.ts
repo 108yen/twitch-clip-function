@@ -6,10 +6,15 @@ export function clipElementCheck(clips: Array<Clip>) {
     //  中身の要素確認
     for (const clip of clips) {
         expect(clip.title).toBeDefined()
+        expect(clip.embed_url).toBeDefined()
+        expect(clip.thumbnail_url).toBeDefined()
         expect(clip.view_count).toBeDefined()
         expect(clip.created_at).toBeDefined()
+        expect(clip.creator_name).toBeDefined()
+        expect(clip.broadcaster_id).toBeDefined()
         expect(clip.broadcaster_name).toBeDefined()
-        expect(clip.embed_url).toBeDefined()
+        //追加情報
+        // expect(clip.broadcaster_avator_url).toBeDefined()
     }
 }
 

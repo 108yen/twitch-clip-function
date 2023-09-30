@@ -11,6 +11,7 @@ import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { getClipsSpyImp } from "../spy"
+import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 
 jest.mock(`axios`)
 
@@ -96,16 +97,8 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
                 //順番チェック
                 for (const [_, clips] of args[1].clipsMap) {
                     expect(clips.length).toBeGreaterThanOrEqual(100)
-                    for (let index = 0; index < clips.length - 1; index++) {
-                        const currentClipViewConut = clips[index].view_count
-                        const nextClipViewCount = clips[index + 1].view_count
-                        const message = `clips.view_count is undefind`
-                        assert(typeof currentClipViewConut === `number`, message)
-                        assert(typeof nextClipViewCount === `number`, message)
-                        expect(currentClipViewConut).toBeGreaterThanOrEqual(
-                            nextClipViewCount
-                        )
-                    }
+                    clipOrderCheck(clips)
+                    clipElementCheck(clips)
                 }
             }
         }

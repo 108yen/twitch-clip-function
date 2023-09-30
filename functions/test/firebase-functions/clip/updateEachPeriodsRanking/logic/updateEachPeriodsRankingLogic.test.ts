@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import assert from "assert"
 import fs from "fs"
 
 import axios from "axios"
@@ -10,6 +9,7 @@ import { Streamer } from "../../../../../src/models/streamer"
 import { BatchRepository } from "../../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../../src/repositories/streamer"
+import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
 import { getClipsSpyImp } from "../../spy"
 
 jest.mock(`axios`)
@@ -101,20 +101,10 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         for (const key in updateClipDocSpy.mock.calls) {
             if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
                 const [, clipDoc] = updateClipDocSpy.mock.calls[key]
-                //順番チェック
                 for (const [, clips] of clipDoc.clipsMap) {
                     expect(clips.length).toBeGreaterThanOrEqual(100)
-                    for (let index = 0; index < clips.length - 1; index++) {
-                        const currentClipViewConut = clips[index].view_count
-                        const nextClipViewCount = clips[index + 1].view_count
-                        expect(typeof currentClipViewConut).toEqual(`number`)
-                        expect(typeof nextClipViewCount).toEqual(`number`)
-                        assert(typeof currentClipViewConut === `number`)
-                        assert(typeof nextClipViewCount === `number`)
-                        expect(currentClipViewConut).toBeGreaterThanOrEqual(
-                            nextClipViewCount
-                        )
-                    }
+                    clipElementCheck(clips)
+                    clipOrderCheck(clips)
                 }
             }
         }

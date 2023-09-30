@@ -84,6 +84,16 @@ async function eachPeriods(period: string, days?: number) {
             //順番チェック
             for (const [, clips] of clipDoc.clipsMap) {
                 expect(clips.length).toBeGreaterThanOrEqual(100)
+                //  中身の要素確認
+                for (const key_j in clips) {
+                    const clip = clips[key_j]
+                    expect(clip.title).toBeDefined()
+                    expect(clip.view_count).toBeDefined()
+                    expect(clip.created_at).toBeDefined()
+                    expect(clip.broadcaster_name).toBeDefined()
+                    expect(clip.embed_url).toBeDefined()
+                }
+
                 for (let index = 0; index < clips.length - 1; index++) {
                     const currentClipViewConut = clips[index].view_count
                     const nextClipViewCount = clips[index + 1].view_count

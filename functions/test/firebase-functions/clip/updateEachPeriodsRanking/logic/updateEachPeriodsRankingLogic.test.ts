@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import assert from "assert"
+import fs from "fs"
 
 import axios from "axios"
 
@@ -85,10 +86,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(BatchRepository.prototype, `commitBatch`)
             .mockResolvedValue()
 
-        const streamer = [
-            new Streamer({ id: `49207184` }),
-            new Streamer({ id: `545050196` })
-        ]
+        const streamer: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
+        )
 
         await updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
 
@@ -130,10 +130,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(BatchRepository.prototype, `commitBatch`)
             .mockResolvedValue()
 
-        const streamer = [
-            new Streamer({ id: `49207184` }),
-            new Streamer({ id: `545050196` })
-        ]
+        const streamer: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
+        )
 
         await expect(
             updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
@@ -155,10 +154,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(BatchRepository.prototype, `commitBatch`)
             .mockRejectedValue(new Error(`batch commit error test`))
 
-        const streamer = [
-            new Streamer({ id: `49207184` }),
-            new Streamer({ id: `545050196` })
-        ]
+        const streamer: Array<Streamer> = JSON.parse(
+            fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
+        )
 
         await expect(
             updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)

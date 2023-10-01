@@ -273,14 +273,11 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         ).rejects.toThrowError()
     }, 100000)
     test(`updateFirestoreのテスト`, async () => {
-        // const updateStreamers = jest
-        //     .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
-        //     .mockImplementation()
+        const updateStreamers = jest
+            .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+            .mockImplementation()
         const deleteClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
-            .mockImplementation()
-        const createClipDocSpy = jest
-            .spyOn(ClipRepository.prototype, `batchCreateClipDoc`)
             .mockImplementation()
         const updateClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchUpdateClip`)
@@ -318,25 +315,18 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             })
         ]
         const removeStreamerIds = [`102631269`, `104363564`]
-        const addedStreamerIds = [`545050196`]
 
         await streamerSelectionLogic.updateFirestore(
             storedStreamers,
-            removeStreamerIds,
-            addedStreamerIds
+            removeStreamerIds
         )
 
+        expect(updateStreamers).toHaveBeenCalledTimes(1)
+        expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)
         expect(deleteClipDocSpy).toHaveBeenCalledTimes(2)
         expect(deleteClipDocSpy.mock.calls[0][0]).toEqual(removeStreamerIds[0])
         expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1])
-        expect(createClipDocSpy).toHaveBeenCalledTimes(1)
-        expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0])
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
-
-        //削除
-        // expect(updateStreamers).toHaveBeenCalledTimes(1)
-        // expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)
-        //追加
         expect(updateClipDocSpy).toHaveBeenCalledTimes(2)
         expect(updateClipDocSpy.mock.calls[0][1]).toEqual(
             new ClipDoc({ streamerInfo: storedStreamers[0] })
@@ -352,8 +342,8 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const deleteClipDocSpy = jest
             .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
             .mockImplementation()
-        const createClipDocSpy = jest
-            .spyOn(ClipRepository.prototype, `batchCreateClipDoc`)
+        const updateClipDocSpy = jest
+            .spyOn(ClipRepository.prototype, `batchUpdateClip`)
             .mockImplementation()
         const commitBatchSpy = jest
             .spyOn(BatchRepository.prototype, `commitBatch`)
@@ -388,13 +378,11 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             })
         ]
         const removeStreamerIds = [`102631269`, `104363564`]
-        const addedStreamerIds = [`126482446`]
 
         await expect(
             streamerSelectionLogic.updateFirestore(
                 storedStreamers,
                 removeStreamerIds,
-                addedStreamerIds
             )
         ).rejects.toThrowError()
 
@@ -403,8 +391,13 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         expect(deleteClipDocSpy).toHaveBeenCalledTimes(2)
         expect(deleteClipDocSpy.mock.calls[0][0]).toEqual(removeStreamerIds[0])
         expect(deleteClipDocSpy.mock.calls[1][0]).toEqual(removeStreamerIds[1])
-        expect(createClipDocSpy).toHaveBeenCalledTimes(1)
-        expect(createClipDocSpy.mock.calls[0][0]).toEqual(addedStreamerIds[0])
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+        expect(updateClipDocSpy).toHaveBeenCalledTimes(2)
+        expect(updateClipDocSpy.mock.calls[0][1]).toEqual(
+            new ClipDoc({ streamerInfo: storedStreamers[0] })
+        )
+        expect(updateClipDocSpy.mock.calls[1][1]).toEqual(
+            new ClipDoc({ streamerInfo: storedStreamers[1] })
+        )
     }, 100000)
 })

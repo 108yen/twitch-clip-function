@@ -2,24 +2,32 @@ import { FirestoreDataConverter } from "firebase-admin/firestore"
 
 import { Clip } from "../models/clip"
 import { ClipDoc } from "../models/clipDoc"
+import { Streamer } from "../models/streamer"
+
+interface FirestoreClipDoc {
+    streamerInfo?: Streamer
+    [key: string]: Array<Clip> | Streamer | undefined
+}
 
 export const clipDocConverter: FirestoreDataConverter<ClipDoc> = {
     fromFirestore(qds: FirebaseFirestore.QueryDocumentSnapshot): ClipDoc {
-        const data = qds.data()
+        const data = qds.data() as FirestoreClipDoc
 
         const result = new ClipDoc()
-        for (const i in data) {
-            const clips: Array<Clip> = []
-            for (const j in data[i]) {
-                const element = data[i][j] as Clip
-                clips.push(element)
+        for (const key in data) {
+            if (key == `streamerInfo`) {
+                const streamerInfo = data[key]
+                result.streamerInfo = streamerInfo
+            } else {
+                const clips = data[key] as Array<Clip>
+                result.clipsMap.set(key, clips)
             }
-            result.clipsMap.set(i, clips)
         }
         return result
     },
     toFirestore(clipDoc: ClipDoc): FirebaseFirestore.DocumentData {
-        const result: { [key: string]: Array<Clip> } = {}
+        const result: FirestoreClipDoc = { streamerInfo: clipDoc.streamerInfo }
+
         clipDoc.clipsMap.forEach((clips, key) => {
             result[key] = clips.map((clip) => {
                 return {
@@ -44,6 +52,7 @@ export const clipDocConverter: FirestoreDataConverter<ClipDoc> = {
                 }
             })
         })
+
         return result
     }
 }

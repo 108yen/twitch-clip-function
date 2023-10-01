@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { BatchRepository } from "../../..//repositories/batch"
 import { TwitchStreamerApi } from "../../../apis/streamer"
+import { ClipDoc } from "../../../models/clipDoc"
 import { Stream } from "../../../models/stream"
 import { Streamer } from "../../../models/streamer"
 import { ClipRepository } from "../../../repositories/clip"
@@ -40,18 +41,9 @@ export class StreamerSelectionLogic {
         const streams = await this.twitchStreamerApi.getJpStreams()
         return streams
     }
-    filterStreams(
-        streams: Array<Stream>,
-        oldStreamerIds: Array<string>
-    ): Array<string> {
+    filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`]
-        const removeId = [
-            `496970086`,
-            `126482446`,
-            `9504944`,
-            `840446934`,
-            `208760543`
-        ]
+        const removeId = [`496970086`, `126482446`, `9504944`, `840446934`, `208760543`]
         const filteredId = streams
             .filter((stream) => {
                 const viewer_count = stream.viewer_count
@@ -92,14 +84,9 @@ export class StreamerSelectionLogic {
         )
         return newStreamers
     }
-    concatAndFilter(
-        oldStreamers: Array<Streamer>,
-        newStreamers: Array<Streamer>
-    ) {
+    concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
         //Select streamers with top 200 followers
-        const sumStreamers = this.sortByFollowerNum(
-            oldStreamers.concat(newStreamers)
-        )
+        const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers))
         const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
         const newStreamerIds = newStreamers.map((e) => e.id)
@@ -124,29 +111,28 @@ export class StreamerSelectionLogic {
             const streamerInFollowerNum = selectedStreamers.find(
                 (e) => e.id == storedStreamers[key].id
             )
-            storedStreamers[key].follower_num =
-                streamerInFollowerNum?.follower_num
+            storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num
         }
         return this.sortByFollowerNum(storedStreamers)
     }
     async updateFirestore(
         storedStreamers: Array<Streamer>,
-        removedStreamerIds: Array<string>,
-        addedStreamerIds: Array<string>
+        removedStreamerIds: Array<string>
     ) {
         this.streamerRepository.batchUpdateStreamers(
             storedStreamers,
             await this.batchRepository.getBatch()
         )
-        for (const key in removedStreamerIds) {
-            this.clipRepository.batchDeleteClipDoc(
-                removedStreamerIds[key],
+        for (const streamer of storedStreamers) {
+            this.clipRepository.batchUpdateClip(
+                streamer.id,
+                new ClipDoc({ streamerInfo: streamer }),
                 await this.batchRepository.getBatch()
             )
         }
-        for (const key in addedStreamerIds) {
-            this.clipRepository.batchCreateClipDoc(
-                addedStreamerIds[key],
+        for (const key in removedStreamerIds) {
+            this.clipRepository.batchDeleteClipDoc(
+                removedStreamerIds[key],
                 await this.batchRepository.getBatch()
             )
         }

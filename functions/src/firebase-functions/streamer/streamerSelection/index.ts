@@ -36,7 +36,7 @@ export const streamerSelection = functions
         await findoutNewStreamer.updateFirestore(
             storedStreamers,
             removedStreamerIds,
-            addedStreamerIds
+            // addedStreamerIds
         )
 
         functions.logger.info(

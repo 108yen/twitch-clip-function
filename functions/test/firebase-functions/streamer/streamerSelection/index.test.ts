@@ -50,14 +50,6 @@ describe(`streamerSelectionのテスト`, () => {
         await streamerRepository.updateStreamers([])
         jest.restoreAllMocks()
     })
-    // test(`mock作成`, async () => {
-    //     const streamerRepository = new StreamerRepository()
-    //     const streamers = await streamerRepository.getStreamers()
-    //     //mock作成
-    //     const json = JSON.stringify(streamers)
-    //     fs.writeFileSync(`test/test_data/streamerSelection/oldStreamer.json`, json)
-    // })
-    test.todo(`clipDoc内のストリーマー情報も更新する`)
     test(`streamerSelectionの実行テスト`, async () => {
         //準備
         const streamerRepository = new StreamerRepository()
@@ -120,7 +112,12 @@ describe(`streamerSelectionのテスト`, () => {
         //ドキュメントが作成されている,ストリーマーリストのドキュメントが作成されている
         for (const key in newStreamerIds) {
             const id = newStreamerIds[key]
-            await expect(clipRepository.getClip(id)).resolves.toBeDefined()
+            const clipDoc = await clipRepository.getClip(id)
+            expect(clipDoc).toBeDefined()
+            expect(clipDoc.streamerInfo?.display_name).toBeDefined()
+            expect(clipDoc.streamerInfo?.profile_image_url).toBeDefined()
+            expect(clipDoc.streamerInfo?.description).toBeDefined()
+            expect(clipDoc.streamerInfo?.follower_num).toBeDefined()
         }
         //ドキュメントが削除されている
         for (const key in removedStreamerIds) {

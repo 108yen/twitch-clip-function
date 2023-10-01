@@ -6,7 +6,7 @@ export class BatchRepository {
     private batch: FirebaseFirestore.WriteBatch
     private chunck = 0
     private chunckLimit: number
-    constructor(chunckLimit = 400) {
+    constructor(chunckLimit = 100) {
         this.chunckLimit = chunckLimit
         this.batch = db.batch()
     }

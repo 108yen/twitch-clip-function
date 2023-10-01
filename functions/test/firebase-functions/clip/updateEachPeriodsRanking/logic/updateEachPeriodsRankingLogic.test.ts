@@ -3,19 +3,19 @@ import fs from "fs"
 
 import axios from "axios"
 
-import { TwitchClipApi } from "../../../../src/apis/clip"
-import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
-import { Streamer } from "../../../../src/models/streamer"
-import { BatchRepository } from "../../../../src/repositories/batch"
-import { ClipRepository } from "../../../../src/repositories/clip"
-import { StreamerRepository } from "../../../../src/repositories/streamer"
-import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { getClipsSpyImp } from "../spy"
+import { TwitchClipApi } from "../../../../../src/apis/clip"
+import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
+import { Streamer } from "../../../../../src/models/streamer"
+import { BatchRepository } from "../../../../../src/repositories/batch"
+import { ClipRepository } from "../../../../../src/repositories/clip"
+import { StreamerRepository } from "../../../../../src/repositories/streamer"
+import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
+import { getClipsSpyImp } from "../../spy"
 
 jest.mock(`axios`)
 
-describe(`UpdatePastRankingLogicのテスト`, () => {
-    let updatePastRankingLogic: UpdatePastRankingLogic
+describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
+    let updateEachPeriodsRankingLogic: UpdateEachPeriodsRankingLogic
     beforeAll(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -25,7 +25,18 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
                 token_type: `test`
             }
         })
-        updatePastRankingLogic = await UpdatePastRankingLogic.init()
+        const today = new Date()
+        function daysAgo(day: number) {
+            const today = new Date()
+            return new Date(today.getTime() - day * 24 * 60 * 60 * 1000)
+        }
+        const periods = {
+            day: { started_at: daysAgo(1), ended_at: today },
+            week: { started_at: daysAgo(7), ended_at: today },
+            month: { started_at: daysAgo(30), ended_at: today },
+            year: { started_at: daysAgo(365), ended_at: today }
+        }
+        updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(periods)
     })
     afterEach(() => jest.restoreAllMocks())
     test(`getStreamersのテスト`, async () => {
@@ -42,7 +53,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await updatePastRankingLogic.getStreamers()
+        const streamers = await updateEachPeriodsRankingLogic.getStreamers()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -61,7 +72,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(updatePastRankingLogic.getStreamers()).rejects.toThrowError()
+        await expect(updateEachPeriodsRankingLogic.getStreamers()).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
@@ -79,25 +90,21 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
-        await updatePastRankingLogic.getClipForEeachStreamers(streamer)
+        await updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
 
         //呼び出し回数チェック
-        const currentYear = new Date().getFullYear()
-        const expectCallGetClips = currentYear - 2016 + (currentYear - 2020)
-        expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
+        expect(getClipsSpy).toHaveBeenCalledTimes(8)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
 
         //中身のデータチェック
         for (const key in updateClipDocSpy.mock.calls) {
             if (Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)) {
-                const args = updateClipDocSpy.mock.calls[key]
-
-                //順番チェック
-                for (const [_, clips] of args[1].clipsMap) {
-                    expect(clips.length).toEqual(100)
-                    clipOrderCheck(clips)
+                const [, clipDoc] = updateClipDocSpy.mock.calls[key]
+                for (const [, clips] of clipDoc.clipsMap) {
+                    expect(clips.length).toBeGreaterThanOrEqual(100)
                     clipElementCheck(clips)
+                    clipOrderCheck(clips)
                 }
             }
         }
@@ -118,14 +125,14 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updatePastRankingLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(updateClipDocSpy).not.toHaveBeenCalled()
         expect(commitBatchSpy).not.toHaveBeenCalled()
-    })
+    }, 100000)
     test(`getClipForEeachStreamersのテスト:firestoreエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
@@ -142,14 +149,12 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updatePastRankingLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
-        const currentYear = new Date().getFullYear()
-        const expectCallGetClips = currentYear - 2016 + (currentYear - 2020)
-        expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
+        expect(getClipsSpy).toHaveBeenCalledTimes(8)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
-    })
+    }, 100000)
 })

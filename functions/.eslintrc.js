@@ -22,14 +22,13 @@ module.exports = {
     ],
     rules: {
         quotes: [`error`, `backtick`],
-        "array-element-newline": [`error`,
-            {
-                "ArrayExpression":"consistent",
-                "multiline":true,
-                "minItems": 3
-            },
-        ],
-        "prettier/prettier": ["error", { "printWidth": 90 }],
+        "array-element-newline": [`error`, {
+            "ArrayExpression": `consistent`,
+                "ArrayPattern": {
+                    "multiline": true,
+                    "minItems": 3
+                }
+        },],
         "import/order": [
             `warn`,
             {

@@ -1,5 +1,4 @@
 {
-    // このファイルは/.vscode/settings.jsonです
     "editor.codeActionsOnSave": {
         "source.fixAll.eslint": true
     },

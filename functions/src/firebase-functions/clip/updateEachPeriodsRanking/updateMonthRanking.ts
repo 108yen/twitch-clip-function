@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions"
-import { UpdateOnePeriodRanking } from "./logic/UpdateOnePeriodRanking"
+
+import { UpdateOnePeriodRanking } from "./logic/updateOnePeriodRanking"
 
 export const updateMonthRanking = functions
     .region(`asia-northeast1`)
@@ -10,6 +11,6 @@ export const updateMonthRanking = functions
     .pubsub.schedule(`20 0,6,12,18 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
-        const updateEachPeriodsRanking = new UpdateOnePeriodRanking("month", 30)
+        const updateEachPeriodsRanking = new UpdateOnePeriodRanking(`month`, 30)
         await updateEachPeriodsRanking.run()
     })

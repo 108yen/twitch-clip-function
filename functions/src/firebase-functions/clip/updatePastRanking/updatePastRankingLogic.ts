@@ -2,7 +2,6 @@ import assert from "assert"
 
 import * as functions from "firebase-functions"
 
-import { Clip } from "../../../models/clip"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
@@ -10,38 +9,10 @@ import { ClipFunction } from "../clipFunction"
 export class UpdatePastRankingLogic extends ClipFunction {
     public static async init() {
         const twitchClipApi = await this.getTwitchClipApi()
-        return new UpdatePastRankingLogic(twitchClipApi)
+        return new UpdatePastRankingLogic(twitchClipApi, `past_summary`)
     }
 
-    async getClipForEeachStreamers(streamers: Array<Streamer>) {
-        //for summary ranking
-        const summary = new ClipDoc()
-        //get for each streamer's clips
-        for (const key in streamers) {
-            const streamer = streamers[key]
-            const clipDoc = await this.getClipDoc(streamer)
-            if (clipDoc) {
-                clipDoc.sort()
-                this.clipRepository.batchUpdateClip(
-                    streamer.id,
-                    clipDoc,
-                    await this.batchRepository.getBatch()
-                )
-
-                summary.clipDocConcat(clipDoc)
-                summary.sort()
-            }
-        }
-        //post summary clips to firestore
-        this.clipRepository.batchUpdateClip(
-            `past_summary`,
-            summary,
-            await this.batchRepository.getBatch()
-        )
-        await this.batchRepository.commitBatch()
-    }
-
-    private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
+    async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         assert(
             typeof streamer.created_at === `string`,
             new Error(
@@ -63,10 +34,16 @@ export class UpdatePastRankingLogic extends ClipFunction {
         //get foreach year clip ranking
         const clipDoc = new ClipDoc()
         for (let year = start_year; year < current_year; year++) {
-            const clips = await this.getClips(year, streamer.id)
+            const started_at = new Date(year, 0, 1, 0, 0, 0)
+            const ended_at = new Date(year, 11, 31, 23, 59, 59)
+            const clips = await this.getClips(
+                { started_at: started_at, ended_at: ended_at },
+                streamer.id
+            )
             //if exist
             if (clips.length != 0) {
-                clipDoc.clipsMap.set(year.toString(), clips)
+                const addStreamerinfoClip = this.addStreamerinfoToClips(clips, streamer)
+                clipDoc.clipsMap.set(year.toString(), addStreamerinfoClip)
             }
         }
         if (clipDoc.clipsMap.size == 0) {
@@ -75,19 +52,5 @@ export class UpdatePastRankingLogic extends ClipFunction {
         }
 
         return clipDoc
-    }
-
-    private async getClips(
-        year: number,
-        streamerId: string
-    ): Promise<Array<Clip>> {
-        const started_at = new Date(year, 0, 1, 0, 0, 0)
-        const ended_at = new Date(year, 11, 31, 23, 59, 59)
-        const clips = await this.twitchClipApi.getClips(
-            parseInt(streamerId),
-            started_at,
-            ended_at
-        )
-        return clips
     }
 }

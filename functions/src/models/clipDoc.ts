@@ -1,8 +1,10 @@
 import { Clip } from "./clip"
+import { Streamer } from "./streamer"
 
 export class ClipDoc {
     private CLIP_NUM = 100
 
+    streamerInfo?: Streamer
     clipsMap: Map<string, Array<Clip>> = new Map<string, Array<Clip>>()
 
     constructor(partial?: Partial<ClipDoc>) {

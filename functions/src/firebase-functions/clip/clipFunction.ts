@@ -75,7 +75,9 @@ export abstract class ClipFunction {
         for (const clip of clips) {
             const addStreamerinfoClip = new Clip({
                 ...clip,
-                profile_image_url: streamer.profile_image_url
+                profile_image_url: streamer.profile_image_url,
+                broadcaster_follower_num: streamer.follower_num,
+                broadcaster_login: streamer.login
             })
             result.push(addStreamerinfoClip)
         }

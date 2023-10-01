@@ -17,6 +17,8 @@ export class Clip {
     vod_offset?: number
     is_featured?: boolean
     profile_image_url?: string
+    broadcaster_follower_num?: number
+    broadcaster_login?: string
 
     constructor(partial?: Partial<Clip>) {
         Object.assign(this, partial)

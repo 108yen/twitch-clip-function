@@ -48,7 +48,9 @@ export const clipDocConverter: FirestoreDataConverter<ClipDoc> = {
                     duration: clip.duration,
                     vod_offset: clip.vod_offset,
                     is_featured: clip.is_featured,
-                    profile_image_url: clip.profile_image_url
+                    profile_image_url: clip.profile_image_url,
+                    broadcaster_follower_num: clip.broadcaster_follower_num,
+                    broadcaster_login: clip.broadcaster_login
                 }
             })
         })

@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import * as functions from "firebase-functions"
+
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
 import { ClipDoc } from "../../models/clipDoc"
@@ -6,6 +8,8 @@ import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
+
+type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
 
 export abstract class ClipFunction {
     protected streamerRepository = new StreamerRepository()
@@ -56,7 +60,33 @@ export abstract class ClipFunction {
         await this.batchRepository.commitBatch()
     }
 
-    abstract getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined>
+    // have to defined get clip's periods
+    abstract getPeriods(streamer: Streamer): Periods
+
+    async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
+        const periods = this.getPeriods(streamer)
+        const clipDoc = new ClipDoc()
+        for (const key in periods) {
+            if (Object.prototype.hasOwnProperty.call(periods, key)) {
+                const period = periods[key]
+                const clips = await this.getClips(period, streamer.id)
+                if (clips.length != 0) {
+                    const addStreamerinfoClip = this.addStreamerinfoToClips(
+                        clips,
+                        streamer
+                    )
+
+                    clipDoc.clipsMap.set(key, addStreamerinfoClip)
+                }
+            }
+        }
+        if (clipDoc.clipsMap.size == 0) {
+            functions.logger.info(`${streamer.display_name}: has no clips`)
+            return
+        }
+
+        return clipDoc
+    }
 
     protected async getClips(
         period: { started_at?: Date; ended_at?: Date },

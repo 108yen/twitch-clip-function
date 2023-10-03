@@ -11,6 +11,9 @@ export const updateDayRanking = functions
     .pubsub.schedule(`0 0,6,12,18 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
-        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`day`,1)
+        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(
+            `day`,
+            1
+        )
         await updateEachPeriodsRanking.run()
     })

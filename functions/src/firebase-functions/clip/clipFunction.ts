@@ -33,7 +33,7 @@ export abstract class ClipFunction {
 
     async run() {
         const streamers = await this.getStreamers()
-        await this.getClipForEeachStreamers(streamers)
+        return await this.getClipForEeachStreamers(streamers)
     }
 
     private async getStreamers(): Promise<Array<Streamer>> {
@@ -65,12 +65,14 @@ export abstract class ClipFunction {
             await this.batchRepository.getBatch()
         )
         await this.batchRepository.commitBatch()
+
+        return summary
     }
 
     // have to defined get clip's periods
     abstract getPeriods(streamer: Streamer): Periods
 
-    async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
+    private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
         const periods = this.getPeriods(streamer)
         const clipDoc = new ClipDoc()
         for (const key in periods) {

@@ -28,6 +28,15 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
     })
     afterEach(() => jest.restoreAllMocks())
+    test(`getPeriodsのテスト`, () => {
+        const periods = updateEachPeriodsRankingLogic.getPeriods(new Streamer())
+
+        expect(typeof periods[`day`].started_at).toBeDefined()
+        expect(typeof periods[`day`].ended_at).toBeDefined()
+        expect(
+            periods[`day`].ended_at!.getTime() - periods[`day`].started_at!.getTime()
+        ).toEqual(24 * 60 * 60 * 1000)
+    })
     test(`getStreamersのテスト`, async () => {
         const getStreamersSpy = jest
             .spyOn(StreamerRepository.prototype, `getStreamers`)

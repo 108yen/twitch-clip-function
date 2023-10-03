@@ -42,7 +42,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await updatePastRankingLogic.getStreamers()
+        const streamers = await updatePastRankingLogic[`getStreamers`]()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -61,7 +61,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(updatePastRankingLogic.getStreamers()).rejects.toThrowError()
+        await expect(updatePastRankingLogic[`getStreamers`]()).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
@@ -79,7 +79,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
-        await updatePastRankingLogic.getClipForEeachStreamers(streamer)
+        await updatePastRankingLogic[`getClipForEeachStreamers`](streamer)
 
         //呼び出し回数チェック
         const currentYear = new Date().getFullYear()
@@ -118,7 +118,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updatePastRankingLogic.getClipForEeachStreamers(streamer)
+            updatePastRankingLogic[`getClipForEeachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -142,7 +142,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updatePastRankingLogic.getClipForEeachStreamers(streamer)
+            updatePastRankingLogic[`getClipForEeachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

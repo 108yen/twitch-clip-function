@@ -17,10 +17,12 @@ export abstract class ClipFunction {
     protected batchRepository = new BatchRepository(10)
     protected twitchClipApi: TwitchClipApi
     protected summaryType: `summary` | `past_summary`
+
     constructor(twitchClipApi: TwitchClipApi, summaryType: `summary` | `past_summary`) {
         this.twitchClipApi = twitchClipApi
         this.summaryType = summaryType
     }
+
     protected static async getTwitchClipApi() {
         const twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
@@ -29,11 +31,16 @@ export abstract class ClipFunction {
         return twitchClipApi
     }
 
-    async getStreamers(): Promise<Array<Streamer>> {
+    async run() {
+        const streamers = await this.getStreamers()
+        await this.getClipForEeachStreamers(streamers)
+    }
+
+    private async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers()
     }
 
-    async getClipForEeachStreamers(streamers: Array<Streamer>) {
+    private async getClipForEeachStreamers(streamers: Array<Streamer>) {
         //for summary ranking
         const summary = new ClipDoc()
         //get for each streamer's clips

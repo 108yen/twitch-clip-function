@@ -55,7 +55,7 @@ describe(`update***Rankingのテスト`, () => {
         )
         await streamerRepository.updateStreamers(streamers)
 
-        const dailyClipDoc = await createDailyDammyData()
+        const dailyClipDoc = await createDailyDammyData(1)
         await clipRepository.updateClip(`daily`, dailyClipDoc)
     })
     beforeEach(() => {

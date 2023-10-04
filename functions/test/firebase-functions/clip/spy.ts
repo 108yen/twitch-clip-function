@@ -42,10 +42,10 @@ export async function getClipsSpyImp(
     return clips
 }
 
-export async function createDailyDammyData() {
+export async function createDailyDammyData(dayAfter: number) {
     const clipDoc = new ClipDoc()
     const today = new Date()
-    for (let index = 1; index < 8; index++) {
+    for (let index = dayAfter; index < dayAfter + 7; index++) {
         const ended_at = new Date(today.getTime() - index * 24 * 60 * 60 * 1000)
         const started_at = new Date(ended_at.getTime() - 24 * 60 * 60 * 1000)
         const clips = createClipsData(started_at, ended_at)

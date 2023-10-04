@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions"
 
+import { UpdateDailyRankingLogic } from "./logic/updateDailyRankingLogic"
 import { UpdateEachPeriodsRankingLogic } from "./logic/updateEachPeriodsRankingLogic"
 
 export const updateDayRanking = functions
@@ -15,5 +16,7 @@ export const updateDayRanking = functions
             `day`,
             1
         )
-        await updateEachPeriodsRanking.run()
+        const clipDoc = await updateEachPeriodsRanking.run()
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(clipDoc)
+        await updateDailyRankingLogic.update()
     })

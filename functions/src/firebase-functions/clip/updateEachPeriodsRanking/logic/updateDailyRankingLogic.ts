@@ -33,7 +33,7 @@ export class UpdateDailyRankingLogic {
             }
         }
 
-        await this.clipRepository.updateClip(`daily`, clipDoc)
+        await this.clipRepository.setClip(`daily`, clipDoc)
     }
 
     private compareDates(date1: string, date2: string): number {

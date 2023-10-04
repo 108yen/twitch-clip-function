@@ -44,7 +44,7 @@ export async function getClipsSpyImp(
 
 export async function createDailyDammyData(dayAfter: number) {
     const clipDoc = new ClipDoc()
-    const today = new Date()
+    const today = getJSTDate()
     for (let index = dayAfter; index < dayAfter + 7; index++) {
         const ended_at = new Date(today.getTime() - index * 24 * 60 * 60 * 1000)
         const started_at = new Date(ended_at.getTime() - 24 * 60 * 60 * 1000)
@@ -102,4 +102,10 @@ export function createClipsData(started_at?: Date, ended_at?: Date) {
         return b.view_count - a.view_count
     })
     return clips
+}
+
+export function getJSTDate() {
+    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+    const jstTime = jstFormatter.format(new Date())
+    return new Date(jstTime)
 }

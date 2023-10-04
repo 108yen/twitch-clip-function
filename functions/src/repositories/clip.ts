@@ -26,6 +26,17 @@ export class ClipRepository {
         return clipDoc
     }
 
+    async setClip(clipId: string, clipDoc: ClipDoc) {
+        await clipDocRef({ clipId: clipId })
+            .set(clipDoc, { merge: false })
+            .catch((error) => {
+                functions.logger.error(
+                    `ClipRepository/updateClip/clipDocRef.set():${error}`
+                )
+                throw new Error(error)
+            })
+    }
+    
     async updateClip(clipId: string, clipDoc: ClipDoc) {
         await clipDocRef({ clipId: clipId })
             .set(clipDoc, { merge: true })

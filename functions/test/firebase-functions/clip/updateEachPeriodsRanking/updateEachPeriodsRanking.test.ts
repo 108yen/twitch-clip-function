@@ -21,7 +21,7 @@ import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { getClipsSpyImp } from "../spy"
+import { createDailyDammyData, getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
 
@@ -54,6 +54,9 @@ describe(`update***Rankingのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
         await streamerRepository.updateStreamers(streamers)
+
+        const dailyClipDoc = await createDailyDammyData()
+        await clipRepository.updateClip(`daily`, dailyClipDoc)
     })
     beforeEach(() => {
         mockedAxios.mockResolvedValueOnce({
@@ -74,10 +77,12 @@ describe(`update***Rankingのテスト`, () => {
         await clipRepository.deleteClipDoc(`summary`)
         await clipRepository.createClipDoc(`summary`)
         await streamerRepository.updateStreamers([])
+        await clipRepository.deleteClipDoc(`daily`)
     })
     afterEach(() => jest.restoreAllMocks())
-    test(`updateDayRanking`, async () => {
+    test(`updateDayRanking（Dailyランキングの更新もやる）`, async () => {
         await testOnePeriodFunction(updateDayRanking, `day`)
+        await checkDailyClipDoc()
     }, 300000)
     test(`updateWeekRanking`, async () => {
         await testOnePeriodFunction(updateWeekRanking, `week`)
@@ -92,6 +97,21 @@ describe(`update***Rankingのテスト`, () => {
         await testOnePeriodFunction(updateAllRanking, `all`)
     }, 300000)
 })
+
+async function checkDailyClipDoc() {
+    const clipRepository = new ClipRepository()
+    const dailyClipDoc = await clipRepository.getClip(`daily`)
+    const today = new Date()
+    const expectedKeys = [...Array(7).keys()].map((index) => {
+        const started_at = new Date(today.getTime() - (index + 1) * 24 * 60 * 60 * 1000)
+        return `${started_at.getMonth() + 1}/${started_at.getDate()}`
+    })
+    expect(Array.from(dailyClipDoc.clipsMap.keys()).sort()).toEqual(expectedKeys.sort())
+    for (const [, clips] of dailyClipDoc.clipsMap) {
+        clipOrderCheck(clips)
+        clipElementCheck(clips)
+    }
+}
 
 async function testOnePeriodFunction(
     cloudFunction: functions.CloudFunction<unknown>,

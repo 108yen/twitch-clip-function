@@ -25,20 +25,18 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                 token_type: `test`
             }
         })
-        const today = new Date()
-        function daysAgo(day: number) {
-            const today = new Date()
-            return new Date(today.getTime() - day * 24 * 60 * 60 * 1000)
-        }
-        const periods = {
-            day: { started_at: daysAgo(1), ended_at: today },
-            week: { started_at: daysAgo(7), ended_at: today },
-            month: { started_at: daysAgo(30), ended_at: today },
-            year: { started_at: daysAgo(365), ended_at: today }
-        }
-        updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(periods)
+        updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
     })
     afterEach(() => jest.restoreAllMocks())
+    test(`getPeriodsのテスト`, () => {
+        const periods = updateEachPeriodsRankingLogic.getPeriods(new Streamer())
+
+        expect(typeof periods[`day`].started_at).toBeDefined()
+        expect(typeof periods[`day`].ended_at).toBeDefined()
+        expect(
+            periods[`day`].ended_at!.getTime() - periods[`day`].started_at!.getTime()
+        ).toEqual(24 * 60 * 60 * 1000)
+    })
     test(`getStreamersのテスト`, async () => {
         const getStreamersSpy = jest
             .spyOn(StreamerRepository.prototype, `getStreamers`)
@@ -53,7 +51,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
                 })
             ])
 
-        const streamers = await updateEachPeriodsRankingLogic.getStreamers()
+        const streamers = await updateEachPeriodsRankingLogic[`getStreamers`]()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
@@ -72,7 +70,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockRejectedValueOnce(new Error(`firestore error test`))
 
-        await expect(updateEachPeriodsRankingLogic.getStreamers()).rejects.toThrowError()
+        await expect(
+            updateEachPeriodsRankingLogic[`getStreamers`]()
+        ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
     test(`getClipForEeachStreamersのテスト`, async () => {
@@ -90,10 +90,10 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
-        await updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
+        await updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
 
         //呼び出し回数チェック
-        expect(getClipsSpy).toHaveBeenCalledTimes(8)
+        expect(getClipsSpy).toHaveBeenCalledTimes(2)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
 
@@ -125,7 +125,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -149,11 +149,11 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updateEachPeriodsRankingLogic.getClipForEeachStreamers(streamer)
+            updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
-        expect(getClipsSpy).toHaveBeenCalledTimes(8)
+        expect(getClipsSpy).toHaveBeenCalledTimes(2)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
     }, 100000)

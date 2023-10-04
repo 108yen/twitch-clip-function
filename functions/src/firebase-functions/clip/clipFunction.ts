@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
+import * as functions from "firebase-functions"
+
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
 import { ClipDoc } from "../../models/clipDoc"
@@ -7,16 +9,20 @@ import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
 
+type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
+
 export abstract class ClipFunction {
     protected streamerRepository = new StreamerRepository()
     protected clipRepository = new ClipRepository()
     protected batchRepository = new BatchRepository(10)
     protected twitchClipApi: TwitchClipApi
     protected summaryType: `summary` | `past_summary`
+
     constructor(twitchClipApi: TwitchClipApi, summaryType: `summary` | `past_summary`) {
         this.twitchClipApi = twitchClipApi
         this.summaryType = summaryType
     }
+
     protected static async getTwitchClipApi() {
         const twitchClipApi = await TwitchClipApi.init(
             process.env.TWITCH_CLIENT_ID!,
@@ -25,11 +31,16 @@ export abstract class ClipFunction {
         return twitchClipApi
     }
 
-    async getStreamers(): Promise<Array<Streamer>> {
+    async run() {
+        const streamers = await this.getStreamers()
+        return await this.getClipForEeachStreamers(streamers)
+    }
+
+    private async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers()
     }
 
-    async getClipForEeachStreamers(streamers: Array<Streamer>) {
+    private async getClipForEeachStreamers(streamers: Array<Streamer>) {
         //for summary ranking
         const summary = new ClipDoc()
         //get for each streamer's clips
@@ -54,9 +65,37 @@ export abstract class ClipFunction {
             await this.batchRepository.getBatch()
         )
         await this.batchRepository.commitBatch()
+
+        return summary
     }
 
-    abstract getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined>
+    // have to defined get clip's periods
+    abstract getPeriods(streamer: Streamer): Periods
+
+    private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
+        const periods = this.getPeriods(streamer)
+        const clipDoc = new ClipDoc()
+        for (const key in periods) {
+            if (Object.prototype.hasOwnProperty.call(periods, key)) {
+                const period = periods[key]
+                const clips = await this.getClips(period, streamer.id)
+                if (clips.length != 0) {
+                    const addStreamerinfoClip = this.addStreamerinfoToClips(
+                        clips,
+                        streamer
+                    )
+
+                    clipDoc.clipsMap.set(key, addStreamerinfoClip)
+                }
+            }
+        }
+        if (clipDoc.clipsMap.size == 0) {
+            functions.logger.info(`${streamer.display_name}: has no clips`)
+            return
+        }
+
+        return clipDoc
+    }
 
     protected async getClips(
         period: { started_at?: Date; ended_at?: Date },

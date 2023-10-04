@@ -14,6 +14,5 @@ export const updatePastRanking = functions
     .onRun(async () => {
         const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 
-        const streamers = await updatePastRankingLogic.getStreamers()
-        await updatePastRankingLogic.getClipForEeachStreamers(streamers)
+        await updatePastRankingLogic.run()
     })

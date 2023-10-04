@@ -14,7 +14,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     })
     afterEach(() => jest.restoreAllMocks())
     test(`ダミーデータがちゃんと作成出来ているかの確認`, async () => {
-        const clipDoc = await createDailyDammyData()
+        const clipDoc = await createDailyDammyData(1)
         for (const [, clips] of clipDoc.clipsMap) {
             clipOrderCheck(clips)
             clipElementCheck(clips)
@@ -31,7 +31,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     test(`firestoreの今のdayランキングをとって入れなおす`, async () => {
         const getClipsSpy = jest
             .spyOn(ClipRepository.prototype, `getClip`)
-            .mockImplementation(createDailyDammyData)
+            .mockImplementation(() => createDailyDammyData(1))
         const setClipSpy = jest
             .spyOn(ClipRepository.prototype, `setClip`)
             .mockImplementation()
@@ -60,6 +60,24 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
             clipOrderCheck(clips)
             clipElementCheck(clips)
         }
+    })
+    test(`2回目の更新はされないことのチェック`, async () => {
+        const getClipsSpy = jest
+            .spyOn(ClipRepository.prototype, `getClip`)
+            .mockImplementation(()=>createDailyDammyData(0))
+        const setClipSpy = jest
+            .spyOn(ClipRepository.prototype, `setClip`)
+            .mockImplementation()
+
+        const todayClipDoc = new ClipDoc({
+            clipsMap: new Map([[`day`, todayClips]])
+        })
+
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
+        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrowError()
+
+        expect(getClipsSpy).toHaveBeenCalledTimes(1)
+        expect(setClipSpy).not.toHaveBeenCalled()
     })
     test(`compareDatesのテスト`, () => {
         const todayClipDoc = new ClipDoc({

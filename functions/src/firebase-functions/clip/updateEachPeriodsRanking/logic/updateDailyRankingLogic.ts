@@ -23,7 +23,11 @@ export class UpdateDailyRankingLogic {
 
         const today = new Date()
         const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-        clipDoc.clipsMap.set(`${lastDay.getMonth() + 1}/${lastDay.getDate()}`, this.clips)
+        const key = `${lastDay.getMonth() + 1}/${lastDay.getDate()}`
+        if (clipDoc.clipsMap.has(key)) {
+            return
+        }
+        clipDoc.clipsMap.set(key, this.clips)
 
         if (clipDoc.clipsMap.size > 7) {
             const clipDocKeys = Array.from(clipDoc.clipsMap.keys())

@@ -3,12 +3,12 @@ import { Clip } from "../../../../../src/models/clip"
 import { ClipDoc } from "../../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
-import { createClipsData, createDailyDammyData } from "../../spy"
+import { createClipsData, createDailyDammyData, getJSTDate } from "../../spy"
 
 describe(`UpdateDailyRankingLogicのテスト`, () => {
     let todayClips: Array<Clip>
     beforeAll(() => {
-        const today = new Date()
+        const today = getJSTDate()
         const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
         todayClips = createClipsData(lastDay, today)
     })
@@ -46,7 +46,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy.mock.calls[0][0]).toEqual(`daily`)
-        const today = new Date()
+        const today = getJSTDate()
         const expectedKeys = [...Array(7).keys()].map((index) => {
             const started_at = new Date(
                 today.getTime() - (index + 1) * 24 * 60 * 60 * 1000

@@ -21,7 +21,7 @@ import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { testEnv } from "../../../setUp"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { createDailyDammyData, getClipsSpyImp } from "../spy"
+import { createDailyDammyData, getClipsSpyImp, getJSTDate } from "../spy"
 
 jest.mock(`axios`)
 
@@ -101,7 +101,7 @@ describe(`update***Rankingのテスト`, () => {
 async function checkDailyClipDoc() {
     const clipRepository = new ClipRepository()
     const dailyClipDoc = await clipRepository.getClip(`daily`)
-    const today = new Date()
+    const today = getJSTDate()
     const expectedKeys = [...Array(7).keys()].map((index) => {
         const started_at = new Date(today.getTime() - (index + 1) * 24 * 60 * 60 * 1000)
         return `${started_at.getMonth() + 1}/${started_at.getDate()}`

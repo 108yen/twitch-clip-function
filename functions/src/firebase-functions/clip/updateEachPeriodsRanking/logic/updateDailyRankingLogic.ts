@@ -21,7 +21,7 @@ export class UpdateDailyRankingLogic {
     async update() {
         const clipDoc = await this.clipRepository.getClip(`daily`)
 
-        const today = new Date()
+        const today = this.getJSTDate()
         const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
         const key = `${lastDay.getMonth() + 1}/${lastDay.getDate()}`
         if (clipDoc.clipsMap.has(key)) {
@@ -38,6 +38,12 @@ export class UpdateDailyRankingLogic {
         }
 
         await this.clipRepository.setClip(`daily`, clipDoc)
+    }
+
+    private getJSTDate() {
+        const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+        const jstTime = jstFormatter.format(new Date())
+        return new Date(jstTime)
     }
 
     private compareDates(date1: string, date2: string): number {

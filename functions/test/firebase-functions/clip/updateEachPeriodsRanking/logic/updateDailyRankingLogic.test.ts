@@ -25,7 +25,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         const todayClipDoc = new ClipDoc({ clipsMap: new Map([[`day`, todayClips]]) })
 
         const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
-        const clips = updateDailyRankingLogic[`extractDayClips`]()
+        const clips = updateDailyRankingLogic[`extractDayClips`](todayClipDoc)
 
         expect(clips).toEqual(todayClips)
     })

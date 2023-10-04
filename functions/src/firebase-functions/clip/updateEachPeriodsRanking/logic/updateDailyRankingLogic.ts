@@ -7,28 +7,27 @@ import { ClipRepository } from "../../../../repositories/clip"
 export class UpdateDailyRankingLogic {
     clipRepository = new ClipRepository()
 
-    clipDoc: ClipDoc
+    clips: Array<Clip>
     constructor(clipDoc: ClipDoc) {
-        this.clipDoc = clipDoc
+        this.clips = this.extractDayClips(clipDoc)
     }
 
-    extractDayClips(): Array<Clip> {
-        const clips = this.clipDoc.clipsMap.get(`day`)
+    private extractDayClips(clipDoc: ClipDoc): Array<Clip> {
+        const clips = clipDoc.clipsMap.get(`day`)
         assert(typeof clips !== `undefined`)
         return clips
     }
 
     async update() {
         const clipDoc = await this.clipRepository.getClip(`daily`)
-        const newClips = this.extractDayClips()
 
         const today = new Date()
         const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-        clipDoc.clipsMap.set(`${lastDay.getMonth() + 1}/${lastDay.getDate()}`, newClips)
+        clipDoc.clipsMap.set(`${lastDay.getMonth() + 1}/${lastDay.getDate()}`, this.clips)
 
         if (clipDoc.clipsMap.size > 7) {
             const clipDocKeys = Array.from(clipDoc.clipsMap.keys())
-            const delKeys = clipDocKeys.sort(this.compareDates).slice(0,-7)
+            const delKeys = clipDocKeys.sort(this.compareDates).slice(0, -7)
             for (const key of delKeys) {
                 clipDoc.clipsMap.delete(key)
             }

@@ -86,11 +86,12 @@ export abstract class ClipFunction {
                     )
 
                     clipDoc.clipsMap.set(key, addStreamerinfoClip)
+                } else {
+                    functions.logger.info(`update clip info: ${streamer.display_name}: has no ${key} clips`)
                 }
             }
         }
         if (clipDoc.clipsMap.size == 0) {
-            functions.logger.info(`${streamer.display_name}: has no clips`)
             return
         }
 

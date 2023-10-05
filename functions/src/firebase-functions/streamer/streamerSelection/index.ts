@@ -40,6 +40,6 @@ export const streamerSelection = functions
         )
 
         functions.logger.info(
-            `add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`
+            `update streamer info: add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`
         )
     })

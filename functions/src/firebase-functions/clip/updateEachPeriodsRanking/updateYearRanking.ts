@@ -8,7 +8,7 @@ export const updateYearRanking = functions
         timeoutSeconds: 540,
         secrets: [`TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`]
     })
-    .pubsub.schedule(`30 0,6,12,18 * * *`)
+    .pubsub.schedule(`30 0-23/3 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(

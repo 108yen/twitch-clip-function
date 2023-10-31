@@ -8,7 +8,7 @@ export const streamerSelection = functions
         timeoutSeconds: 300,
         secrets: [`TWITCH_CLIENT_ID`, `TWITCH_CLIENT_SECRET`]
     })
-    .pubsub.schedule(`30 5,11,17,23 * * *`)
+    .pubsub.schedule(`30 5-23/6 * * *`)
     .timeZone(`Asia/Tokyo`)
     .onRun(async () => {
         const findoutNewStreamer = await StreamerSelectionLogic.init()

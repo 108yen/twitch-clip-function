@@ -43,7 +43,18 @@ export class StreamerSelectionLogic {
     }
     filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`]
-        const removeId = [`496970086`, `126482446`, `9504944`, `840446934`, `208760543`]
+        const removeId = [
+            `496970086`, //
+            `126482446`,
+            `9504944`,
+            `840446934`,
+            `208760543`,
+            `134850221`, //RTAinJapan
+            `182565961`, //WorldofWarships
+            `179988448`, //PUBGJAPAN
+            `144740532`, //japanese_restream
+            `229395457` //eastgeeksmash
+        ]
         const filteredId = streams
             .filter((stream) => {
                 const viewer_count = stream.viewer_count

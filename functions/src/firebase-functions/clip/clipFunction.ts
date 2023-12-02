@@ -36,7 +36,7 @@ export abstract class ClipFunction {
         return await this.getClipForEeachStreamers(streamers)
     }
 
-    private async getStreamers(): Promise<Array<Streamer>> {
+    protected async getStreamers(): Promise<Array<Streamer>> {
         return await this.streamerRepository.getStreamers()
     }
 

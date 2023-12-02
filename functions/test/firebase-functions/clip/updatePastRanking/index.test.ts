@@ -21,6 +21,7 @@ jest.mock(`axios`)
 describe(`updatePastRankingのテスト`, () => {
     let wrappedUpdatePastRanking: WrappedScheduledFunction
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
+    const pastYear = 5 //何年前までとるか
     beforeAll(async () => {
         wrappedUpdatePastRanking = testEnv.wrap(updatePastRanking)
 
@@ -95,7 +96,12 @@ describe(`updatePastRankingのテスト`, () => {
 
         //呼び出し回数チェック
         const currentYear = new Date().getFullYear()
-        const expectCallGetClips = currentYear - 2016 + (currentYear - 2020)
+        const fiveYearsAgo = currentYear - pastYear
+        const katoCreatedAt = 2020
+        const sekiCreatedAt = 2016
+        const calcCall = (createdAt: number) =>
+            createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+        const expectCallGetClips = calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
 
         //各ストリーマーのクリップ
@@ -120,6 +126,10 @@ describe(`updatePastRankingのテスト`, () => {
                 expect(clips.length).toEqual(100)
                 clipElementCheck(clips)
                 clipOrderCheck(clips)
+                //過去５年になっているかの確認
+                expect(parseInt(period)).toBeGreaterThanOrEqual(currentYear - pastYear)
+                expect(parseInt(period)).toBeLessThan(currentYear)
+
                 //期間通りになっているかの確認
                 for (const key_j in clips) {
                     const clip = clips[key_j]
@@ -140,7 +150,10 @@ describe(`updatePastRankingのテスト`, () => {
                 clipDoc.clipsMap.delete(period)
                 oldClipDoc.clipsMap.delete(period)
             }
-            //ほかに影響を与えていないか
+            //ほかに影響を与えていないか,5年前以降は削除されているか
+            for (let year = 2016; year < currentYear - pastYear; year++) {
+                oldClipDoc.clipsMap.delete(year.toString())
+            }
             expect(clipDoc).toEqual(oldClipDoc)
         }
         //全体のランキング
@@ -150,6 +163,9 @@ describe(`updatePastRankingのテスト`, () => {
             expect(clips.length).toEqual(100)
             clipElementCheck(clips)
             clipOrderCheck(clips)
+            //過去５年以内になっているかの確認
+            expect(parseInt(period)).toBeGreaterThanOrEqual(currentYear - pastYear)
+            expect(parseInt(period)).toBeLessThan(currentYear)
             //  中身の要素確認
             for (const key_j in clips) {
                 const clip = clips[key_j]

@@ -21,6 +21,7 @@ jest.mock(`axios`)
 describe(`updatePastRankingのテスト`, () => {
     let wrappedUpdatePastRanking: WrappedScheduledFunction
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
+    const pastYear = 5 //何年前までとるか
     beforeAll(async () => {
         wrappedUpdatePastRanking = testEnv.wrap(updatePastRanking)
 
@@ -74,7 +75,6 @@ describe(`updatePastRankingのテスト`, () => {
     afterEach(() => jest.restoreAllMocks())
 
     test(`更新`, async () => {
-        const pastYear = 5 //何年前までとるか
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(getClipsSpyImp)

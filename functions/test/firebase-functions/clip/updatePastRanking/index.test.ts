@@ -147,11 +147,13 @@ describe(`updatePastRankingのテスト`, () => {
                         ended_at.getTime()
                     )
                 }
-                //後処理
                 clipDoc.clipsMap.delete(period)
                 oldClipDoc.clipsMap.delete(period)
             }
-            //ほかに影響を与えていないか
+            //ほかに影響を与えていないか,5年前以降は削除されているか
+            for (let year = 2016; year < currentYear - pastYear; year++) {
+                oldClipDoc.clipsMap.delete(year.toString())
+            }
             expect(clipDoc).toEqual(oldClipDoc)
         }
         //全体のランキング

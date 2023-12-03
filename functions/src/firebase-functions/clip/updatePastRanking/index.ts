@@ -14,5 +14,6 @@ export const updatePastRanking = functions
     .onRun(async () => {
         const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 
+        await updatePastRankingLogic.deleteOverLimitYear()
         await updatePastRankingLogic.run()
     })

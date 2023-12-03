@@ -1,5 +1,6 @@
 import assert from "assert"
 
+import { FieldValue } from "firebase-admin/firestore"
 import * as functions from "firebase-functions"
 
 import { clipDocRef } from "../firestore-refs/clipRefs"
@@ -36,7 +37,7 @@ export class ClipRepository {
                 throw new Error(error)
             })
     }
-    
+
     async updateClip(clipId: string, clipDoc: ClipDoc) {
         await clipDocRef({ clipId: clipId })
             .set(clipDoc, { merge: true })
@@ -54,6 +55,14 @@ export class ClipRepository {
         batch: FirebaseFirestore.WriteBatch
     ) {
         batch.set(clipDocRef({ clipId: clipId }), clipDoc, { merge: true })
+    }
+
+    batchDeleteFieldValue(
+        clipId: string,
+        key: string,
+        batch: FirebaseFirestore.WriteBatch
+    ) {
+        batch.update(clipDocRef({ clipId: clipId }), { [key]: FieldValue.delete() })
     }
 
     async createClipDoc(clipId: string) {

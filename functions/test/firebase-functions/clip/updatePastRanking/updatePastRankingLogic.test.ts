@@ -16,6 +16,12 @@ jest.mock(`axios`)
 
 describe(`UpdatePastRankingLogicのテスト`, () => {
     let updatePastRankingLogic: UpdatePastRankingLogic
+    const currentYear = new Date().getFullYear()
+    const pastYear = 5 //何年前までとるか
+    const fiveYearsAgo = currentYear - pastYear
+    const calcCall = (createdAt: number) =>
+        createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+
     beforeAll(async () => {
         const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
@@ -34,13 +40,11 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         )
         for (const streamer of streamers) {
             const created_at = new Date(streamer!.created_at!)
-            const start_year =
-                created_at.getFullYear() < 2016 ? 2016 : created_at.getFullYear()
 
             const periods = updatePastRankingLogic.getPeriods(streamer)
-            
+
             expect(Object.keys(periods).length).toEqual(
-                new Date().getFullYear() - start_year
+               calcCall(created_at.getFullYear())
             )
             for (const key in periods) {
                 const period = periods[key]
@@ -104,8 +108,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         await updatePastRankingLogic[`getClipForEeachStreamers`](streamer)
 
         //呼び出し回数チェック
-        const currentYear = new Date().getFullYear()
-        const expectCallGetClips = currentYear - 2016 + (currentYear - 2020)
+        const katoCreatedAt = 2020
+        const sekiCreatedAt = 2016
+        const expectCallGetClips = calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
@@ -168,8 +173,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
-        const currentYear = new Date().getFullYear()
-        const expectCallGetClips = currentYear - 2016 + (currentYear - 2020)
+        const katoCreatedAt = 2020
+        const sekiCreatedAt = 2016
+        const expectCallGetClips = calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)

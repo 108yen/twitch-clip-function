@@ -17,18 +17,18 @@ if (admin.apps.length === 0) {
 // import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 // import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 // import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
-import { formatDate, formatTime } from "./utils/formatTime"
+import { formatDate, formatTime, getJSTHours } from "./utils/formatTime"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
     const startedAt = new Date()
+    const jstHours = getJSTHours()
 
     logEntry({ severity: `INFO`, message: `started at ${formatDate(startedAt)}` })
-    logEntry({ severity: `INFO`, message: `debug hours ${startedAt.getHours()}` })
+    logEntry({ severity: `INFO`, message: `debug hours ${jstHours}` })
 
-    // 6時間ごと
-    // if ([0, 6, 12, 18].includes(startedAt.getHours())) {
-    //     logEntry({ severity: `INFO`, message: `debug hour ${startedAt.getHours()}` })
+    // // 6時間ごと
+    // if ([0, 6, 12, 18].includes(jstHours)) {
     //     await streamerSelection()
     // }
 
@@ -39,7 +39,7 @@ async function main() {
     // await updateYearRanking()
 
     // // 毎月1日に1だけ実行
-    // if (startedAt.getDate() == 1 && startedAt.getHours() == 0) {
+    // if (startedAt.getDate() == 1 && jstHours == 0) {
     //     await updatePastRanking()
     //     await updateAllRanking()
     // }

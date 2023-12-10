@@ -20,3 +20,9 @@ export function formatDate(date: Date) {
     const formattedDate = new Intl.DateTimeFormat(`ja-JP`, options).format(date)
     return formattedDate
 }
+
+export function getJSTHours() {
+    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+    const jstTime = jstFormatter.format(new Date())
+    return new Date(jstTime).getHours()
+}

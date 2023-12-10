@@ -1,7 +1,13 @@
+import { logEntry } from "../../../utils/logEntry"
+
 import { UpdatePastRankingLogic } from "./updatePastRankingLogic"
 
 //get twitch clip ranking for each year
 export const updatePastRanking = async () => {
+    logEntry({
+        severrity: `INFO`,
+        message: `start updatePastRanking`
+    })
     const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 
     await updatePastRankingLogic.deleteOverLimitYear()

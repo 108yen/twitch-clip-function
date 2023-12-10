@@ -1,6 +1,12 @@
+import { logEntry } from "../../../utils/logEntry"
+
 import { StreamerSelectionLogic } from "./streamerSelectionLogic"
 
 export const streamerSelection = async () => {
+    logEntry({
+        severrity: `INFO`,
+        message: `start streamerSelection`
+    })
     const findoutNewStreamer = await StreamerSelectionLogic.init()
 
     /* ==================================
@@ -27,9 +33,8 @@ export const streamerSelection = async () => {
         // addedStreamerIds
     )
 
-    const logEntry = {
-        severity: `INFO`,
+    logEntry({
+        severrity: `INFO`,
         message: `update streamer info: add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`
-    }
-    console.log(JSON.stringify(logEntry))
+    })
 }

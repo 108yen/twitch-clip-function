@@ -16,10 +16,10 @@ if (admin.apps.length === 0) {
 // import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateWeekRanking"
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 // import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
-// import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
+import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 
 async function main() {
-    // await streamerSelection()
+    await streamerSelection()
     // await updateDayRanking()
     // await updateWeekRanking()
     // await updateMonthRanking()

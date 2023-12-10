@@ -22,7 +22,7 @@ export function formatDate(date: Date) {
 }
 
 export function getJSTHours() {
-    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
-    const jstTime = jstFormatter.format(new Date())
-    return new Date(jstTime).getHours()
+    const date = new Date()
+    const hour = date.getHours()
+    return hour + 9 < 24 ? hour + 9 : hour - 15
 }

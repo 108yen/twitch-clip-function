@@ -8,9 +8,9 @@ on:
 env:
     SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
     SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
-    GCP_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+    GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
     GCP_REGION: ${{ secrets.GCP_REGION }}
-    IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
+    IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
 
 jobs:
     deploy:

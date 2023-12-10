@@ -1,13 +1,5 @@
 import * as admin from "firebase-admin"
 
-// Firebase Admin SDK の初期化
-// https://firebase.google.com/docs/functions/config-env?hl=ja
-if (admin.apps.length === 0) {
-    admin.initializeApp({
-        credential: admin.credential.applicationDefault()
-    })
-}
-
 //deploy function
 import { updateAllRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
 import { updateDayRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
@@ -17,12 +9,16 @@ import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 
-export {
-    streamerSelection,
-    updateDayRanking,
-    updateWeekRanking,
-    updateMonthRanking,
-    updateYearRanking,
-    updateAllRanking,
-    updatePastRanking
+async function main() {
+    // Firebase Admin SDK の初期化
+    // https://firebase.google.com/docs/functions/config-env?hl=ja
+    if (admin.apps.length === 0) {
+        admin.initializeApp({
+            credential: admin.credential.applicationDefault()
+        })
+    }
+    await streamerSelection()
+    await updateDayRanking()
 }
+
+main()

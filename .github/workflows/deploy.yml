@@ -3,8 +3,8 @@ name: Deploy to Cloud Run
 on:
     push
     # push:
-    #   branches:
-    #     - master
+    #     branches:
+    #         - master
 env:
     SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
     SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}

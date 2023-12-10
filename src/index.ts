@@ -17,15 +17,17 @@ import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
+import { formatTime } from "./utils/formatTime"
+import { getJSTDate } from "./utils/getJSTDate"
+import { logEntry } from "./utils/logEntry"
 
 async function main() {
-    // jstのDate取得
-    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
-    const jstTime = jstFormatter.format(new Date())
-    const currentDate = new Date(jstTime)
+    const startedAt = getJSTDate()
+
+    logEntry({ severity: `INFO`, message: `started at ${startedAt.toDateString()}` })
 
     // 6時間ごと
-    if ([0, 6, 12, 18].includes(currentDate.getHours())) {
+    if ([0, 6, 12, 18].includes(startedAt.getHours())) {
         await streamerSelection()
     }
 
@@ -36,10 +38,20 @@ async function main() {
     await updateYearRanking()
 
     // 毎月1日に1だけ実行
-    if (currentDate.getDate() == 1 && currentDate.getHours() == 0) {
+    if (startedAt.getDate() == 1 && startedAt.getHours() == 0) {
         await updatePastRanking()
         await updateAllRanking()
     }
+
+    const endedAt = getJSTDate()
+    const executionTime = endedAt.getTime() - startedAt.getTime()
+
+    logEntry({
+        severity: `INFO`,
+        message: `ended at ${endedAt.toDateString()}, execution time ${formatTime(
+            executionTime
+        )}`
+    })
 }
 
 main()

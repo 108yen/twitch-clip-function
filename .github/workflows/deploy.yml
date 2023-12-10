@@ -27,6 +27,7 @@ jobs:
 
             - name: Configure docker to use the gcloud cli
               run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+              continue-on-error: true
 
             - name: Delete old image
               run: gcloud artifacts docker images delete ${{ env.IMAGE }} --quiet

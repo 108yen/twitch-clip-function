@@ -1,5 +1,12 @@
 import * as admin from "firebase-admin"
 
+// Firebase Admin SDK の初期化
+// https://firebase.google.com/docs/functions/config-env?hl=ja
+// importより前に実行する必要がある
+if (admin.apps.length === 0) {
+    admin.initializeApp()
+}
+
 //deploy function
 // import { updateAllRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
 // import { updateDayRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
@@ -10,11 +17,6 @@ import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 // import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 
 async function main() {
-    // Firebase Admin SDK の初期化
-    // https://firebase.google.com/docs/functions/config-env?hl=ja
-    if (admin.apps.length === 0) {
-        admin.initializeApp()
-    }
     // await streamerSelection()
     // await updateDayRanking()
     // await updateWeekRanking()

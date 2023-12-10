@@ -17,8 +17,13 @@ async function main() {
             credential: admin.credential.applicationDefault()
         })
     }
-    await streamerSelection()
-    await updateDayRanking()
+    // await streamerSelection()
+    // await updateDayRanking()
+    // await updateWeekRanking()
+    // await updateMonthRanking()
+    await updateYearRanking()
+    // await updatePastRanking()
+    // await updateAllRanking()
 }
 
 main()

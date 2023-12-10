@@ -1,9 +1,9 @@
 name: Deploy to Cloud Run
 
-on:
-  push:
-    branches:
-      - master
+on: push
+  # push:
+  #   branches:
+  #     - master
 env:
   SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
   SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
@@ -37,12 +37,12 @@ jobs:
       run: docker push ${{ env.IMAGE }}
 
     - name: Deploy to Cloud Run
-      run: | 
+      run: |
         gcloud run jobs deploy $SERVICE_NAME \
           --tasks 1 \
           --parallelism 1 \
           --max-retries 3 \
-          --task-timeout 1m \
+          --task-timeout 10m \
           --image $IMAGE \
           --project $GCP_PROJECT_ID \
           --region $GCP_REGION \

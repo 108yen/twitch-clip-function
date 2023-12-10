@@ -64,5 +64,4 @@ node_modules/
 
 # dotenv environment variables file
 .env
-functions/keys/
-functions/.env.dev
+keys/

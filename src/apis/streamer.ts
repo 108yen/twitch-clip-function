@@ -1,7 +1,6 @@
 import assert from "assert"
 
 import axios, { AxiosRequestConfig } from "axios"
-import * as functions from "firebase-functions"
 
 import { Stream } from "../models/stream"
 import { Streamer } from "../models/streamer"
@@ -37,7 +36,7 @@ export class TwitchStreamerApi extends TwitchApi {
         }
         const res = await axios<{ data: Array<Stream> }>(config).catch(
             (error) => {
-                functions.logger.error(
+                console.error(
                     `TwitchStreamerApi/getJpStreams/axios: ${error}`
                 )
                 throw new Error(error)
@@ -66,7 +65,7 @@ export class TwitchStreamerApi extends TwitchApi {
             }
         }
         const res = await axios<{ total: number }>(config).catch((error) => {
-            functions.logger.error(
+            console.error(
                 `TwitchStreamerApi/getFollowerNum/axios: ${error}`
             )
             throw new Error(error)
@@ -115,7 +114,7 @@ export class TwitchStreamerApi extends TwitchApi {
 
         const res = await axios<{ data: Array<Streamer> }>(config).catch(
             (error) => {
-                functions.logger.error(
+                console.error(
                     `TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers/axios: ${error}`
                 )
                 throw new Error(error)

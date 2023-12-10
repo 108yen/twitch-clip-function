@@ -1,7 +1,6 @@
 import assert from "assert"
 
 import { FieldValue } from "firebase-admin/firestore"
-import * as functions from "firebase-functions"
 
 import { clipDocRef } from "../firestore-refs/clipRefs"
 import { ClipDoc } from "../models/clipDoc"
@@ -11,7 +10,7 @@ export class ClipRepository {
         const ds = await clipDocRef({ clipId: clipId })
             .get()
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `ClipRepository/getClip/clipDocRef.get(): ${error}`
                 )
                 throw new Error(error)
@@ -31,7 +30,7 @@ export class ClipRepository {
         await clipDocRef({ clipId: clipId })
             .set(clipDoc, { merge: false })
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `ClipRepository/updateClip/clipDocRef.set():${error}`
                 )
                 throw new Error(error)
@@ -42,7 +41,7 @@ export class ClipRepository {
         await clipDocRef({ clipId: clipId })
             .set(clipDoc, { merge: true })
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `ClipRepository/updateClip/clipDocRef.set():${error}`
                 )
                 throw new Error(error)
@@ -69,7 +68,7 @@ export class ClipRepository {
         await clipDocRef({ clipId: clipId })
             .set(new ClipDoc())
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `ClipRepository/createClipDoc/clipDocRef.set():${error}`
                 )
                 throw new Error(error)
@@ -84,7 +83,7 @@ export class ClipRepository {
         await clipDocRef({ clipId: clipId })
             .delete()
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `ClipRepository/createClipDoc/clipDocRef.delete():${error}`
                 )
                 throw new Error(error)

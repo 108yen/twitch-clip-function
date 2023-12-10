@@ -1,7 +1,6 @@
 import assert from "assert"
 
 import { FieldValue } from "firebase-admin/firestore"
-import * as functions from "firebase-functions"
 
 import { streamersDocRef } from "../firestore-refs/streamerRefs"
 import { Streamer } from "../models/streamer"
@@ -9,7 +8,7 @@ import { Streamer } from "../models/streamer"
 export class StreamerRepository {
     async getStreamers(): Promise<Array<Streamer>> {
         const ds = await streamersDocRef.get().catch((error) => {
-            functions.logger.error(
+            console.error(
                 `StreamerRepository/getStreamers/streamersDocRef.get(): ${error}`
             )
             throw new Error(error)
@@ -27,7 +26,7 @@ export class StreamerRepository {
         await streamersDocRef
             .set({ streamers: streamers }, { merge: true })
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `StreamerRepository/updateStreamers/streamersDocRef.set(): ${error}`
                 )
                 throw new Error(error)
@@ -47,7 +46,7 @@ export class StreamerRepository {
                 streamers: FieldValue.arrayUnion(...streamers)
             })
             .catch((error) => {
-                functions.logger.error(
+                console.error(
                     `StreamerRepository/addStreamers/streamersDocRef.update(): ${error}`
                 )
                 throw new Error(error)

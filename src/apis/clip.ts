@@ -1,7 +1,6 @@
 import assert from "assert"
 
 import axios, { AxiosRequestConfig } from "axios"
-import * as functions from "firebase-functions"
 
 import { Clip } from "../models/clip"
 import { Token } from "../models/token"
@@ -46,7 +45,7 @@ export class TwitchClipApi extends TwitchApi {
         }
         const res = await axios<{ data: Array<Clip> }>(config).catch(
             (error) => {
-                functions.logger.error(`TwitchClipApi/getClips/axios: ${error}`)
+                console.error(`TwitchClipApi/getClips/axios: ${error}`)
                 throw new Error(error)
             }
         )

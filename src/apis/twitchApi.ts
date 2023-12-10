@@ -1,7 +1,6 @@
 import assert from "assert"
 
 import axios, { AxiosRequestConfig } from "axios"
-import * as functions from "firebase-functions"
 
 import { Token } from "../models/token"
 
@@ -29,7 +28,7 @@ export class TwitchApi {
         }
 
         const res = await axios<Token>(config).catch((error) => {
-            functions.logger.error(`TwitchAPI/getToken/axios: ${error}`)
+            console.error(`TwitchAPI/getToken/axios: ${error}`)
             throw new Error(error)
         })
         const token = res?.data

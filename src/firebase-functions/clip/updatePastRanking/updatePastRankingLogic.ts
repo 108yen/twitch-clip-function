@@ -1,7 +1,5 @@
 import assert from "assert"
 
-import * as functions from "firebase-functions"
-
 import { Streamer } from "../../../models/streamer"
 import { ClipFunction } from "../clipFunction"
 
@@ -23,7 +21,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
             await this.batchRepository.getBatch()
         )
     }
-    
+
     async deleteOverLimitYear() {
         const streamers = await this.getStreamers()
         const current_year = new Date().getFullYear()
@@ -59,7 +57,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
 
         const current_year = new Date().getFullYear()
         if (created_at.getFullYear() == current_year) {
-            functions.logger.info(
+            console.info(
                 `${streamer.display_name}: account created at this year`
             )
             return periods

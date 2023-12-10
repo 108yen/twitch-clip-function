@@ -1,5 +1,3 @@
-import * as functions from "firebase-functions"
-
 import { db } from "../firestore-refs/db"
 
 export class BatchRepository {
@@ -22,7 +20,7 @@ export class BatchRepository {
     async commitBatch() {
         this.chunck = 0
         await this.batch.commit().catch((error) => {
-            functions.logger.error(
+            console.error(
                 `BatchRepository/commitBatch/this.batch.commit():${error}`
             )
             throw new Error(error)

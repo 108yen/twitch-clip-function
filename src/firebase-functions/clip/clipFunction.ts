@@ -1,6 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import * as functions from "firebase-functions"
-
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
 import { ClipDoc } from "../../models/clipDoc"
@@ -87,7 +84,7 @@ export abstract class ClipFunction {
 
                     clipDoc.clipsMap.set(key, addStreamerinfoClip)
                 } else {
-                    functions.logger.info(`update clip info: ${streamer.display_name}: has no ${key} clips`)
+                    console.info(`update clip info: ${streamer.display_name}: has no ${key} clips`)
                 }
             }
         }

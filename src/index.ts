@@ -17,17 +17,18 @@ import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
-import { formatTime } from "./utils/formatTime"
+import { formatDate, formatTime } from "./utils/formatTime"
 import { getJSTDate } from "./utils/getJSTDate"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
     const startedAt = getJSTDate()
 
-    logEntry({ severity: `INFO`, message: `started at ${startedAt.toDateString()}` })
+    logEntry({ severity: `INFO`, message: `started at ${formatDate(startedAt)}` })
 
     // 6時間ごと
     if ([0, 6, 12, 18].includes(startedAt.getHours())) {
+        logEntry({ severity: `INFO`, message: `debug hour ${startedAt.getHours()}` })
         await streamerSelection()
     }
 
@@ -48,7 +49,7 @@ async function main() {
 
     logEntry({
         severity: `INFO`,
-        message: `ended at ${endedAt.toDateString()}, execution time ${formatTime(
+        message: `ended at ${formatDate(endedAt)}, execution time ${formatTime(
             executionTime
         )}`
     })

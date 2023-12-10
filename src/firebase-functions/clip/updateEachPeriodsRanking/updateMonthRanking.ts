@@ -4,7 +4,7 @@ import { UpdateEachPeriodsRankingLogic } from "./logic/updateEachPeriodsRankingL
 
 export const updateMonthRanking = async () => {
     logEntry({
-        severrity: `INFO`,
+        severity: `INFO`,
         message: `start updateMonthRanking`
     })
     const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`month`, 30)

@@ -5,6 +5,7 @@ import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
+import { logEntry } from "../../utils/logEntry"
 
 type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
 
@@ -84,7 +85,10 @@ export abstract class ClipFunction {
 
                     clipDoc.clipsMap.set(key, addStreamerinfoClip)
                 } else {
-                    console.info(`update clip info: ${streamer.display_name}: has no ${key} clips`)
+                    logEntry({
+                        severity: `DEBUG`,
+                        message: `update clip info: ${streamer.display_name}: has no ${key} clips`
+                    })
                 }
             }
         }

@@ -1,5 +1,3 @@
-export function logEntry(params: { severrity: string; message: string }) {
-    console.log(
-        JSON.stringify(params)
-    )
+export function logEntry(params: { severity: string; message: string }) {
+    console.log(JSON.stringify(params))
 }

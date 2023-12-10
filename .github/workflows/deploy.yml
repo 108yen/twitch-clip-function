@@ -44,7 +44,7 @@ jobs:
                     --tasks 1 \
                     --parallelism 1 \
                     --max-retries 1 \
-                    --task-timeout 10m \
+                    --task-timeout 30m \
                     --image $IMAGE \
                     --project $GCP_PROJECT_ID \
                     --region $GCP_REGION \

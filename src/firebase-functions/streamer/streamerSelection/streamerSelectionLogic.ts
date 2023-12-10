@@ -8,7 +8,7 @@ import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
 
 export class StreamerSelectionLogic {
-    STREAMER_NUM_LIMIT = 250
+    STREAMER_NUM_LIMIT = 300
     private streamerRepository = new StreamerRepository()
     private clipRepository = new ClipRepository()
     private batchRepository = new BatchRepository()

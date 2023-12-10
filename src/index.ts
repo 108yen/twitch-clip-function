@@ -13,9 +13,7 @@ async function main() {
     // Firebase Admin SDK の初期化
     // https://firebase.google.com/docs/functions/config-env?hl=ja
     if (admin.apps.length === 0) {
-        admin.initializeApp({
-            credential: admin.credential.applicationDefault()
-        })
+        admin.initializeApp()
     }
     // await streamerSelection()
     // await updateDayRanking()

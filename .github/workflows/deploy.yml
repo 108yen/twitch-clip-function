@@ -43,7 +43,7 @@ jobs:
                   gcloud run jobs deploy $SERVICE_NAME \
                     --tasks 1 \
                     --parallelism 1 \
-                    --max-retries 3 \
+                    --max-retries 1 \
                     --task-timeout 10m \
                     --image $IMAGE \
                     --project $GCP_PROJECT_ID \

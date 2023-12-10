@@ -14,10 +14,8 @@ export const streamerSelection = async () => {
     const stream = await findoutNewStreamer.getJpLiveStreaming()
     const newStreamerIds = findoutNewStreamer.filterStreams(stream, oldStreamerIds)
     const newStreamers = await findoutNewStreamer.getNewStreamerFollower(newStreamerIds)
-    const { selectedStreamers, removedStreamerIds } = findoutNewStreamer.concatAndFilter(
-        oldStreamers,
-        newStreamers
-    )
+    const { selectedStreamers, removedStreamerIds, addedStreamerIds } =
+        findoutNewStreamer.concatAndFilter(oldStreamers, newStreamers)
     const storedStreamers = await findoutNewStreamer.updateStreamerInfo(selectedStreamers)
 
     /* ==================================
@@ -28,4 +26,10 @@ export const streamerSelection = async () => {
         removedStreamerIds
         // addedStreamerIds
     )
+
+    const logEntry = {
+        severity: `INFO`,
+        message: `update streamer info: add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`
+    }
+    console.log(JSON.stringify(logEntry))
 }

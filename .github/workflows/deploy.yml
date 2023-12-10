@@ -1,0 +1,50 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches:
+      - master
+env:
+  SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+  SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
+  GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
+  IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - id: "auth"
+      uses: "google-github-actions/auth@v2"
+      with:
+        credentials_json: "${{ secrets.GCP_SA_KEY }}"
+
+    - name: Configure docker to use the gcloud cli
+      run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+
+    - name: Delete old image
+      run: gcloud artifacts docker images delete ${{ env.IMAGE }} --quiet
+
+    - name: Build a docker image
+      run: docker build -t ${{ env.IMAGE }} .
+
+    - name: Push the docker image
+      run: docker push ${{ env.IMAGE }}
+
+    - name: Deploy to Cloud Run
+      run: | 
+        gcloud run jobs deploy $SERVICE_NAME \
+          --tasks 1 \
+          --parallelism 1 \
+          --max-retries 3 \
+          --task-timeout 1m \
+          --image $IMAGE \
+          --project $GCP_PROJECT_ID \
+          --region $GCP_REGION \
+          --service-account $SERVICE_ACCOUNT_NAME \
+          --set-secrets=TWITCH_CLIENT_ID=TWITCH_CLIENT_ID:latest,TWITCH_CLIENT_SECRET=TWITCH_CLIENT_SECRET:latest

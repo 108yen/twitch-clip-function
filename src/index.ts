@@ -10,41 +10,41 @@ if (admin.apps.length === 0) {
 }
 
 //deploy function
-import { updateAllRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
-import { updateDayRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
-import { updateMonthRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateMonthRanking"
-import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateWeekRanking"
-import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
-import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
-import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
+// import { updateAllRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
+// import { updateDayRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
+// import { updateMonthRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateMonthRanking"
+// import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateWeekRanking"
+// import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
+// import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
+// import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 import { formatDate, formatTime } from "./utils/formatTime"
-import { getJSTDate } from "./utils/getJSTDate"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
-    const startedAt = getJSTDate()
+    const startedAt = new Date()
 
     logEntry({ severity: `INFO`, message: `started at ${formatDate(startedAt)}` })
+    logEntry({ severity: `INFO`, message: `debug hours ${startedAt.getHours()}` })
 
     // 6時間ごと
-    if ([0, 6, 12, 18].includes(startedAt.getHours())) {
-        logEntry({ severity: `INFO`, message: `debug hour ${startedAt.getHours()}` })
-        await streamerSelection()
-    }
+    // if ([0, 6, 12, 18].includes(startedAt.getHours())) {
+    //     logEntry({ severity: `INFO`, message: `debug hour ${startedAt.getHours()}` })
+    //     await streamerSelection()
+    // }
 
-    // 3時間ごと
-    await updateDayRanking()
-    await updateWeekRanking()
-    await updateMonthRanking()
-    await updateYearRanking()
+    // // 3時間ごと
+    // await updateDayRanking()
+    // await updateWeekRanking()
+    // await updateMonthRanking()
+    // await updateYearRanking()
 
-    // 毎月1日に1だけ実行
-    if (startedAt.getDate() == 1 && startedAt.getHours() == 0) {
-        await updatePastRanking()
-        await updateAllRanking()
-    }
+    // // 毎月1日に1だけ実行
+    // if (startedAt.getDate() == 1 && startedAt.getHours() == 0) {
+    //     await updatePastRanking()
+    //     await updateAllRanking()
+    // }
 
-    const endedAt = getJSTDate()
+    const endedAt = new Date()
     const executionTime = endedAt.getTime() - startedAt.getTime()
 
     logEntry({

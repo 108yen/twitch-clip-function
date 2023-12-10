@@ -4,7 +4,9 @@ import * as admin from "firebase-admin"
 // https://firebase.google.com/docs/functions/config-env?hl=ja
 // importより前に実行する必要がある
 if (admin.apps.length === 0) {
-    admin.initializeApp()
+    admin.initializeApp({
+        credential: admin.credential.applicationDefault()
+    })
 }
 
 //deploy function

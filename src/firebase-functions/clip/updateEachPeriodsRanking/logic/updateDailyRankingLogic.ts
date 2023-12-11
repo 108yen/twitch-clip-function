@@ -50,6 +50,7 @@ export class UpdateDailyRankingLogic {
         const [month1, day1] = date1.split(`/`).map(Number)
         const [month2, day2] = date2.split(`/`).map(Number)
 
+        if (month1 == 1 && month2 == 12) return 1
         if (month1 < month2) return -1
         if (month1 > month2) return 1
 

@@ -1,7 +1,10 @@
 name: static analysis and  test
 on:
     push:
-        branches: master
+        branches-ignore:
+            - "master/**"
+    workflow_call:
+      
 jobs:
     test:
         runs-on: ubuntu-latest

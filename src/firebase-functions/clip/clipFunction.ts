@@ -23,7 +23,9 @@ export abstract class ClipFunction {
 
     protected static async getTwitchClipApi() {
         const twitchClipApi = await TwitchClipApi.init(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             process.env.TWITCH_CLIENT_ID!,
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             process.env.TWITCH_CLIENT_SECRET!
         )
         return twitchClipApi

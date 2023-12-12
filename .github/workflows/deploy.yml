@@ -12,7 +12,10 @@ env:
     IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
 
 jobs:
+    test:
+        uses: ./.github/workflows/test.yml
     deploy:
+        needs: [test]
         runs-on: ubuntu-latest
 
         steps:

@@ -23,7 +23,10 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         })
         streamerSelectionLogic = await StreamerSelectionLogic.init()
     })
-    afterEach(() => jest.restoreAllMocks())
+    afterEach(() => {
+        mockedAxios.mockRestore()
+        jest.restoreAllMocks()
+    })
     test(`getOldStreamerのテスト`, async () => {
         mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
         mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
@@ -109,7 +112,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     }, 100000)
     test(`getJpLiveStreamingのテスト:axiosエラー`, async () => {
         mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
-        await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrowError()
+        await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrow()
     }, 100000)
     test(`filterStreamsのテスト`, () => {
         const oldStreamerIdsMockData = [`102631269`, `104363564`]
@@ -184,19 +187,19 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrowError()
     }, 100000)
     test(`concatAndFilterのテスト`, () => {
-        const streamerNumLimit = 250
+        const streamerNumLimit = streamerSelectionLogic.STREAMER_NUM_LIMIT
         const oldStreamers = [...Array(streamerNumLimit - 5)].map(
             (_, index) =>
                 new Streamer({
                     id: `${index}`,
-                    follower_num: 400 - index
+                    follower_num: streamerNumLimit - 100 - index
                 })
         )
         const newStreamers = [...Array(10)].map(
             (_, index) =>
                 new Streamer({
                     id: `${index + streamerNumLimit - 5}`,
-                    follower_num: 600 - index
+                    follower_num: streamerNumLimit + 100 - index
                 })
         )
         const { selectedStreamers, removedStreamerIds, addedStreamerIds } =
@@ -316,10 +319,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         ]
         const removeStreamerIds = [`102631269`, `104363564`]
 
-        await streamerSelectionLogic.updateFirestore(
-            storedStreamers,
-            removeStreamerIds
-        )
+        await streamerSelectionLogic.updateFirestore(storedStreamers, removeStreamerIds)
 
         expect(updateStreamers).toHaveBeenCalledTimes(1)
         expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)
@@ -380,10 +380,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const removeStreamerIds = [`102631269`, `104363564`]
 
         await expect(
-            streamerSelectionLogic.updateFirestore(
-                storedStreamers,
-                removeStreamerIds,
-            )
+            streamerSelectionLogic.updateFirestore(storedStreamers, removeStreamerIds)
         ).rejects.toThrowError()
 
         expect(updateStreamers).toHaveBeenCalledTimes(1)

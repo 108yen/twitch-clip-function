@@ -21,9 +21,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
     const fiveYearsAgo = currentYear - pastYear
     const calcCall = (createdAt: number) =>
         createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+    const mockedAxios = axios as jest.MockedFunction<typeof axios>
 
     beforeAll(async () => {
-        const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
@@ -33,7 +33,10 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         })
         updatePastRankingLogic = await UpdatePastRankingLogic.init()
     })
-    afterEach(() => jest.restoreAllMocks())
+    afterEach(() => {
+        mockedAxios.mockRestore()
+        jest.restoreAllMocks()
+    })
     test(`getPeriodsのテスト`, async () => {
         const streamers: Array<Streamer> = JSON.parse(
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
@@ -44,7 +47,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             const periods = updatePastRankingLogic.getPeriods(streamer)
 
             expect(Object.keys(periods).length).toEqual(
-               calcCall(created_at.getFullYear())
+                calcCall(created_at.getFullYear())
             )
             for (const key in periods) {
                 const period = periods[key]
@@ -179,5 +182,8 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+    })
+    test(`deleteOverLimitYearのテスト`, async () => {
+        await updatePastRankingLogic[`deleteOverLimitYear`]()
     })
 })

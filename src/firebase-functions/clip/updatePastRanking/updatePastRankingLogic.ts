@@ -16,7 +16,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
 
     //5年以上前のランキングの削除処理を別で入れる
     private async deleteFieldVal(clipId: string, key: string) {
-        await this.clipRepository.batchDeleteFieldValue(
+        this.clipRepository.batchDeleteFieldValue(
             clipId,
             key,
             await this.batchRepository.getBatch()

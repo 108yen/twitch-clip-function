@@ -184,6 +184,40 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
     })
     test(`deleteOverLimitYearのテスト`, async () => {
+        const current_year = new Date().getFullYear()
+        const setAgo = 7
+        const getStreamersSpy = jest
+            .spyOn(StreamerRepository.prototype, `getStreamers`)
+            .mockResolvedValue([
+                new Streamer({
+                    id: `49207184`,
+                    follower_num: 100,
+                    created_at: new Date(current_year - setAgo, 1, 1).toISOString()
+                }),
+                new Streamer({
+                    id: `545050196`,
+                    follower_num: 200,
+                    created_at: new Date(current_year, 1, 1).toISOString()
+                })
+            ])
+        const batchDeleteFieldValueSpy = jest
+            .spyOn(ClipRepository.prototype, `batchDeleteFieldValue`)
+            .mockImplementation()
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockResolvedValue()
+
         await updatePastRankingLogic[`deleteOverLimitYear`]()
+
+        expect(getStreamersSpy).toHaveBeenCalledTimes(1)
+        expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes(setAgo - pastYear)
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+
+        //deleteFieldVal呼ばれるときの引数の確認
+        for (const args of batchDeleteFieldValueSpy.mock.calls) {
+            const [clipId, key] = args
+            expect(clipId).toEqual(`49207184`)
+            expect(Number(key)).toBeLessThan(fiveYearsAgo)
+        }
     })
 })

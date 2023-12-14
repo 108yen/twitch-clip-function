@@ -51,8 +51,8 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             )
             for (const key in periods) {
                 const period = periods[key]
-                const started_at = new Date(Number(key), 0, 1, 0, 0, 0)
-                const ended_at = new Date(Number(key), 11, 31, 23, 59, 59)
+                const started_at = new Date(Number(key) - 1, 11, 31, 15, 0, 0)
+                const ended_at = new Date(Number(key), 11, 31, 14, 59, 59)
                 expect(period).toEqual({ started_at: started_at, ended_at: ended_at })
             }
         }

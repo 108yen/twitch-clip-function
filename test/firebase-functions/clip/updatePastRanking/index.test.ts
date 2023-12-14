@@ -158,8 +158,8 @@ describe(`updatePastRankingのテスト`, () => {
                 const clip = clips[key_j]
                 if (!isNaN(Number(period))) {
                     const year = parseInt(period)
-                    const started_at = new Date(year, 0, 1, 0, 0, 0)
-                    const ended_at = new Date(year, 11, 31, 23, 59, 59)
+                    const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
+                    const ended_at = new Date(year, 11, 31, 14, 59, 59)
                     assert(
                         typeof clip.created_at !== `undefined`,
                         `created_at is undefined`

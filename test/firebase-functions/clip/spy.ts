@@ -3,6 +3,64 @@ import { faker } from "@faker-js/faker"
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
 
+export function generatePastClipDoc(id?: string, createdAt?: Date) {
+    const result = new ClipDoc()
+
+    const current_year = getJSTDate().getFullYear()
+    const created_year = createdAt ? utcToJst(createdAt).getFullYear() : 2016
+    for (let year = created_year; year < current_year; year++) {
+        //UTC指定なので-9時間
+        const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
+        const ended_at = new Date(year, 11, 31, 14, 59, 59)
+        const clips = createClipsData(id, started_at, ended_at)
+        result.clipsMap.set(year.toString(), clips)
+    }
+
+    return result
+}
+
+export function generateSummaryClipDoc(id?: string) {
+    const result = new ClipDoc()
+
+    //各期間
+    const periods: { [key: string]: number } = {
+        day: 1,
+        week: 7,
+        month: 30,
+        year: 365,
+        all: 0
+    }
+    for (const key in periods) {
+        if (Object.prototype.hasOwnProperty.call(periods, key)) {
+            const days = periods[key]
+            const ended_at = new Date()
+            const started_at = new Date(ended_at.getTime() - days * 24 * 60 * 60 * 1000)
+
+            const clips = days
+                ? createClipsData(id, started_at, ended_at)
+                : createClipsData(id)
+            result.clipsMap.set(key, clips)
+        }
+    }
+    return result
+}
+
+export function generateStreamerClipDoc(id: string, createdAt: Date) {
+    const result = new ClipDoc()
+
+    //各期間
+    const periodsClipDoc = generateSummaryClipDoc(id)
+
+    //過去
+    const pastClipDoc = generatePastClipDoc(id, createdAt)
+
+    //格納
+    result.clipDocConcat(periodsClipDoc)
+    result.clipDocConcat(pastClipDoc)
+
+    return result
+}
+
 export async function getClipsSpyImp(
     broadcaster_id: number,
     started_at?: Date,
@@ -48,7 +106,7 @@ export async function createDailyDammyData(dayAfter: number) {
     for (let index = dayAfter; index < dayAfter + 7; index++) {
         const ended_at = new Date(today.getTime() - index * 24 * 60 * 60 * 1000)
         const started_at = new Date(ended_at.getTime() - 24 * 60 * 60 * 1000)
-        const clips = createClipsData(started_at, ended_at)
+        const clips = createClipsData(undefined, started_at, ended_at)
         clipDoc.clipsMap.set(
             `${started_at.getMonth() + 1}/${started_at.getDate()}`,
             clips
@@ -57,7 +115,7 @@ export async function createDailyDammyData(dayAfter: number) {
     return clipDoc
 }
 
-export function createClipsData(started_at?: Date, ended_at?: Date) {
+export function createClipsData(id?: string, started_at?: Date, ended_at?: Date) {
     const display_name = faker.person.fullName()
     const clips: Array<Clip> = [...Array(100).keys()].map(() => {
         const created_at =
@@ -72,7 +130,7 @@ export function createClipsData(started_at?: Date, ended_at?: Date) {
 
         return {
             embed_url: faker.internet.url(),
-            broadcaster_id: faker.string.numeric(10),
+            broadcaster_id: id ?? faker.string.numeric(10),
             created_at: created_at,
             language: `ja`,
             broadcaster_name: display_name,
@@ -105,7 +163,11 @@ export function createClipsData(started_at?: Date, ended_at?: Date) {
 }
 
 export function getJSTDate() {
+    return utcToJst(new Date())
+}
+
+function utcToJst(date: Date) {
     const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
-    const jstTime = jstFormatter.format(new Date())
+    const jstTime = jstFormatter.format(date)
     return new Date(jstTime)
 }

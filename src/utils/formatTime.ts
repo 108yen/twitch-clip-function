@@ -23,6 +23,12 @@ export function formatDate(date: Date) {
 
 export function getJSTHours() {
     const date = new Date()
-    const hour = date.getHours()
+    const hour = date.getUTCHours()
     return hour + 9 < 24 ? hour + 9 : hour - 15
+}
+
+export function getJSTDate() {
+    const date = new Date()
+    const time = date.getTime()
+    return new Date(time + 9 * 60 * 60 * 1000)
 }

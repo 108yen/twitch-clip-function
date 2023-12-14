@@ -21,9 +21,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
     const fiveYearsAgo = currentYear - pastYear
     const calcCall = (createdAt: number) =>
         createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+    const mockedAxios = axios as jest.MockedFunction<typeof axios>
 
     beforeAll(async () => {
-        const mockedAxios = axios as jest.MockedFunction<typeof axios>
         mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
@@ -33,7 +33,10 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         })
         updatePastRankingLogic = await UpdatePastRankingLogic.init()
     })
-    afterEach(() => jest.restoreAllMocks())
+    afterEach(() => {
+        mockedAxios.mockRestore()
+        jest.restoreAllMocks()
+    })
     test(`getPeriodsのテスト`, async () => {
         const streamers: Array<Streamer> = JSON.parse(
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
@@ -44,12 +47,12 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             const periods = updatePastRankingLogic.getPeriods(streamer)
 
             expect(Object.keys(periods).length).toEqual(
-               calcCall(created_at.getFullYear())
+                calcCall(created_at.getFullYear())
             )
             for (const key in periods) {
                 const period = periods[key]
-                const started_at = new Date(Number(key), 0, 1, 0, 0, 0)
-                const ended_at = new Date(Number(key), 11, 31, 23, 59, 59)
+                const started_at = new Date(Number(key) - 1, 11, 31, 15, 0, 0)
+                const ended_at = new Date(Number(key), 11, 31, 14, 59, 59)
                 expect(period).toEqual({ started_at: started_at, ended_at: ended_at })
             }
         }
@@ -179,5 +182,42 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
         expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+    })
+    test(`deleteOverLimitYearのテスト`, async () => {
+        const current_year = new Date().getFullYear()
+        const setAgo = 7
+        const getStreamersSpy = jest
+            .spyOn(StreamerRepository.prototype, `getStreamers`)
+            .mockResolvedValue([
+                new Streamer({
+                    id: `49207184`,
+                    follower_num: 100,
+                    created_at: new Date(current_year - setAgo, 1, 1).toISOString()
+                }),
+                new Streamer({
+                    id: `545050196`,
+                    follower_num: 200,
+                    created_at: new Date(current_year, 1, 1).toISOString()
+                })
+            ])
+        const batchDeleteFieldValueSpy = jest
+            .spyOn(ClipRepository.prototype, `batchDeleteFieldValue`)
+            .mockImplementation()
+        const commitBatchSpy = jest
+            .spyOn(BatchRepository.prototype, `commitBatch`)
+            .mockResolvedValue()
+
+        await updatePastRankingLogic[`deleteOverLimitYear`]()
+
+        expect(getStreamersSpy).toHaveBeenCalledTimes(1)
+        expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes(setAgo - pastYear)
+        expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+
+        //deleteFieldVal呼ばれるときの引数の確認
+        for (const args of batchDeleteFieldValueSpy.mock.calls) {
+            const [clipId, key] = args
+            expect(clipId).toEqual(`49207184`)
+            expect(Number(key)).toBeLessThan(fiveYearsAgo)
+        }
     })
 })

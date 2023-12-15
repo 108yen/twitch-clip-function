@@ -4,12 +4,6 @@ on:
     push:
         branches:
             - master
-env:
-    SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-    SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
-    GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-    GCP_REGION: ${{ secrets.GCP_REGION }}
-    IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
 
 jobs:
     test:
@@ -17,6 +11,13 @@ jobs:
     deploy:
         needs: [test]
         runs-on: ubuntu-latest
+
+        env:
+            SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+            SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
+            GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+            GCP_REGION: ${{ secrets.GCP_REGION }}
+            IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
 
         steps:
             - name: Checkout repository

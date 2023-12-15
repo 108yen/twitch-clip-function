@@ -53,7 +53,8 @@ export class StreamerSelectionLogic {
             `182565961`, //WorldofWarships
             `179988448`, //PUBGJAPAN
             `144740532`, //japanese_restream
-            `229395457` //eastgeeksmash
+            `229395457`, //eastgeeksmash
+            `79294007`, //mira
         ]
         const filteredId = streams
             .filter((stream) => {

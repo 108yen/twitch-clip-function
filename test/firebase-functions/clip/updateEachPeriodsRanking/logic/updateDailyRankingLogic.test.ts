@@ -10,7 +10,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     beforeAll(() => {
         const today = getJSTDate()
         const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-        todayClips = createClipsData(lastDay, today)
+        todayClips = createClipsData(undefined, lastDay, today)
     })
     afterEach(() => jest.restoreAllMocks())
     test(`ダミーデータがちゃんと作成出来ているかの確認`, async () => {
@@ -53,9 +53,9 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
             )
             return `${started_at.getMonth() + 1}/${started_at.getDate()}`
         })
-        expect(
-            Array.from(setClipSpy.mock.calls[0][1].clipsMap.keys()).sort()
-        ).toEqual(expectedKeys.sort())
+        expect(Array.from(setClipSpy.mock.calls[0][1].clipsMap.keys()).sort()).toEqual(
+            expectedKeys.sort()
+        )
         for (const [, clips] of setClipSpy.mock.calls[0][1].clipsMap) {
             clipOrderCheck(clips)
             clipElementCheck(clips)
@@ -64,7 +64,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     test(`2回目の更新はされないことのチェック`, async () => {
         const getClipsSpy = jest
             .spyOn(ClipRepository.prototype, `getClip`)
-            .mockImplementation(()=>createDailyDammyData(0))
+            .mockImplementation(() => createDailyDammyData(0))
         const setClipSpy = jest
             .spyOn(ClipRepository.prototype, `setClip`)
             .mockImplementation()

@@ -33,9 +33,13 @@ async function main() {
 
     // 3時間ごと
     await updateDayRanking()
-    await updateWeekRanking()
-    await updateMonthRanking()
-    await updateYearRanking()
+
+    // 毎日0時
+    if (jstHours == 0) {
+        await updateWeekRanking()
+        await updateMonthRanking()
+        await updateYearRanking()
+    }
 
     // 毎月1日に1だけ実行
     if (startedAt.getDate() == 1 && jstHours == 0) {

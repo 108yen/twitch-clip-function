@@ -54,7 +54,7 @@ export class StreamerSelectionLogic {
             `179988448`, //PUBGJAPAN
             `144740532`, //japanese_restream
             `229395457`, //eastgeeksmash
-            `79294007`, //mira
+            `79294007` //mira
         ]
         const filteredId = streams
             .filter((stream) => {
@@ -97,7 +97,7 @@ export class StreamerSelectionLogic {
         return newStreamers
     }
     concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
-        //Select streamers with top 200 followers
+        //Select streamers with top STREAMER_NUM_LIMIT
         const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers))
         const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
@@ -113,7 +113,7 @@ export class StreamerSelectionLogic {
     }
     async updateStreamerInfo(
         selectedStreamers: Array<Streamer>
-    ): Promise<Array<Streamer>> {
+    ): Promise<{ storedStreamers: Array<Streamer>; banedIds: Array<string> }> {
         const selectedStreamerIds = selectedStreamers.map((e) => e.id)
         //push to firestore
         const storedStreamers =
@@ -125,7 +125,14 @@ export class StreamerSelectionLogic {
             )
             storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num
         }
-        return this.sortByFollowerNum(storedStreamers)
+        const sortedStreamers = this.sortByFollowerNum(storedStreamers)
+
+        //if baned streamer exist
+        const banedIds = selectedStreamerIds.filter((id) =>
+            sortedStreamers.every((streamer) => streamer.id !== id)
+        )
+
+        return { storedStreamers: sortedStreamers, banedIds }
     }
     async updateFirestore(
         storedStreamers: Array<Streamer>,

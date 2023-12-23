@@ -260,19 +260,18 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     }, 100000)
     test(`updateStreamerInfoのテスト:banされたストリーマーがいたとき`, async () => {
         const mockData = [
-            //fps_shakaがbanされた想定で返さない
-            // new Streamer({
-            //     broadcaster_type: `partner`,
-            //     created_at: `2013-09-19T13:21:29Z`,
-            //     description: ``,
-            //     display_name: `fps_shaka`,
-            //     id: `49207184`,
-            //     login: `fps_shaka`,
-            //     offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-            //     profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-            //     type: ``,
-            //     view_count: 0
-            // }),
+            new Streamer({
+                broadcaster_type: `partner`,
+                created_at: `2013-09-19T13:21:29Z`,
+                description: ``,
+                display_name: `fps_shaka`,
+                id: `49207184`,
+                login: `fps_shaka`,
+                offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
+                profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
+                type: ``,
+                view_count: 0
+            }),
             new Streamer({
                 broadcaster_type: `partner`,
                 created_at: `2020-06-18T04:04:09Z`,
@@ -296,14 +295,20 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             new Streamer({
                 id: `545050196`,
                 follower_num: 200
+            }),
+            //banされる想定のやつ
+            new Streamer({
+                id: `0000000`,
+                follower_num: 200
             })
         ]
         const { storedStreamers, banedIds } =
             await streamerSelectionLogic.updateStreamerInfo(selectedStreamers)
         const expectData = JSON.parse(JSON.stringify(mockData)).reverse()
         expectData[0].follower_num = 200
+        expectData[1].follower_num = 100
         expect(storedStreamers).toEqual(expectData)
-        expect(banedIds).toEqual([`49207184`])
+        expect(banedIds).toEqual([`0000000`])
     }, 100000)
     test(`updateStreamerInfoのテスト:axiosエラー`, async () => {
         mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))

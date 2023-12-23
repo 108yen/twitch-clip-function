@@ -129,7 +129,7 @@ export class StreamerSelectionLogic {
 
         //if baned streamer exist
         const banedIds = selectedStreamerIds.filter((id) =>
-            storedStreamers.some((streamer) => streamer.id != id)
+            sortedStreamers.every((streamer) => streamer.id !== id)
         )
 
         return { storedStreamers: sortedStreamers, banedIds }

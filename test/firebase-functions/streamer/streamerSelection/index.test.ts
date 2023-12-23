@@ -89,7 +89,7 @@ describe(`streamerSelectionのテスト`, () => {
                 assert(typeof streamer?.follower_num !== `undefined`)
                 return streamer.follower_num
             })
-        const getStreamers = jest
+        const getStreamersSpy = jest
             .spyOn(TwitchStreamerApi.prototype, `getStreamers`)
             .mockImplementation(async (ids: Array<string>) => {
                 return allStreamersMockData
@@ -108,7 +108,7 @@ describe(`streamerSelectionのテスト`, () => {
         expect(getFollowerNumSpy).toHaveBeenCalledTimes(
             streamerSelectionLogic.STREAMER_NUM_LIMIT + 1
         ) //1つ追加になる
-        expect(getStreamers).toHaveBeenCalledTimes(1)
+        expect(getStreamersSpy).toHaveBeenCalledTimes(1)
 
         const newStreamer = await streamerRepository.getStreamers()
         const newStreamerIds = newStreamer.map((e) => e.id)

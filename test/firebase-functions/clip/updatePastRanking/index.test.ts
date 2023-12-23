@@ -144,6 +144,7 @@ describe(`updatePastRankingのテスト`, () => {
             expect(clipDoc).toEqual(oldClipDoc)
         }
         //全体のランキング
+        //todo: ５年以降のがある場合も削除されているかテストしたい
         const clipDoc = await clipRepository.getClip(`past_summary`)
         for (const [period, clips] of clipDoc.clipsMap) {
             expect(clips).toBeDefined()

@@ -42,6 +42,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
                 }
             }
         }
+        //todo: check past_summary
 
         await this.batchRepository.commitBatch()
     }

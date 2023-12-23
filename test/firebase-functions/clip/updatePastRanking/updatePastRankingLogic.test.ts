@@ -42,6 +42,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
         for (const streamer of streamers) {
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const created_at = new Date(streamer!.created_at!)
 
             const periods = updatePastRankingLogic.getPeriods(streamer)
@@ -209,6 +210,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
         await updatePastRankingLogic[`deleteOverLimitYear`]()
 
+        //todo: check past_summary
         expect(getStreamersSpy).toHaveBeenCalledTimes(1)
         expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes(setAgo - pastYear)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)

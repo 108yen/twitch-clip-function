@@ -20,16 +20,21 @@ export const streamerSelection = async () => {
     const stream = await findoutNewStreamer.getJpLiveStreaming()
     const newStreamerIds = findoutNewStreamer.filterStreams(stream, oldStreamerIds)
     const newStreamers = await findoutNewStreamer.getNewStreamerFollower(newStreamerIds)
+
+    /* ==================================
+        Filter streamer
+        ================================== */
     const { selectedStreamers, removedStreamerIds, addedStreamerIds } =
         findoutNewStreamer.concatAndFilter(oldStreamers, newStreamers)
-    const storedStreamers = await findoutNewStreamer.updateStreamerInfo(selectedStreamers)
+    const { storedStreamers, banedIds } =
+        await findoutNewStreamer.updateStreamerInfo(selectedStreamers)
 
     /* ==================================
         update Firestore
         ================================== */
     await findoutNewStreamer.updateFirestore(
         storedStreamers,
-        removedStreamerIds
+        removedStreamerIds.concat(banedIds)
         // addedStreamerIds
     )
 

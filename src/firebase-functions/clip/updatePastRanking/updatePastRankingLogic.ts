@@ -28,6 +28,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
         const current_year = new Date().getFullYear()
         const limit_year = current_year - this.past_limit
 
+        //each streamer
         for (const streamer of streamers) {
             assert(
                 typeof streamer.created_at === `string`,
@@ -42,7 +43,15 @@ export class UpdatePastRankingLogic extends ClipFunction {
                 }
             }
         }
-        //todo: check past_summary
+
+        //past_summary
+        const past_summary = await this.clipRepository.getClip(`past_summary`)
+        for (let year = limit_year - 1; year > 2015; year--) {
+            const clips = past_summary.clipsMap.get(year.toString())
+            if (clips == undefined) break
+
+            await this.deleteFieldVal(`past_summary`, year.toString())
+        }
 
         await this.batchRepository.commitBatch()
     }

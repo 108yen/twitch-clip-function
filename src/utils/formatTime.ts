@@ -32,3 +32,13 @@ export function getJSTDate() {
     const time = date.getTime()
     return new Date(time + 9 * 60 * 60 * 1000)
 }
+
+// export function getJSTDate() {
+//     return utcToJst(new Date())
+// }
+
+// function utcToJst(date: Date) {
+//     const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+//     const jstTime = jstFormatter.format(date)
+//     return new Date(jstTime)
+// }

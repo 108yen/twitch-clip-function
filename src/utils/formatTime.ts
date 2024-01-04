@@ -21,24 +21,28 @@ export function formatDate(date: Date) {
     return formattedDate
 }
 
+// export function getJSTHours() {
+//     const date = new Date()
+//     const hour = date.getUTCHours()
+//     return hour + 9 < 24 ? hour + 9 : hour - 15
+// }
+
+// export function getJSTDate() {
+//     const date = new Date()
+//     const time = date.getTime()
+//     return new Date(time + 9 * 60 * 60 * 1000)
+// }
+
 export function getJSTHours() {
-    const date = new Date()
-    const hour = date.getUTCHours()
-    return hour + 9 < 24 ? hour + 9 : hour - 15
+    return getJSTDate().getHours()
 }
 
 export function getJSTDate() {
-    const date = new Date()
-    const time = date.getTime()
-    return new Date(time + 9 * 60 * 60 * 1000)
+    return utcToJst(new Date())
 }
 
-// export function getJSTDate() {
-//     return utcToJst(new Date())
-// }
-
-// function utcToJst(date: Date) {
-//     const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
-//     const jstTime = jstFormatter.format(date)
-//     return new Date(jstTime)
-// }
+function utcToJst(date: Date) {
+    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+    const jstTime = jstFormatter.format(date)
+    return new Date(jstTime)
+}

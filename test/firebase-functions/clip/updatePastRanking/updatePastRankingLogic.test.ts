@@ -5,18 +5,19 @@ import axios from "axios"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
+import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
 import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { getClipsSpyImp } from "../spy"
+import { getClipsSpyImp, getJSTDate } from "../spy"
 
 jest.mock(`axios`)
 
 describe(`UpdatePastRankingLogicのテスト`, () => {
     let updatePastRankingLogic: UpdatePastRankingLogic
-    const currentYear = new Date().getFullYear()
+    const currentYear = getJSTDate().getFullYear()
     const pastYear = 5 //何年前までとるか
     const fiveYearsAgo = currentYear - pastYear
     const calcCall = (createdAt: number) =>
@@ -185,7 +186,8 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
     })
     test(`deleteOverLimitYearのテスト`, async () => {
-        const current_year = new Date().getFullYear()
+        //何年かこのものまで格納する想定か設定する
+        //ここで制限はみ出している年のものが削除される
         const setAgo = 7
         const getStreamersSpy = jest
             .spyOn(StreamerRepository.prototype, `getStreamers`)
@@ -193,14 +195,27 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
                 new Streamer({
                     id: `49207184`,
                     follower_num: 100,
-                    created_at: new Date(current_year - setAgo, 1, 1).toISOString()
+                    created_at: new Date(currentYear - setAgo, 1, 1).toISOString()
                 }),
                 new Streamer({
                     id: `545050196`,
                     follower_num: 200,
-                    created_at: new Date(current_year, 1, 1).toISOString()
+                    created_at: new Date(currentYear, 1, 1).toISOString()
                 })
             ])
+        const getClipSpy = jest
+            .spyOn(ClipRepository.prototype, `getClip`)
+            .mockImplementation(async (clipId: string) => {
+                const clipDoc = new ClipDoc()
+                for (
+                    let year = currentYear - 1;
+                    year > currentYear - setAgo - 1;
+                    year--
+                ) {
+                    clipDoc.clipsMap.set(year.toString(), [])
+                }
+                return clipDoc
+            })
         const batchDeleteFieldValueSpy = jest
             .spyOn(ClipRepository.prototype, `batchDeleteFieldValue`)
             .mockImplementation()
@@ -210,15 +225,16 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
         await updatePastRankingLogic[`deleteOverLimitYear`]()
 
-        //todo: check past_summary
         expect(getStreamersSpy).toHaveBeenCalledTimes(1)
-        expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes(setAgo - pastYear)
+        //past_summaryとストリーマー一人分で2倍呼ばれる
+        expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes((setAgo - pastYear) * 2)
         expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+        expect(getClipSpy).toHaveBeenCalledTimes(1)
 
         //deleteFieldVal呼ばれるときの引数の確認
         for (const args of batchDeleteFieldValueSpy.mock.calls) {
-            const [clipId, key] = args
-            expect(clipId).toEqual(`49207184`)
+            const [, key] = args
+
             expect(Number(key)).toBeLessThan(fiveYearsAgo)
         }
     })

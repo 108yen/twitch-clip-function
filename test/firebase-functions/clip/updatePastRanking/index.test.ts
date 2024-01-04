@@ -11,14 +11,20 @@ import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { generatePastClipDoc, generateStreamerClipDoc, getClipsSpyImp } from "../spy"
+import {
+    generatePastClipDoc,
+    generateStreamerClipDoc,
+    getClipsSpyImp,
+    getJSTDate
+} from "../spy"
 
 jest.mock(`axios`)
 
 describe(`updatePastRankingのテスト`, () => {
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
+    //todo: ちゃんとlogicの中に定義した値からとりたい。ほかのとこに格納してもいいかも
     const pastYear = 5 //何年前までとるか
-    beforeAll(async () => {
+    beforeEach(async () => {
         const streamerRepository = new StreamerRepository()
         const clipRepository = new ClipRepository()
         //ストリーマー情報格納
@@ -30,14 +36,14 @@ describe(`updatePastRankingのテスト`, () => {
         for (const streamer of streamers) {
             const id = streamer.id
             const created_at = streamer.created_at
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             const clipDoc = generateStreamerClipDoc(id, new Date(created_at!))
             await clipRepository.updateClip(id, clipDoc)
         }
         //past_summary格納
         const clipDoc = generatePastClipDoc()
         await clipRepository.updateClip(`past_summary`, clipDoc)
-    })
-    beforeEach(() => {
+
         mockedAxios.mockResolvedValueOnce({
             data: {
                 access_token: `test`,
@@ -46,7 +52,7 @@ describe(`updatePastRankingのテスト`, () => {
             }
         })
     })
-    afterAll(async () => {
+    afterEach(async () => {
         const streamerRepository = new StreamerRepository()
         const clipRepository = new ClipRepository()
         const ids = [`49207184`, `545050196`]
@@ -55,8 +61,6 @@ describe(`updatePastRankingのテスト`, () => {
         }
         await clipRepository.deleteClipDoc(`past_summary`)
         await streamerRepository.updateStreamers([])
-    })
-    afterEach(() => {
         mockedAxios.mockRestore()
         jest.restoreAllMocks()
     })
@@ -175,4 +179,29 @@ describe(`updatePastRankingのテスト`, () => {
             }
         }
     }, 1000000)
+
+    test(`過去ランキングの削除テスト`, async () => {
+        const getClipsSpy = jest
+            .spyOn(TwitchClipApi.prototype, `getClips`)
+            .mockImplementation(getClipsSpyImp)
+
+        const clipRepository = new ClipRepository()
+        //実行
+        await updatePastRanking()
+
+        const resultPastSummary = await clipRepository.getClip(`past_summary`)
+        //要素数がpastYearで指定した数とあっているか確認
+        expect(resultPastSummary.clipsMap.size).toEqual(pastYear)
+
+        //過去pastYearで指定した年のランキングがあるか確認
+        const currentDate = getJSTDate()
+        const currentYear = currentDate.getFullYear()
+        for (let index = currentYear - 1; index > currentYear - pastYear - 1; index--) {
+            const clips = resultPastSummary.clipsMap.get(`${index}`)
+            expect(clips).toBeDefined()
+        }
+
+        //いらないかも
+        expect(getClipsSpy).toHaveBeenCalled()
+    })
 })

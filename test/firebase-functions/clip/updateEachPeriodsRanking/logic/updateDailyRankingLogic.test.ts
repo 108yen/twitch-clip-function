@@ -91,4 +91,41 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         expect(updateDailyRankingLogic[`compareDates`](`10/9`, `9/10`)).toEqual(1)
         expect(updateDailyRankingLogic[`compareDates`](`9/9`, `10/10`)).toEqual(-1)
     })
+    test(`compareDatesのテスト:年またぎ`, () => {
+        const todayClipDoc = new ClipDoc({
+            clipsMap: new Map([[`day`, todayClips]])
+        })
+
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
+
+        expect(updateDailyRankingLogic[`compareDates`](`1/1`, `12/31`)).toEqual(1)
+        expect(updateDailyRankingLogic[`compareDates`](`12/31`, `1/1`)).toEqual(-1)
+    })
+    test(`compareDatesを使ったソートのテスト`, () => {
+        const todayClipDoc = new ClipDoc({
+            clipsMap: new Map([[`day`, todayClips]])
+        })
+
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
+        const dates = [
+            `12/25`, //
+            `12/26`,
+            `12/27`,
+            `12/28`,
+            `12/29`,
+            `12/30`,
+            `12/31`,
+            `1/1`,
+            `1/2`,
+            `1/3`
+        ]
+        //シャッフル
+        const shuffledDates = dates.slice().sort(() => 0.5 - Math.random())
+        //ソート
+        const sortedDates = shuffledDates
+            .slice()
+            .sort(updateDailyRankingLogic[`compareDates`])
+
+        expect(sortedDates).toEqual(dates)
+    })
 })

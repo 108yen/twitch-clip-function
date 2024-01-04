@@ -17,17 +17,17 @@ import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
-import { formatDate, formatTime, getJSTHours } from "./utils/formatTime"
+import { formatDate, formatTime, getJSTDate, getJSTHours } from "./utils/formatTime"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
-    const startedAt = new Date()
-    const jstHours = getJSTHours()
+    const startedAt = getJSTDate()
+    const hour = getJSTHours()
 
     logEntry({ severity: `INFO`, message: `started at ${formatDate(startedAt)}` })
 
     // 6時間ごと
-    if ([0, 6, 12, 18].includes(jstHours)) {
+    if ([0, 6, 12, 18].includes(hour)) {
         await streamerSelection()
     }
 
@@ -35,14 +35,14 @@ async function main() {
     await updateDayRanking()
 
     // 毎日0時
-    if (jstHours == 0) {
+    if (hour == 0) {
         await updateWeekRanking()
         await updateMonthRanking()
         await updateYearRanking()
     }
 
     // 毎月1日に1だけ実行
-    if (startedAt.getDate() == 1 && jstHours == 0) {
+    if (startedAt.getDate() == 1 && hour == 0) {
         await updatePastRanking()
         await updateAllRanking()
     }

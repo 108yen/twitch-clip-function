@@ -8,7 +8,6 @@ export function formatTime(milliseconds: number) {
 
 export function formatDate(date: Date) {
     const options: Intl.DateTimeFormatOptions = {
-        timeZone: `Asia/Tokyo`,
         year: `numeric`,
         month: `2-digit`,
         day: `2-digit`,
@@ -17,18 +16,32 @@ export function formatDate(date: Date) {
         second: `2-digit`
     }
 
-    const formattedDate = new Intl.DateTimeFormat(`ja-JP`, options).format(date)
+    const formattedDate = new Intl.DateTimeFormat(undefined, options).format(date)
     return formattedDate
 }
 
+// export function getJSTHours() {
+//     const date = new Date()
+//     const hour = date.getUTCHours()
+//     return hour + 9 < 24 ? hour + 9 : hour - 15
+// }
+
+// export function getJSTDate() {
+//     const date = new Date()
+//     const time = date.getTime()
+//     return new Date(time + 9 * 60 * 60 * 1000)
+// }
+
 export function getJSTHours() {
-    const date = new Date()
-    const hour = date.getUTCHours()
-    return hour + 9 < 24 ? hour + 9 : hour - 15
+    return getJSTDate().getHours()
 }
 
 export function getJSTDate() {
-    const date = new Date()
-    const time = date.getTime()
-    return new Date(time + 9 * 60 * 60 * 1000)
+    return utcToJst(new Date())
+}
+
+function utcToJst(date: Date) {
+    const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
+    const jstTime = jstFormatter.format(date)
+    return new Date(jstTime)
 }

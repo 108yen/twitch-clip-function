@@ -17,14 +17,14 @@ import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
-import { formatDate, formatTime, getJSTDate, getJSTHours } from "./utils/formatTime"
+import { formatTime, getJSTDate, getJSTHours } from "./utils/formatTime"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
     const startedAt = getJSTDate()
     const hour = getJSTHours()
 
-    logEntry({ severity: `INFO`, message: `started at ${formatDate(startedAt)}` })
+    logEntry({ severity: `INFO`, message: `started at ${startedAt.toISOString()}` })
 
     // 6時間ごと
     if ([0, 6, 12, 18].includes(hour)) {
@@ -47,12 +47,12 @@ async function main() {
         await updateAllRanking()
     }
 
-    const endedAt = new Date()
+    const endedAt = getJSTDate()
     const executionTime = endedAt.getTime() - startedAt.getTime()
 
     logEntry({
         severity: `INFO`,
-        message: `ended at ${formatDate(endedAt)}, execution time ${formatTime(
+        message: `ended at ${endedAt.toISOString()}, execution time ${formatTime(
             executionTime
         )}`
     })

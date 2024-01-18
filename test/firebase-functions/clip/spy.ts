@@ -115,6 +115,22 @@ export async function createDailyDammyData(dayAfter: number) {
     return clipDoc
 }
 
+export function createSummaryClipDoc() {
+    const clipDoc = new ClipDoc()
+    const currentDate = new Date()
+    const dayAfter = (day: number) => {
+        return new Date(currentDate.getTime() - 86400000 * day)
+    }
+
+    clipDoc.clipsMap.set(`day`, createClipsData(undefined, dayAfter(1), currentDate))
+    clipDoc.clipsMap.set(`week`, createClipsData(undefined, dayAfter(7), currentDate))
+    clipDoc.clipsMap.set(`month`, createClipsData(undefined, dayAfter(30), currentDate))
+    clipDoc.clipsMap.set(`year`, createClipsData(undefined, dayAfter(365), currentDate))
+    clipDoc.clipsMap.set(`all`, createClipsData())
+
+    return clipDoc
+}
+
 export function createClipsData(id?: string, started_at?: Date, ended_at?: Date) {
     const display_name = faker.person.fullName()
     const clips: Array<Clip> = [...Array(100).keys()].map(() => {

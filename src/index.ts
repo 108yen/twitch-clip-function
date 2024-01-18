@@ -17,6 +17,7 @@ import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
+import { tweetTopClip } from "./firebase-functions/twitter/tweet"
 import { formatTime, getJSTDate, getJSTHours } from "./utils/formatTime"
 import { logEntry } from "./utils/logEntry"
 
@@ -39,6 +40,8 @@ async function main() {
         await updateWeekRanking()
         await updateMonthRanking()
         await updateYearRanking()
+
+        await tweetTopClip()
     }
 
     // 毎月1日に1だけ実行

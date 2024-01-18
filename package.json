@@ -15,7 +15,8 @@
     "eslint-import-resolver-typescript": "^3.5.5",
     "eslint-plugin-node": "^11.1.0",
     "firebase-admin": "^11.10.1",
-    "loader": "^2.1.1"
+    "loader": "^2.1.1",
+    "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {
     "@faker-js/faker": "^8.1.0",

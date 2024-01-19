@@ -1,3 +1,5 @@
+import dayjs from "dayjs"
+
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
 import { ClipDoc } from "../../models/clipDoc"
@@ -7,7 +9,7 @@ import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
 import { logEntry } from "../../utils/logEntry"
 
-type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
+type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
 
 export abstract class ClipFunction {
     protected streamerRepository = new StreamerRepository()
@@ -102,7 +104,7 @@ export abstract class ClipFunction {
     }
 
     protected async getClips(
-        period: { started_at?: Date; ended_at?: Date },
+        period: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs },
         streamerId: string
     ): Promise<Array<Clip>> {
         const clips = await this.twitchClipApi.getClips(

@@ -1,6 +1,7 @@
 import assert from "assert"
 
 import axios, { AxiosRequestConfig } from "axios"
+import dayjs from "dayjs"
 
 import { Clip } from "../models/clip"
 import { Token } from "../models/token"
@@ -23,8 +24,8 @@ export class TwitchClipApi extends TwitchApi {
 
     async getClips(
         broadcaster_id: number,
-        started_at?: Date,
-        ended_at?: Date
+        started_at?: dayjs.Dayjs,
+        ended_at?: dayjs.Dayjs
     ): Promise<Array<Clip>> {
         const config: AxiosRequestConfig = {
             url: `https://api.twitch.tv/helix/clips`,
@@ -43,12 +44,10 @@ export class TwitchClipApi extends TwitchApi {
             config.params.started_at = started_at.toISOString()
             config.params.ended_at = ended_at.toISOString()
         }
-        const res = await axios<{ data: Array<Clip> }>(config).catch(
-            (error) => {
-                console.error(`TwitchClipApi/getClips/axios: ${error}`)
-                throw new Error(error)
-            }
-        )
+        const res = await axios<{ data: Array<Clip> }>(config).catch((error) => {
+            console.error(`TwitchClipApi/getClips/axios: ${error}`)
+            throw new Error(error)
+        })
         const clips = res?.data.data
         assert(
             typeof clips !== `undefined`,

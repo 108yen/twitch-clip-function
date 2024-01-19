@@ -41,6 +41,7 @@ async function main() {
         await updateMonthRanking()
         await updateYearRanking()
 
+        //tweet
         await tweetTopClip()
     }
 

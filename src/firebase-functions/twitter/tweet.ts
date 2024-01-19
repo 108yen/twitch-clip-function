@@ -23,14 +23,14 @@ export async function tweetTopClip() {
         return
     }
     const topClip = clips[0]
-    
+
     //create tweet
-    const rankingDate = getJSTDate()
+    const rankingDate = new Date(getJSTDate().getTime() - 86400000)
     const tweet = `${
-        rankingDate.getMonth() + 1
-    }/${rankingDate.getDate()}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${
+        rankingDate.getUTCMonth() + 1
+    }/${rankingDate.getUTCDate()}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${
         topClip.title
-    }\n\n${topClip.url}\n\nクリップをもっと見る\n https://www.twitchclipsranking.com/`
+    }\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
 
     //tweet
     const client = new Twitter({

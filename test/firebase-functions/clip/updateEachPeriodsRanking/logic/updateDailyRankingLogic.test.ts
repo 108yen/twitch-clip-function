@@ -2,6 +2,7 @@ import { UpdateDailyRankingLogic } from "../../../../../src/firebase-functions/c
 import { Clip } from "../../../../../src/models/clip"
 import { ClipDoc } from "../../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../../src/repositories/clip"
+import dayjs from "../../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
 import { createClipsData, createDailyDammyData, getJSTDate } from "../../spy"
 
@@ -46,12 +47,10 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy.mock.calls[0][0]).toEqual(`daily`)
-        const today = getJSTDate()
         const expectedKeys = [...Array(7).keys()].map((index) => {
-            const started_at = new Date(
-                today.getTime() - (index + 1) * 24 * 60 * 60 * 1000
-            )
-            return `${started_at.getMonth() + 1}/${started_at.getDate()}`
+            return dayjs()
+                .subtract(index + 1, `day`)
+                .format(`M/D`)
         })
         expect(Array.from(setClipSpy.mock.calls[0][1].clipsMap.keys()).sort()).toEqual(
             expectedKeys.sort()

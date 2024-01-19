@@ -2,6 +2,8 @@
 
 import { describe } from "node:test"
 
+import dayjs from "dayjs"
+
 import { TwitchClipApi } from "../../src/apis/clip"
 import { Clip } from "../../src/models/clip"
 
@@ -14,8 +16,8 @@ describe(`TwitchClipApiのテスト`, () => {
         )
     })
     test(`getClips:期間指定`, async () => {
-        const now = new Date() // get present date
-        const daysAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000) //days ago
+        const now = dayjs()
+        const daysAgo = now.subtract(1, `year`) //days ago
         const result: Array<Clip> = await twitchClipApi.getClips(203654142, daysAgo, now)
         expect(result.length).toEqual(100)
         for (const key in result) {
@@ -23,9 +25,9 @@ describe(`TwitchClipApiのテスト`, () => {
             expect(clip.title).toBeDefined()
             expect(clip.view_count).toBeDefined()
             expect(clip.created_at).toBeDefined()
-            const date = new Date(clip.created_at!)
-            expect(date.getTime()).toBeGreaterThanOrEqual(daysAgo.getTime())
-            expect(date.getTime()).toBeLessThanOrEqual(now.getTime())
+            const date = dayjs(clip.created_at!)
+            expect(date.unix()).toBeGreaterThanOrEqual(daysAgo.unix())
+            expect(date.unix()).toBeLessThanOrEqual(now.unix())
             expect(clip.broadcaster_name).toBeDefined()
             expect(clip.embed_url).toBeDefined()
             expect(clip.creator_name).toBeDefined()

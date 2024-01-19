@@ -2,6 +2,7 @@ import { faker } from "@faker-js/faker"
 
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
+import dayjs from "dayjs"
 
 export function generatePastClipDoc(id?: string, createdAt?: Date) {
     const result = new ClipDoc()
@@ -63,8 +64,8 @@ export function generateStreamerClipDoc(id: string, createdAt: Date) {
 
 export async function getClipsSpyImp(
     broadcaster_id: number,
-    started_at?: Date,
-    ended_at?: Date
+    started_at?: dayjs.Dayjs,
+    ended_at?: dayjs.Dayjs
 ) {
     const display_name = faker.person.fullName()
     const clips: Array<Clip> = [...Array(100).keys()].map(() => {
@@ -73,8 +74,8 @@ export async function getClipsSpyImp(
                 ? faker.date.past().toISOString()
                 : faker.date
                       .between({
-                          from: started_at,
-                          to: ended_at
+                          from: started_at.toDate(),
+                          to: ended_at.toDate()
                       })
                       .toISOString()
 

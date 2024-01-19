@@ -34,7 +34,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(typeof periods[`day`].started_at).toBeDefined()
         expect(typeof periods[`day`].ended_at).toBeDefined()
         expect(
-            periods[`day`].ended_at!.getTime() - periods[`day`].started_at!.getTime()
+            periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix()
         ).toEqual(24 * 60 * 60 * 1000)
     })
     test(`getStreamersのテスト`, async () => {

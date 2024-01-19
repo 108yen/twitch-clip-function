@@ -34,6 +34,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(typeof periods[`day`].started_at).toBeDefined()
         expect(typeof periods[`day`].ended_at).toBeDefined()
         expect(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
             periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix()
         ).toEqual(24 * 60 * 60 * 1000)
     })

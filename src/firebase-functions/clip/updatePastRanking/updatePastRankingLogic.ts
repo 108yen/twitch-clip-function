@@ -1,8 +1,7 @@
 import assert from "assert"
 
-import dayjs from "dayjs"
-
 import { Streamer } from "../../../models/streamer"
+import dayjs from "../../../utils/dayjs"
 import { ClipFunction } from "../clipFunction"
 
 type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }

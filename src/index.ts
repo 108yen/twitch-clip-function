@@ -1,6 +1,3 @@
-import dayjs, { locale, extend } from "dayjs"
-import ja from "dayjs/locale/ja"
-import duration from "dayjs/plugin/duration"
 import * as admin from "firebase-admin"
 
 // Firebase Admin SDK の初期化
@@ -21,12 +18,10 @@ import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 import { tweetTopClip } from "./firebase-functions/twitter/tweet"
+import dayjs from "./utils/dayjs"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
-    locale(ja)
-    extend(duration)
-
     const startedAt = dayjs()
     const hour = startedAt.hour()
 

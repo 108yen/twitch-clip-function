@@ -2,7 +2,7 @@ import { faker } from "@faker-js/faker"
 
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
-import dayjs from "dayjs"
+import dayjs from "../../../src/utils/dayjs"
 
 export function generatePastClipDoc(id?: string, createdAt?: Date) {
     const result = new ClipDoc()

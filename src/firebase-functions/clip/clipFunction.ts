@@ -1,5 +1,3 @@
-import dayjs from "dayjs"
-
 import { TwitchClipApi } from "../../apis/clip"
 import { Clip } from "../../models/clip"
 import { ClipDoc } from "../../models/clipDoc"
@@ -8,6 +6,8 @@ import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
 import { logEntry } from "../../utils/logEntry"
+
+import dayjs from "@/utils/dayjs"
 
 type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
 

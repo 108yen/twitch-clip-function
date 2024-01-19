@@ -2,10 +2,9 @@
 
 import { describe } from "node:test"
 
-import dayjs from "dayjs"
-
 import { TwitchClipApi } from "../../src/apis/clip"
 import { Clip } from "../../src/models/clip"
+import dayjs from "../../src/utils/dayjs"
 
 describe(`TwitchClipApiのテスト`, () => {
     let twitchClipApi: TwitchClipApi

@@ -1,10 +1,9 @@
 import assert from "assert"
 
-import dayjs from "dayjs"
-
 import { Clip } from "../../../../models/clip"
 import { ClipDoc } from "../../../../models/clipDoc"
 import { ClipRepository } from "../../../../repositories/clip"
+import dayjs from "../../../../utils/dayjs"
 
 export class UpdateDailyRankingLogic {
     clipRepository = new ClipRepository()

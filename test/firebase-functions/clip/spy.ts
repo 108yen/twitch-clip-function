@@ -103,15 +103,12 @@ export async function getClipsSpyImp(
 
 export async function createDailyDammyData(dayAfter: number) {
     const clipDoc = new ClipDoc()
-    const today = getJSTDate()
+    const today = dayjs()
     for (let index = dayAfter; index < dayAfter + 7; index++) {
-        const ended_at = new Date(today.getTime() - index * 24 * 60 * 60 * 1000)
-        const started_at = new Date(ended_at.getTime() - 24 * 60 * 60 * 1000)
-        const clips = createClipsData(undefined, started_at, ended_at)
-        clipDoc.clipsMap.set(
-            `${started_at.getMonth() + 1}/${started_at.getDate()}`,
-            clips
-        )
+        const ended_at = today.subtract(index, `day`)
+        const started_at = ended_at.subtract(1, `day`)
+        const clips = createClipsData(undefined, started_at.toDate(), ended_at.toDate())
+        clipDoc.clipsMap.set(started_at.format(`M/D`), clips)
     }
     return clipDoc
 }

@@ -42,7 +42,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         })
 
         const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
-        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrowError()
+        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrow()
 
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy).toHaveBeenCalledTimes(1)

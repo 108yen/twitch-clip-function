@@ -1,8 +1,9 @@
 import { TwitchClipApi } from "../../../../apis/clip"
 import { Streamer } from "../../../../models/streamer"
+import dayjs from "../../../../utils/dayjs"
 import { ClipFunction } from "../../clipFunction"
 
-type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
+type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
 
 export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     period: string
@@ -22,10 +23,10 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     getPeriods(streamer: Streamer): Periods {
-        const today = new Date()
+        const today = dayjs()
         let periods: Periods
         if (this.day) {
-            const daysAgo = new Date(today.getTime() - this.day * 24 * 60 * 60 * 1000)
+            const daysAgo = today.subtract(this.day, `day`)
             periods = {
                 [this.period]: { started_at: daysAgo, ended_at: today }
             }

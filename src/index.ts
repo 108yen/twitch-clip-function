@@ -18,14 +18,14 @@ import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRa
 import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
 import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
 import { tweetTopClip } from "./firebase-functions/twitter/tweet"
-import { formatTime, getJSTDate, getJSTHours } from "./utils/formatTime"
+import dayjs from "./utils/dayjs"
 import { logEntry } from "./utils/logEntry"
 
 async function main() {
-    const startedAt = getJSTDate()
-    const hour = getJSTHours()
+    const startedAt = dayjs()
+    const hour = startedAt.hour()
 
-    logEntry({ severity: `INFO`, message: `started at ${startedAt.toISOString()}` })
+    logEntry({ severity: `INFO`, message: `started at ${startedAt.format()}` })
 
     // 6時間ごと
     if ([0, 6, 12, 18].includes(hour)) {
@@ -46,19 +46,20 @@ async function main() {
     }
 
     // 毎月1日に1だけ実行
-    if (startedAt.getDate() == 1 && hour == 0) {
+    if (startedAt.date() == 1 && hour == 0) {
         await updatePastRanking()
         await updateAllRanking()
     }
 
-    const endedAt = getJSTDate()
-    const executionTime = endedAt.getTime() - startedAt.getTime()
+    const endedAt = dayjs()
+    const executionTime = endedAt.diff(startedAt)
+    const formattedDiff = dayjs
+        .duration(executionTime)
+        .format(`HHhours mmminutes ss.SSSseconds`)
 
     logEntry({
         severity: `INFO`,
-        message: `ended at ${endedAt.toISOString()}, execution time ${formatTime(
-            executionTime
-        )}`
+        message: `ended at ${endedAt.format()}, execution time ${formattedDiff}`
     })
 }
 

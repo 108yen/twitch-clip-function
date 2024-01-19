@@ -15,8 +15,9 @@ import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
+import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
-import { createDailyDammyData, getClipsSpyImp, getJSTDate } from "../spy"
+import { createDailyDammyData, getClipsSpyImp } from "../spy"
 
 jest.mock(`axios`)
 
@@ -96,10 +97,10 @@ describe(`update***Rankingのテスト`, () => {
 async function checkDailyClipDoc() {
     const clipRepository = new ClipRepository()
     const dailyClipDoc = await clipRepository.getClip(`daily`)
-    const today = getJSTDate()
     const expectedKeys = [...Array(7).keys()].map((index) => {
-        const started_at = new Date(today.getTime() - (index + 1) * 24 * 60 * 60 * 1000)
-        return `${started_at.getMonth() + 1}/${started_at.getDate()}`
+        return dayjs()
+            .subtract(index + 1, `day`)
+            .format(`M/D`)
     })
     expect(Array.from(dailyClipDoc.clipsMap.keys()).sort()).toEqual(expectedKeys.sort())
     for (const [, clips] of dailyClipDoc.clipsMap) {

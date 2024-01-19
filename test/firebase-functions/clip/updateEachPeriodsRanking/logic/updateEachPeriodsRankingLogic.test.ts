@@ -34,8 +34,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(typeof periods[`day`].started_at).toBeDefined()
         expect(typeof periods[`day`].ended_at).toBeDefined()
         expect(
-            periods[`day`].ended_at!.getTime() - periods[`day`].started_at!.getTime()
-        ).toEqual(24 * 60 * 60 * 1000)
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix()
+        ).toEqual(24 * 60 * 60)
     })
     test(`getStreamersのテスト`, async () => {
         const getStreamersSpy = jest

@@ -1,7 +1,7 @@
 import Twitter from "twitter-api-v2"
 
 import { ClipRepository } from "../../repositories/clip"
-import { getJSTDate } from "../../utils/formatTime"
+import dayjs from "../../utils/dayjs"
 import { logEntry } from "../../utils/logEntry"
 
 export async function tweetTopClip() {
@@ -25,12 +25,8 @@ export async function tweetTopClip() {
     const topClip = clips[0]
 
     //create tweet
-    const rankingDate = new Date(getJSTDate().getTime() - 86400000)
-    const tweet = `${
-        rankingDate.getUTCMonth() + 1
-    }/${rankingDate.getUTCDate()}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${
-        topClip.title
-    }\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
+    const rankingDate = dayjs().subtract(1, `day`).format(`MM/DD`)
+    const tweet = `${rankingDate}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
 
     //tweet
     const client = new Twitter({

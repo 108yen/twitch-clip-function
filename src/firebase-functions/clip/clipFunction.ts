@@ -5,9 +5,10 @@ import { Streamer } from "../../models/streamer"
 import { BatchRepository } from "../../repositories/batch"
 import { ClipRepository } from "../../repositories/clip"
 import { StreamerRepository } from "../../repositories/streamer"
+import dayjs from "../../utils/dayjs"
 import { logEntry } from "../../utils/logEntry"
 
-type Periods = { [key: string]: { started_at?: Date; ended_at?: Date } }
+type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
 
 export abstract class ClipFunction {
     protected streamerRepository = new StreamerRepository()
@@ -102,7 +103,7 @@ export abstract class ClipFunction {
     }
 
     protected async getClips(
-        period: { started_at?: Date; ended_at?: Date },
+        period: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs },
         streamerId: string
     ): Promise<Array<Clip>> {
         const clips = await this.twitchClipApi.getClips(

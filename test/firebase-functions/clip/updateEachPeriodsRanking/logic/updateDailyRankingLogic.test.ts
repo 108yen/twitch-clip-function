@@ -2,14 +2,15 @@ import { UpdateDailyRankingLogic } from "../../../../../src/firebase-functions/c
 import { Clip } from "../../../../../src/models/clip"
 import { ClipDoc } from "../../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../../src/repositories/clip"
+import dayjs from "../../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
-import { createClipsData, createDailyDammyData, getJSTDate } from "../../spy"
+import { createClipsData, createDailyDammyData } from "../../spy"
 
 describe(`UpdateDailyRankingLogicのテスト`, () => {
     let todayClips: Array<Clip>
     beforeAll(() => {
-        const today = getJSTDate()
-        const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+        const today = dayjs().toDate()
+        const lastDay = dayjs().subtract(1, `day`).toDate()
         todayClips = createClipsData(undefined, lastDay, today)
     })
     afterEach(() => jest.restoreAllMocks())
@@ -41,17 +42,15 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         })
 
         const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
-        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrowError()
+        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrow()
 
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy.mock.calls[0][0]).toEqual(`daily`)
-        const today = getJSTDate()
         const expectedKeys = [...Array(7).keys()].map((index) => {
-            const started_at = new Date(
-                today.getTime() - (index + 1) * 24 * 60 * 60 * 1000
-            )
-            return `${started_at.getMonth() + 1}/${started_at.getDate()}`
+            return dayjs()
+                .subtract(index + 1, `day`)
+                .format(`M/D`)
         })
         expect(Array.from(setClipSpy.mock.calls[0][1].clipsMap.keys()).sort()).toEqual(
             expectedKeys.sort()
@@ -74,7 +73,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         })
 
         const updateDailyRankingLogic = new UpdateDailyRankingLogic(todayClipDoc)
-        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrowError()
+        await expect(updateDailyRankingLogic[`update`]()).resolves.not.toThrow()
 
         expect(getClipsSpy).toHaveBeenCalledTimes(1)
         expect(setClipSpy).not.toHaveBeenCalled()

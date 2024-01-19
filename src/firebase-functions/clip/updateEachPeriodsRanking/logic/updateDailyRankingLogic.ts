@@ -1,5 +1,7 @@
 import assert from "assert"
 
+import dayjs from "dayjs"
+
 import { Clip } from "../../../../models/clip"
 import { ClipDoc } from "../../../../models/clipDoc"
 import { ClipRepository } from "../../../../repositories/clip"
@@ -21,9 +23,9 @@ export class UpdateDailyRankingLogic {
     async update() {
         const clipDoc = await this.clipRepository.getClip(`daily`)
 
-        const today = this.getJSTDate()
-        const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
-        const key = `${lastDay.getMonth() + 1}/${lastDay.getDate()}`
+        const today = dayjs()
+        const yestaday = today.subtract(1, `day`)
+        const key = yestaday.format(`MM/DD`)
         if (clipDoc.clipsMap.has(key)) {
             return
         }
@@ -40,19 +42,13 @@ export class UpdateDailyRankingLogic {
         await this.clipRepository.setClip(`daily`, clipDoc)
     }
 
-    private getJSTDate() {
-        const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, { timeZone: `Asia/Tokyo` })
-        const jstTime = jstFormatter.format(new Date())
-        return new Date(jstTime)
-    }
-
     private compareDates(date1: string, date2: string): number {
         const [month1, day1] = date1.split(`/`).map(Number)
         const [month2, day2] = date2.split(`/`).map(Number)
 
         if (month1 == 1 && month2 == 12) return 1
         if (month1 == 12 && month2 == 1) return -1
-        
+
         if (month1 < month2) return -1
         if (month1 > month2) return 1
 

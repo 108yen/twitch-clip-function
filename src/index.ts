@@ -1,3 +1,6 @@
+import dayjs, { locale, extend } from "dayjs"
+import ja from "dayjs/locale/ja"
+import duration from "dayjs/plugin/duration"
 import * as admin from "firebase-admin"
 
 // Firebase Admin SDK の初期化
@@ -20,16 +23,8 @@ import { streamerSelection } from "./firebase-functions/streamer/streamerSelecti
 import { tweetTopClip } from "./firebase-functions/twitter/tweet"
 import { logEntry } from "./utils/logEntry"
 
-// eslint-disable-next-line import/order
-import dayjs, { extend } from "dayjs"
-// eslint-disable-next-line import/order
-import duration from "dayjs/plugin/duration"
-// eslint-disable-next-line import/order
-import ja from "dayjs/locale/ja"
-
 async function main() {
-    // eslint-disable-next-line import/no-named-as-default-member
-    dayjs.locale(ja)
+    locale(ja)
     extend(duration)
 
     const startedAt = dayjs()

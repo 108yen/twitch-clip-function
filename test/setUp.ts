@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
-import dayjs, { extend } from "dayjs"
+import { extend, locale } from "dayjs"
 import ja from "dayjs/locale/ja"
 import duration from "dayjs/plugin/duration"
 import { config } from "dotenv"
 import * as admin from "firebase-admin"
 
 config({ path: `.env` })
-dayjs.locale(ja)
+locale(ja)
 extend(duration)
 
 // サービスアカウントを環境変数から取得

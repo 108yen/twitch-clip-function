@@ -4,7 +4,7 @@
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc",
     "start": "node .",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand --silent"
   },
   "main": "lib/index.js",
   "dependencies": {

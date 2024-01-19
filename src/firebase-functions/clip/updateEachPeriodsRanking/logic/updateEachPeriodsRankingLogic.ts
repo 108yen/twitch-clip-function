@@ -1,8 +1,7 @@
 import { TwitchClipApi } from "../../../../apis/clip"
 import { Streamer } from "../../../../models/streamer"
+import dayjs from "../../../../utils/dayjs"
 import { ClipFunction } from "../../clipFunction"
-
-import dayjs from "@/utils/dayjs"
 
 type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
 

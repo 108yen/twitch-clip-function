@@ -4,10 +4,9 @@ import axios, { AxiosRequestConfig } from "axios"
 
 import { Clip } from "../models/clip"
 import { Token } from "../models/token"
+import dayjs from "../utils/dayjs"
 
 import { TwitchApi } from "./twitchApi"
-
-import dayjs from "@/utils/dayjs"
 
 export class TwitchClipApi extends TwitchApi {
     private CLIP_NUM = 100

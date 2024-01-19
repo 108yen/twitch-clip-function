@@ -77,8 +77,12 @@ export class UpdatePastRankingLogic extends ClipFunction {
                 : created_at.year()
 
         for (let year = start_year; year < current_year; year++) {
-            const started_at = dayjs().set(`year`, year).startOf(`year`)
-            const ended_at = dayjs().set(`year`, year).endOf(`year`)
+            //JTCなので-9
+            const started_at = dayjs()
+                .set(`year`, year)
+                .startOf(`year`)
+                .subtract(9, `hour`)
+            const ended_at = dayjs().set(`year`, year).endOf(`year`).subtract(9, `hour`)
             periods[`${year}`] = { started_at: started_at, ended_at: ended_at }
         }
         return periods

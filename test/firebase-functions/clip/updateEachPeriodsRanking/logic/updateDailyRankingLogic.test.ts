@@ -4,13 +4,13 @@ import { ClipDoc } from "../../../../../src/models/clipDoc"
 import { ClipRepository } from "../../../../../src/repositories/clip"
 import dayjs from "../../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
-import { createClipsData, createDailyDammyData, getJSTDate } from "../../spy"
+import { createClipsData, createDailyDammyData } from "../../spy"
 
 describe(`UpdateDailyRankingLogicのテスト`, () => {
     let todayClips: Array<Clip>
     beforeAll(() => {
-        const today = getJSTDate()
-        const lastDay = new Date(today.getTime() - 24 * 60 * 60 * 1000)
+        const today = dayjs().toDate()
+        const lastDay = dayjs().subtract(1, `day`).toDate()
         todayClips = createClipsData(undefined, lastDay, today)
     })
     afterEach(() => jest.restoreAllMocks())

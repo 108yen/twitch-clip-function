@@ -11,6 +11,6 @@ describe(`dayjsのテスト`, () => {
         const JSThour = date.getHours() + 9 > 23 ? date.getHours() - 15 : date.getHours() + 9;
 
         const day = dayjs()
-        expect(day.hour()).toEqual(JSThour)
+        expect(day.tz().hour()).toEqual(JSThour)
     })
 })

@@ -108,7 +108,7 @@ export async function createDailyDammyData(dayAfter: number) {
         const ended_at = today.subtract(index, `day`)
         const started_at = ended_at.subtract(1, `day`)
         const clips = createClipsData(undefined, started_at.toDate(), ended_at.toDate())
-        clipDoc.clipsMap.set(started_at.format(`M/D`), clips)
+        clipDoc.clipsMap.set(started_at.tz().format(`M/D`), clips)
     }
     return clipDoc
 }

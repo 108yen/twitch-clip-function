@@ -25,7 +25,7 @@ export async function tweetTopClip() {
     const topClip = clips[0]
 
     //create tweet
-    const rankingDate = dayjs().subtract(1, `day`).format(`MM/DD`)
+    const rankingDate = dayjs().subtract(1, `day`).tz().format(`MM/DD`)
     const tweet = `${rankingDate}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
 
     //tweet

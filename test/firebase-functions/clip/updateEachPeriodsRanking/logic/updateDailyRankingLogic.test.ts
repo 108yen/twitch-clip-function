@@ -50,6 +50,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
         const expectedKeys = [...Array(7).keys()].map((index) => {
             return dayjs()
                 .subtract(index + 1, `day`)
+                .tz()
                 .format(`M/D`)
         })
         expect(Array.from(setClipSpy.mock.calls[0][1].clipsMap.keys()).sort()).toEqual(

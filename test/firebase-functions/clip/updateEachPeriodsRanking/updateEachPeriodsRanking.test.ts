@@ -100,6 +100,7 @@ async function checkDailyClipDoc() {
     const expectedKeys = [...Array(7).keys()].map((index) => {
         return dayjs()
             .subtract(index + 1, `day`)
+            .tz()
             .format(`M/D`)
     })
     expect(Array.from(dailyClipDoc.clipsMap.keys()).sort()).toEqual(expectedKeys.sort())

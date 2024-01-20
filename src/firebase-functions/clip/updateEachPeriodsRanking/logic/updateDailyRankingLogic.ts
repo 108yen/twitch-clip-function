@@ -24,7 +24,7 @@ export class UpdateDailyRankingLogic {
 
         const today = dayjs()
         const yestaday = today.subtract(1, `day`)
-        const key = yestaday.format(`M/D`)
+        const key = yestaday.tz().format(`M/D`)
         if (clipDoc.clipsMap.has(key)) {
             return
         }

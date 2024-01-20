@@ -6,6 +6,6 @@ import timezone from 'dayjs/plugin/timezone';
 dayjs.locale(`ja`)
 dayjs.extend(duration)
 dayjs.extend(timezone);
-dayjs.tz.setDefault('Asia/Tokyo');
+dayjs.tz.setDefault(`Asia/Tokyo`);
 
 export default dayjs

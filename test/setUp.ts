@@ -1,14 +1,6 @@
 import { config } from "dotenv"
 import * as admin from "firebase-admin"
-import dayjs from 'dayjs'
-import "dayjs/locale/ja"
-import duration from "dayjs/plugin/duration"
-import timezone from 'dayjs/plugin/timezone';
 
-dayjs.locale(`ja`)
-dayjs.extend(duration)
-dayjs.extend(timezone);
-dayjs.tz.setDefault(`Asia/Tokyo`);
 config({ path: `.env` })
 
 // サービスアカウントを環境変数から取得

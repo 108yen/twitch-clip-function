@@ -53,9 +53,7 @@ async function main() {
 
     const endedAt = dayjs()
     const executionTime = endedAt.diff(startedAt)
-    const formattedDiff = dayjs
-        .duration(executionTime)
-        .format(`HHhours mmminutes ss.SSSseconds`)
+    const formattedDiff = dayjs.duration(executionTime).format(`HH時間 mm分 ss.SSS秒`)
 
     logEntry({
         severity: `INFO`,

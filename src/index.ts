@@ -23,7 +23,7 @@ import { logEntry } from "./utils/logEntry"
 
 async function main() {
     const startedAt = dayjs()
-    const hour = startedAt.hour()
+    const hour = startedAt.tz().hour()
 
     logEntry({ severity: `INFO`, message: `started at ${startedAt.format()}` })
 

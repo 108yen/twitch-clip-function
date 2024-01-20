@@ -25,7 +25,7 @@ async function main() {
     const startedAt = dayjs()
     const hour = startedAt.tz().hour()
 
-    logEntry({ severity: `INFO`, message: `started at ${startedAt.format()}` })
+    logEntry({ severity: `INFO`, message: `started at ${startedAt.tz().format()}` })
 
     // 6時間ごと
     if ([0, 6, 12, 18].includes(hour)) {
@@ -53,13 +53,11 @@ async function main() {
 
     const endedAt = dayjs()
     const executionTime = endedAt.diff(startedAt)
-    const formattedDiff = dayjs
-        .duration(executionTime)
-        .format(`HHhours mmminutes ss.SSSseconds`)
+    const formattedDiff = dayjs.duration(executionTime).format(`HH時間 mm分 ss.SSS秒`)
 
     logEntry({
         severity: `INFO`,
-        message: `ended at ${endedAt.format()}, execution time ${formattedDiff}`
+        message: `ended at ${endedAt.tz().format()}, execution time ${formattedDiff}`
     })
 }
 

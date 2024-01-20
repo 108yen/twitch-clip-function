@@ -1,8 +1,8 @@
-import dayjs, { locale, extend } from "dayjs"
-import ja from "dayjs/locale/ja"
+import dayjs from 'dayjs'
+import "dayjs/locale/ja"
 import duration from "dayjs/plugin/duration"
 
-locale(ja)
-extend(duration)
+dayjs.locale('ja')
+dayjs.extend(duration)
 
 export default dayjs

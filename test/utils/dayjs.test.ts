@@ -3,7 +3,7 @@ import dayjs from "../../src/utils/dayjs"
 describe(`dayjsのテスト`, () => {
     test(`localeの確認`, () => {
         const day = dayjs()
-        expect(day.locale).toEqual(`ja`)
+        expect(day.locale()).toEqual(`ja`)
     })
     test(`時間の確認`, () => {
         //dateで計算

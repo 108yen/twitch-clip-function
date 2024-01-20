@@ -1,13 +1,7 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
-import { extend, locale } from "dayjs"
-import ja from "dayjs/locale/ja"
-import duration from "dayjs/plugin/duration"
 import { config } from "dotenv"
 import * as admin from "firebase-admin"
 
 config({ path: `.env` })
-locale(ja)
-extend(duration)
 
 // サービスアカウントを環境変数から取得
 const devServiceAccount = {

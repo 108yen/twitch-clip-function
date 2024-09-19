@@ -6,10 +6,18 @@ import { UpdateEachPeriodsRankingLogic } from "./logic/updateEachPeriodsRankingL
 export const updateDayRanking = async () => {
     logEntry({
         severity: `INFO`,
-        message: `start updateDayRanking`
+        message: `start update day ranking`
     })
-    const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
-    const clipDoc = await updateEachPeriodsRanking.run()
-    const updateDailyRankingLogic = new UpdateDailyRankingLogic(clipDoc)
-    await updateDailyRankingLogic.update()
+
+    try {
+        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
+        const clipDoc = await updateEachPeriodsRanking.run()
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(clipDoc)
+        await updateDailyRankingLogic.update()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update day ranking: \n${error}`
+        })
+    }
 }

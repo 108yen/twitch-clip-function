@@ -6,10 +6,17 @@ import { UpdatePastRankingLogic } from "./updatePastRankingLogic"
 export const updatePastRanking = async () => {
     logEntry({
         severity: `INFO`,
-        message: `start updatePastRanking`
+        message: `start update past ranking`
     })
-    const updatePastRankingLogic = await UpdatePastRankingLogic.init()
+    try {
+        const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 
-    await updatePastRankingLogic.deleteOverLimitYear()
-    await updatePastRankingLogic.run()
+        await updatePastRankingLogic.deleteOverLimitYear()
+        await updatePastRankingLogic.run()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update past ranking: \n${error}`
+        })
+    }
 }

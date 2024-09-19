@@ -39,7 +39,7 @@ export async function tweetTopClip() {
     await client.v2.tweet(tweet).catch((error) => {
         logEntry({
             severity: `ERROR`,
-            message: `tweet failed: ${error}`
+            message: `tweet failed: \n${error}`
         })
         return
     })

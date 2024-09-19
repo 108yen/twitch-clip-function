@@ -16,10 +16,11 @@ import {
     updateMonthRanking,
     updateWeekRanking,
     updateYearRanking,
-    updatePastRanking
-} from "./firebase-functions/clip"
-import { streamerSelection } from "./firebase-functions/streamer"
-import { tweetTopClip } from "./firebase-functions/twitter"
+    updatePastRanking,
+    streamerSelection,
+    tweetTopClip,
+    revalidate
+} from "./firebase-functions"
 import dayjs from "./utils/dayjs"
 import { logEntry } from "./utils/logEntry"
 
@@ -54,6 +55,7 @@ async function main() {
     }
 
     // revalidate page cache
+    await revalidate()
 
     const endedAt = dayjs()
     const executionTime = endedAt.diff(startedAt)

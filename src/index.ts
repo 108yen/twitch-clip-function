@@ -30,13 +30,13 @@ async function main() {
 
     logEntry({ severity: `INFO`, message: `started at ${startedAt.tz().format()}` })
 
-    // every 3 hours
-    await updateDayRanking()
-
     // every 6 hours
     if ([0, 6, 12, 18].includes(hour)) {
         await streamerSelection()
     }
+
+    // every 3 hours
+    await updateDayRanking()
 
     // everyday at 0 o'clock
     if (hour == 0) {

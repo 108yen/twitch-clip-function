@@ -5,7 +5,7 @@ import { StreamerSelectionLogic } from "./streamerSelectionLogic"
 export const streamerSelection = async () => {
     logEntry({
         severity: `INFO`,
-        message: `start streamerSelection`
+        message: `start update streamer info`
     })
 
     try {

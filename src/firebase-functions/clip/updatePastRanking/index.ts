@@ -6,7 +6,7 @@ import { UpdatePastRankingLogic } from "./updatePastRankingLogic"
 export const updatePastRanking = async () => {
     logEntry({
         severity: `INFO`,
-        message: `start updatePastRanking`
+        message: `start update past ranking`
     })
     try {
         const updatePastRankingLogic = await UpdatePastRankingLogic.init()

@@ -7,6 +7,14 @@ export const updateMonthRanking = async () => {
         severity: `INFO`,
         message: `start updateMonthRanking`
     })
-    const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`month`, 30)
-    await updateEachPeriodsRanking.run()
+
+    try {
+        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`month`, 30)
+        await updateEachPeriodsRanking.run()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update month ranking: \n${error}`
+        })
+    }
 }

@@ -8,8 +8,16 @@ export const updateDayRanking = async () => {
         severity: `INFO`,
         message: `start updateDayRanking`
     })
-    const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
-    const clipDoc = await updateEachPeriodsRanking.run()
-    const updateDailyRankingLogic = new UpdateDailyRankingLogic(clipDoc)
-    await updateDailyRankingLogic.update()
+
+    try {
+        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`day`, 1)
+        const clipDoc = await updateEachPeriodsRanking.run()
+        const updateDailyRankingLogic = new UpdateDailyRankingLogic(clipDoc)
+        await updateDailyRankingLogic.update()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update day ranking: \n${error}`
+        })
+    }
 }

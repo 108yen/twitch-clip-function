@@ -8,8 +8,15 @@ export const updatePastRanking = async () => {
         severity: `INFO`,
         message: `start updatePastRanking`
     })
-    const updatePastRankingLogic = await UpdatePastRankingLogic.init()
+    try {
+        const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 
-    await updatePastRankingLogic.deleteOverLimitYear()
-    await updatePastRankingLogic.run()
+        await updatePastRankingLogic.deleteOverLimitYear()
+        await updatePastRankingLogic.run()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update past ranking: \n${error}`
+        })
+    }
 }

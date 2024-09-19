@@ -7,6 +7,14 @@ export const updateAllRanking = async () => {
         severity: `INFO`,
         message: `start updateAllRanking`
     })
-    const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`all`)
-    await updateEachPeriodsRanking.run()
+
+    try {
+        const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(`all`)
+        await updateEachPeriodsRanking.run()
+    } catch (error) {
+        logEntry({
+            severity: `ERROR`,
+            message: `Failed update all ranking: \n${error}`
+        })
+    }
 }

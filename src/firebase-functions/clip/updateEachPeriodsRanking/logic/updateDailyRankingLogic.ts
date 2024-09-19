@@ -23,8 +23,8 @@ export class UpdateDailyRankingLogic {
         const clipDoc = await this.clipRepository.getClip(`daily`)
 
         const today = dayjs()
-        const yestaday = today.subtract(1, `day`)
-        const key = yestaday.tz().format(`M/D`)
+        const yesterday = today.subtract(1, `day`)
+        const key = yesterday.tz().format(`M/D`)
         if (clipDoc.clipsMap.has(key)) {
             return
         }

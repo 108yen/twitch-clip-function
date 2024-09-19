@@ -10,14 +10,17 @@ if (admin.apps.length === 0) {
 }
 
 //deploy function
-import { updateAllRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
-import { updateDayRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
-import { updateMonthRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateMonthRanking"
-import { updateWeekRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateWeekRanking"
-import { updateYearRanking } from "./firebase-functions/clip/updateEachPeriodsRanking/updateYearRanking"
-import { updatePastRanking } from "./firebase-functions/clip/updatePastRanking"
-import { streamerSelection } from "./firebase-functions/streamer/streamerSelection"
-import { tweetTopClip } from "./firebase-functions/twitter/tweet"
+import {
+    updateAllRanking,
+    updateDayRanking,
+    updateMonthRanking,
+    updateWeekRanking,
+    updateYearRanking,
+    updatePastRanking,
+    streamerSelection,
+    tweetTopClip,
+    revalidate
+} from "./firebase-functions"
 import dayjs from "./utils/dayjs"
 import { logEntry } from "./utils/logEntry"
 
@@ -27,15 +30,15 @@ async function main() {
 
     logEntry({ severity: `INFO`, message: `started at ${startedAt.tz().format()}` })
 
-    // 6時間ごと
+    // every 3 hours
+    await updateDayRanking()
+
+    // every 6 hours
     if ([0, 6, 12, 18].includes(hour)) {
         await streamerSelection()
     }
 
-    // 3時間ごと
-    await updateDayRanking()
-
-    // 毎日0時
+    // everyday at 0 o'clock
     if (hour == 0) {
         await updateWeekRanking()
         await updateMonthRanking()
@@ -45,11 +48,14 @@ async function main() {
         await tweetTopClip()
     }
 
-    // 毎月1日に1だけ実行
+    // every month at 1st
     if (startedAt.date() == 1 && hour == 0) {
         await updatePastRanking()
         await updateAllRanking()
     }
+
+    // revalidate page cache
+    await revalidate()
 
     const endedAt = dayjs()
     const executionTime = endedAt.diff(startedAt)

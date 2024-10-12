@@ -1,83 +1,57 @@
-name: Deploy to Cloud Run
+name: Deploy
 
 on:
-    push:
-        branches:
-            - master
+  pull_request_target:
+    types:
+      - closed
+    branches:
+      - main
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v4
-            - uses: actions/setup-node@v2
-              with:
-                  node-version: "20"
-            - name: install firebase-tools
-              run: npm install -g firebase-tools
-            - name: install node_modules
-              run: npm install
-            - name: linter
-              run: npm run lint
-            - name: test
-              run: firebase emulators:exec 'npm test' --project=twitch-clip-dev --only firestore --import test/test_data/firestore
-              env:
-                  TYPE: ${{secrets.TYPE}}
-                  PROJECT_ID: ${{secrets.PROJECT_ID}}
-                  PRIVATE_KEY_ID: ${{secrets.PRIVATE_KEY_ID}}
-                  PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
-                  CLIENT_EMAIL: ${{secrets.CLIENT_EMAIL}}
-                  CLIENT_ID: ${{secrets.CLIENT_ID}}
-                  AUTH_URI: ${{secrets.AUTH_URI}}
-                  TOKEN_URI: ${{secrets.TOKEN_URI}}
-                  AUTH_PROVIDER_X509_CERT_URL: ${{secrets.AUTH_PROVIDER_X509_CERT_URL}}
-                  CLIENT_X509_CERT_URL: ${{secrets.CLIENT_X509_CERT_URL}}
-                  UNIVERSE_DOMAIN: ${{secrets.UNIVERSE_DOMAIN}}
-                  TWITCH_CLIENT_ID: ${{secrets.TWITCH_CLIENT_ID}}
-                  TWITCH_CLIENT_SECRET: ${{secrets.TWITCH_CLIENT_SECRET}}
-                  FIRESTORE_EMULATOR_HOST: ${{env.FIRESTORE_EMULATOR_HOST}}
-    deploy:
-        needs: [test]
-        runs-on: ubuntu-latest
+  deploy:
+    name: Deploy to Cloud Run
 
-        env:
-            SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
-            SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
-            GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
-            GCP_REGION: ${{ secrets.GCP_REGION }}
-            IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
+    if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'changeset-release')
+    runs-on: ubuntu-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    env:
+      SERVICE_NAME: ${{ secrets.SERVICE_NAME }}
+      SERVICE_ACCOUNT_NAME: ${{ secrets.SERVICE_ACCOUNT_NAME }}
+      GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+      GCP_REGION: ${{ secrets.GCP_REGION }}
+      IMAGE: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/${{ secrets.SERVICE_NAME }}/${{ secrets.SERVICE_NAME }}
 
-            - id: "auth"
-              uses: "google-github-actions/auth@v2"
-              with:
-                  credentials_json: "${{ secrets.GCP_SA_KEY }}"
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
 
-            - name: Configure docker to use the gcloud cli
-              run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
+      - name: Auth Google
+        uses: "google-github-actions/auth@v2"
+        with:
+          credentials_json: "${{ secrets.GCP_SA_KEY }}"
 
-            - name: Delete old image
-              continue-on-error: true
-              run: gcloud artifacts docker images delete ${{ env.IMAGE }} --quiet
+      - name: Configure Docker
+        run: gcloud auth configure-docker ${{ secrets.GCP_REGION }}-docker.pkg.dev --quiet
 
-            - name: Build a docker image
-              run: docker build -t ${{ env.IMAGE }} .
+      - name: Delete Old Image
+        continue-on-error: true
+        run: gcloud artifacts docker images delete ${{ env.IMAGE }} --quiet
 
-            - name: Push the docker image
-              run: docker push ${{ env.IMAGE }}
+      - name: Build Docker Image
+        run: docker build -t ${{ env.IMAGE }} .
 
-            - name: Deploy to Cloud Run
-              run: |
-                  gcloud run jobs deploy $SERVICE_NAME \
-                    --tasks 1 \
-                    --parallelism 1 \
-                    --max-retries 1 \
-                    --task-timeout 40m \
-                    --image $IMAGE \
-                    --project $GCP_PROJECT_ID \
-                    --region $GCP_REGION \
-                    --service-account $SERVICE_ACCOUNT_NAME \
-                    --set-secrets=TWITCH_CLIENT_ID=TWITCH_CLIENT_ID:latest,TWITCH_CLIENT_SECRET=TWITCH_CLIENT_SECRET:latest,TWITTER_API_KEY=TWITTER_API_KEY:latest,TWITTER_API_SECRET=TWITTER_API_SECRET:latest,TWITTER_ACCESS_TOKEN=TWITTER_ACCESS_TOKEN:latest,TWITTER_ACCESS_TOKEN_SECRET=TWITTER_ACCESS_TOKEN_SECRET:latest,TWITCH_CLIP_FUNCTION_SIGNATURE=TWITCH_CLIP_FUNCTION_SIGNATURE:latest
+      - name: Push Docker Image
+        run: docker push ${{ env.IMAGE }}
+
+      - name: Deploy
+        run: |
+          gcloud run jobs deploy $SERVICE_NAME \
+            --tasks 1 \
+            --parallelism 1 \
+            --max-retries 1 \
+            --task-timeout 40m \
+            --image $IMAGE \
+            --project $GCP_PROJECT_ID \
+            --region $GCP_REGION \
+            --service-account $SERVICE_ACCOUNT_NAME \
+            --set-secrets=TWITCH_CLIENT_ID=TWITCH_CLIENT_ID:latest,TWITCH_CLIENT_SECRET=TWITCH_CLIENT_SECRET:latest,TWITTER_API_KEY=TWITTER_API_KEY:latest,TWITTER_API_SECRET=TWITTER_API_SECRET:latest,TWITTER_ACCESS_TOKEN=TWITTER_ACCESS_TOKEN:latest,TWITTER_ACCESS_TOKEN_SECRET=TWITTER_ACCESS_TOKEN_SECRET:latest,TWITCH_CLIP_FUNCTION_SIGNATURE=TWITCH_CLIP_FUNCTION_SIGNATURE:latest

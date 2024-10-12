@@ -5,6 +5,8 @@ on:
     branches:
       - main
 
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
 jobs:
   test:
     name: Test
@@ -64,6 +66,9 @@ jobs:
 
       - name: Install Dependencies
         run: pnpm install
+
+      - name: Install firebase-tools
+        run: pnpm install -g firebase-tools
 
       - name: Run lint
         run: pnpm lint

@@ -1,5 +1,3 @@
-import { FirestoreDataConverter } from "firebase-admin/firestore"
-
 import { Clip } from "../models/clip"
 import { ClipDoc } from "../models/clipDoc"
 import { Streamer } from "../models/streamer"
@@ -9,7 +7,7 @@ interface FirestoreClipDoc {
     [key: string]: Array<Clip> | Streamer | undefined
 }
 
-export const clipDocConverter: FirestoreDataConverter<ClipDoc> = {
+export const clipDocConverter= {
     fromFirestore(qds: FirebaseFirestore.QueryDocumentSnapshot): ClipDoc {
         const data = qds.data() as FirestoreClipDoc
 

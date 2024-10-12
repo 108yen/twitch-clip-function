@@ -1,0 +1,74 @@
+name: Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  test:
+    name: Test
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Install firebase-tools
+        run: pnpm install -g firebase-tools
+
+      - name: Run test
+        run: firebase emulators:exec 'npm test' --project=twitch-clip-dev --only firestore --import test/test_data/firestore
+        env:
+          TYPE: ${{secrets.TYPE}}
+          PROJECT_ID: ${{secrets.PROJECT_ID}}
+          PRIVATE_KEY_ID: ${{secrets.PRIVATE_KEY_ID}}
+          PRIVATE_KEY: ${{secrets.PRIVATE_KEY}}
+          CLIENT_EMAIL: ${{secrets.CLIENT_EMAIL}}
+          CLIENT_ID: ${{secrets.CLIENT_ID}}
+          AUTH_URI: ${{secrets.AUTH_URI}}
+          TOKEN_URI: ${{secrets.TOKEN_URI}}
+          AUTH_PROVIDER_X509_CERT_URL: ${{secrets.AUTH_PROVIDER_X509_CERT_URL}}
+          CLIENT_X509_CERT_URL: ${{secrets.CLIENT_X509_CERT_URL}}
+          UNIVERSE_DOMAIN: ${{secrets.UNIVERSE_DOMAIN}}
+          TWITCH_CLIENT_ID: ${{secrets.TWITCH_CLIENT_ID}}
+          TWITCH_CLIENT_SECRET: ${{secrets.TWITCH_CLIENT_SECRET}}
+          FIRESTORE_EMULATOR_HOST: ${{env.FIRESTORE_EMULATOR_HOST}}
+
+  eslint:
+    name: ESLint
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v4
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Install firebase-tools
+        run: pnpm install -g firebase-tools
+
+      - name: Run lint
+        run: pnpm lint

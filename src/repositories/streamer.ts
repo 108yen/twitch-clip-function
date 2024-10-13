@@ -5,50 +5,50 @@ import { streamersDocRef } from "../firestore-refs/streamerRefs"
 import { Streamer } from "../models/streamer"
 
 export class StreamerRepository {
-    async addStreamers(streamers: Array<Streamer>) {
-        await streamersDocRef
-            .update({
-                streamers: FieldValue.arrayUnion(...streamers)
-            })
-            .catch((error) => {
-                console.error(
-                    `StreamerRepository/addStreamers/streamersDocRef.update(): ${error}`
-                )
-                throw new Error(error)
-            })
-    }
-
-    batchUpdateStreamers(
-        streamers: Array<Streamer>,
-        batch: FirebaseFirestore.WriteBatch
-    ) {
-        batch.set(streamersDocRef, { streamers: streamers }, { merge: true })
-    }
-
-    async getStreamers(): Promise<Array<Streamer>> {
-        const ds = await streamersDocRef.get().catch((error) => {
-            console.error(
-                `StreamerRepository/getStreamers/streamersDocRef.get(): ${error}`
-            )
-            throw new Error(error)
-        })
-        const streamers = ds?.data()?.streamers
-        assert(
-            typeof streamers !== `undefined`,
-            new Error(`StreamerRepository/getStreamers: ds.data() is undefined`)
+  async addStreamers(streamers: Array<Streamer>) {
+    await streamersDocRef
+      .update({
+        streamers: FieldValue.arrayUnion(...streamers),
+      })
+      .catch((error) => {
+        console.error(
+          `StreamerRepository/addStreamers/streamersDocRef.update(): ${error}`,
         )
+        throw new Error(error)
+      })
+  }
 
-        return streamers
-    }
+  batchUpdateStreamers(
+    streamers: Array<Streamer>,
+    batch: FirebaseFirestore.WriteBatch,
+  ) {
+    batch.set(streamersDocRef, { streamers: streamers }, { merge: true })
+  }
 
-    async updateStreamers(streamers: Array<Streamer>) {
-        await streamersDocRef
-            .set({ streamers: streamers }, { merge: true })
-            .catch((error) => {
-                console.error(
-                    `StreamerRepository/updateStreamers/streamersDocRef.set(): ${error}`
-                )
-                throw new Error(error)
-            })
-    }
+  async getStreamers(): Promise<Array<Streamer>> {
+    const ds = await streamersDocRef.get().catch((error) => {
+      console.error(
+        `StreamerRepository/getStreamers/streamersDocRef.get(): ${error}`,
+      )
+      throw new Error(error)
+    })
+    const streamers = ds?.data()?.streamers
+    assert(
+      typeof streamers !== `undefined`,
+      new Error(`StreamerRepository/getStreamers: ds.data() is undefined`),
+    )
+
+    return streamers
+  }
+
+  async updateStreamers(streamers: Array<Streamer>) {
+    await streamersDocRef
+      .set({ streamers: streamers }, { merge: true })
+      .catch((error) => {
+        console.error(
+          `StreamerRepository/updateStreamers/streamersDocRef.set(): ${error}`,
+        )
+        throw new Error(error)
+      })
+  }
 }

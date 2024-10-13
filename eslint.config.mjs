@@ -33,7 +33,7 @@ const sourceFilePaths = {
 
 /** @type {Pick<TSESLintConfig, "name" | "ignores">} */
 const ignoreTSESConfig = {
-  ignores: [".next/**", "node_modules/**", "**/pnpm-lock.yaml",".eslintcache"],
+  ignores: [".next/**", "node_modules/**", "**/pnpm-lock.yaml", ".eslintcache"],
   name: "@twitch-clip-function/ignores/base",
 }
 
@@ -160,7 +160,7 @@ const prettierTSESConfig = {
   name: "@twitch-clip-function/prettier/base",
   rules: {
     curly: "off",
-    "no-unexpected-multiline": "off"
+    "no-unexpected-multiline": "off",
   },
 }
 
@@ -169,9 +169,9 @@ const sortTSESConfig = {
   files: sourceFilePaths.all,
   name: "@twitch-clip-function/sort/base",
   plugins: {
-    perfectionist
+    perfectionist,
   },
-  rules: perfectionist.configs['recommended-natural'].rules
+  rules: perfectionist.configs["recommended-natural"].rules,
 }
 
 /** @type {Pick<TSESLintConfig, "name" | "files" | "plugins" | "rules" | "settings">} */
@@ -179,7 +179,7 @@ const cspellConfig = {
   files: sourceFilePaths.all,
   name: "@twitch-clip-function/cspell/base",
   plugins: {
-    "@cspell": cspellPlugin
+    "@cspell": cspellPlugin,
   },
   rules: {
     "@cspell/spellchecker": [
@@ -200,5 +200,5 @@ export default tseslintConfig(
   importTSESConfig,
   prettierTSESConfig,
   sortTSESConfig,
-  cspellConfig
+  cspellConfig,
 )

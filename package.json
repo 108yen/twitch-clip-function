@@ -10,7 +10,6 @@
     "lint": "eslint . --max-warnings=0 --cache",
     "lint:inspect": "pnpm dlx @eslint/config-inspector",
     "typecheck": "tsc --noEmit",
-    "spellcheck": "cspell \"**/*.{js,jsx,mjs,ts,tsx,mts,md,mdx}\" --quiet",
     "format": "prettier --write .",
     "format:check": "prettier --check --cache .",
     "format:write": "prettier --write --cache .",
@@ -24,6 +23,7 @@
     "firebase-admin": "^12.5.0",
     "globals": "^15.11.0",
     "loader": "^2.1.1",
+    "prettier": "^3.3.3",
     "twitter-api-v2": "^1.15.2"
   },
   "devDependencies": {

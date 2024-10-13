@@ -1,4 +1,3 @@
-
 Closes # <!-- Github issue # here -->
 
 ## Description

@@ -11,15 +11,15 @@ if (admin.apps.length === 0) {
 
 //deploy function
 import {
+    revalidate,
+    streamerSelection,
+    tweetTopClip,
     updateAllRanking,
     updateDayRanking,
     updateMonthRanking,
-    updateWeekRanking,
-    updateYearRanking,
     updatePastRanking,
-    streamerSelection,
-    tweetTopClip,
-    revalidate
+    updateWeekRanking,
+    updateYearRanking
 } from "./firebase-functions"
 import dayjs from "./utils/dayjs"
 import { logEntry } from "./utils/logEntry"
@@ -28,7 +28,7 @@ async function main() {
     const startedAt = dayjs()
     const hour = startedAt.tz().hour()
 
-    logEntry({ severity: `INFO`, message: `started at ${startedAt.tz().format()}` })
+    logEntry({ message: `started at ${startedAt.tz().format()}`, severity: `INFO` })
 
     // every 6 hours
     if ([0, 6, 12, 18].includes(hour)) {
@@ -62,8 +62,8 @@ async function main() {
     const formattedDiff = dayjs.duration(executionTime).format(`HH時間 mm分 ss.SSS秒`)
 
     logEntry({
-        severity: `INFO`,
-        message: `ended at ${endedAt.tz().format()}, execution time ${formattedDiff}`
+        message: `ended at ${endedAt.tz().format()}, execution time ${formattedDiff}`,
+        severity: `INFO`
     })
 }
 

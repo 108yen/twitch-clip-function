@@ -5,7 +5,6 @@ import {
 
 import { clipDocConverter } from "../converters/clipDocConverter"
 import { ClipDoc } from "../models/clipDoc"
-
 import { db } from "./db"
 
 export const clipColRef: CollectionReference<ClipDoc> = db

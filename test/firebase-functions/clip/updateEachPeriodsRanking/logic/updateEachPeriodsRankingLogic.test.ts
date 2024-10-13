@@ -1,7 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import fs from "fs"
 
 import axios from "axios"
+import fs from "fs"
 
 import { TwitchClipApi } from "../../../../../src/apis/clip"
 import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
@@ -34,7 +33,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(typeof periods[`day`].started_at).toBeDefined()
         expect(typeof periods[`day`].ended_at).toBeDefined()
         expect(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+
             periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix()
         ).toEqual(24 * 60 * 60)
     })
@@ -43,12 +42,12 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockResolvedValue([
                 new Streamer({
-                    id: `49207184`,
-                    follower_num: 100
+                    follower_num: 100,
+                    id: `49207184`
                 }),
                 new Streamer({
-                    id: `545050196`,
-                    follower_num: 200
+                    follower_num: 200,
+                    id: `545050196`
                 })
             ])
 
@@ -57,12 +56,12 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(streamers).toEqual([
             new Streamer({
-                id: `49207184`,
-                follower_num: 100
+                follower_num: 100,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 200
+                follower_num: 200,
+                id: `545050196`
             })
         ])
     }, 100000)
@@ -76,7 +75,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         ).rejects.toThrowError()
         expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
-    test(`getClipForEeachStreamersのテスト`, async () => {
+    test(`getClipForEachStreamersのテスト`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(getClipsSpyImp)
@@ -91,7 +90,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`)
         )
 
-        await updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
+        await updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer)
 
         //呼び出し回数チェック
         expect(getClipsSpy).toHaveBeenCalledTimes(2)
@@ -110,7 +109,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
             }
         }
     }, 100000)
-    test(`getClipForEeachStreamersのテスト:axiosエラー`, async () => {
+    test(`getClipForEachStreamersのテスト:axiosエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockRejectedValue(new Error(`axios error test`))
@@ -126,7 +125,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
+            updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック
@@ -134,7 +133,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         expect(updateClipDocSpy).not.toHaveBeenCalled()
         expect(commitBatchSpy).not.toHaveBeenCalled()
     }, 100000)
-    test(`getClipForEeachStreamersのテスト:firestoreエラー`, async () => {
+    test(`getClipForEachStreamersのテスト:firestoreエラー`, async () => {
         const getClipsSpy = jest
             .spyOn(TwitchClipApi.prototype, `getClips`)
             .mockImplementation(getClipsSpyImp)
@@ -150,7 +149,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
         )
 
         await expect(
-            updateEachPeriodsRankingLogic[`getClipForEeachStreamers`](streamer)
+            updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer)
         ).rejects.toThrowError()
 
         //呼び出し回数チェック

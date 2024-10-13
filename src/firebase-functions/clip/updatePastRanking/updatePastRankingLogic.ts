@@ -4,7 +4,7 @@ import { Streamer } from "../../../models/streamer"
 import dayjs from "../../../utils/dayjs"
 import { ClipFunction } from "../clipFunction"
 
-type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
+type Periods = Record<string, { ended_at?: dayjs.Dayjs; started_at?: dayjs.Dayjs }>
 
 export class UpdatePastRankingLogic extends ClipFunction {
     private past_limit = 5 //max 5 years ago
@@ -83,7 +83,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
                 .startOf(`year`)
                 .subtract(9, `hour`)
             const ended_at = dayjs().set(`year`, year).endOf(`year`).subtract(9, `hour`)
-            periods[`${year}`] = { started_at: started_at, ended_at: ended_at }
+            periods[`${year}`] = { ended_at: ended_at, started_at: started_at }
         }
         return periods
     }

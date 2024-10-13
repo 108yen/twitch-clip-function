@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-assertion */
+
 import { BatchRepository } from "../../..//repositories/batch"
 import { TwitchStreamerApi } from "../../../apis/streamer"
 import { ClipDoc } from "../../../models/clipDoc"
@@ -8,11 +8,11 @@ import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
 
 export class StreamerSelectionLogic {
-    STREAMER_NUM_LIMIT = 300
-    private streamerRepository = new StreamerRepository()
-    private clipRepository = new ClipRepository()
     private batchRepository = new BatchRepository()
+    private clipRepository = new ClipRepository()
+    private streamerRepository = new StreamerRepository()
     private twitchStreamerApi: TwitchStreamerApi
+    STREAMER_NUM_LIMIT = 300
     constructor(twitchStreamerApi: TwitchStreamerApi) {
         this.twitchStreamerApi = twitchStreamerApi
     }
@@ -25,21 +25,52 @@ export class StreamerSelectionLogic {
         return new StreamerSelectionLogic(twitchStreamerApi)
     }
 
-    async getOldStreamer(): Promise<{
-        oldStreamers: Array<Streamer>
-        oldStreamerIds: Array<string>
-    }> {
-        const fetchStreamers = await this.streamerRepository.getStreamers()
-        const oldStreamerIds = fetchStreamers.map((streamer) => streamer.id)
-        const oldStreamers = await this.storeFolloweres(
-            oldStreamerIds,
-            this.twitchStreamerApi
-        )
-        return { oldStreamers, oldStreamerIds }
+    private sortByFollowerNum(streamers: Array<Streamer>) {
+        return streamers.sort((a, b) => {
+            if (b.follower_num == undefined) {
+                return -1
+            }
+            if (a.follower_num == undefined) {
+                return 1
+            }
+            return b.follower_num - a.follower_num
+        })
     }
-    async getJpLiveStreaming(): Promise<Array<Stream>> {
-        const streams = await this.twitchStreamerApi.getJpStreams()
-        return streams
+
+    private async storeFollowers(
+        ids: Array<string>,
+        twitchStreamerApi: TwitchStreamerApi
+    ): Promise<Array<Streamer>> {
+        const streamers: Array<Streamer> = []
+
+        for (const key in ids) {
+            const id = ids[key]
+            //get follower num from twitch api
+            const followerNum = await twitchStreamerApi.getFollowerNum(id)
+            streamers.push(
+                new Streamer({
+                    follower_num: followerNum,
+                    id: id
+                })
+            )
+        }
+
+        return streamers
+    }
+    concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
+        //Select streamers with top STREAMER_NUM_LIMIT
+        const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers))
+        const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
+        const selectedStreamerIds = selectedStreamers.map((e) => e.id)
+        const newStreamerIds = newStreamers.map((e) => e.id)
+        const removedStreamerIds = sumStreamers
+            .slice(this.STREAMER_NUM_LIMIT)
+            .map((e) => e.id)
+            .filter((id) => newStreamerIds.indexOf(id) == -1)
+        const addedStreamerIds = selectedStreamerIds.filter(
+            (id) => newStreamerIds.indexOf(id) != -1
+        )
+        return { addedStreamerIds, removedStreamerIds, selectedStreamers }
     }
     filterStreams(streams: Array<Stream>, oldStreamerIds: Array<string>): Array<string> {
         const removeTag = [`ASMR`, `Commissions`]
@@ -50,10 +81,10 @@ export class StreamerSelectionLogic {
             `840446934`,
             `208760543`,
             `134850221`, //RTAinJapan
-            `182565961`, //WorldofWarships
-            `179988448`, //PUBGJAPAN
-            `144740532`, //japanese_restream
-            `229395457`, //eastgeeksmash
+            `182565961`, //World of Warships
+            `179988448`, //PUBG JAPAN
+            `144740532`, //japanese_stream
+            `229395457`, //east geeks mash
             `79294007` //mira
         ]
         const filteredId = streams
@@ -74,7 +105,7 @@ export class StreamerSelectionLogic {
                 if (viewer_count < 500) {
                     return false
                 }
-                //remove aleady exist ids
+                //remove already exist ids
                 if (oldStreamerIds.includes(user_id)) {
                     return false
                 }
@@ -87,52 +118,30 @@ export class StreamerSelectionLogic {
         )
         return newStreamerIds
     }
+    async getJpLiveStreaming(): Promise<Array<Stream>> {
+        const streams = await this.twitchStreamerApi.getJpStreams()
+        return streams
+    }
     async getNewStreamerFollower(
         newStreamerIds: Array<string>
     ): Promise<Array<Streamer>> {
-        const newStreamers = await this.storeFolloweres(
+        const newStreamers = await this.storeFollowers(
             newStreamerIds,
             this.twitchStreamerApi
         )
         return newStreamers
     }
-    concatAndFilter(oldStreamers: Array<Streamer>, newStreamers: Array<Streamer>) {
-        //Select streamers with top STREAMER_NUM_LIMIT
-        const sumStreamers = this.sortByFollowerNum(oldStreamers.concat(newStreamers))
-        const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
-        const selectedStreamerIds = selectedStreamers.map((e) => e.id)
-        const newStreamerIds = newStreamers.map((e) => e.id)
-        const removedStreamerIds = sumStreamers
-            .slice(this.STREAMER_NUM_LIMIT)
-            .map((e) => e.id)
-            .filter((id) => newStreamerIds.indexOf(id) == -1)
-        const addedStreamerIds = selectedStreamerIds.filter(
-            (id) => newStreamerIds.indexOf(id) != -1
+    async getOldStreamer(): Promise<{
+        oldStreamerIds: Array<string>
+        oldStreamers: Array<Streamer>
+    }> {
+        const fetchStreamers = await this.streamerRepository.getStreamers()
+        const oldStreamerIds = fetchStreamers.map((streamer) => streamer.id)
+        const oldStreamers = await this.storeFollowers(
+            oldStreamerIds,
+            this.twitchStreamerApi
         )
-        return { selectedStreamers, removedStreamerIds, addedStreamerIds }
-    }
-    async updateStreamerInfo(
-        selectedStreamers: Array<Streamer>
-    ): Promise<{ storedStreamers: Array<Streamer>; banedIds: Array<string> }> {
-        const selectedStreamerIds = selectedStreamers.map((e) => e.id)
-        //push to firestore
-        const storedStreamers =
-            await this.twitchStreamerApi.getStreamers(selectedStreamerIds)
-        //Re-enter the number of followers
-        for (const key in storedStreamers) {
-            const streamerInFollowerNum = selectedStreamers.find(
-                (e) => e.id == storedStreamers[key].id
-            )
-            storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num
-        }
-        const sortedStreamers = this.sortByFollowerNum(storedStreamers)
-
-        //if baned streamer exist
-        const banedIds = selectedStreamerIds.filter((id) =>
-            sortedStreamers.every((streamer) => streamer.id !== id)
-        )
-
-        return { storedStreamers: sortedStreamers, banedIds }
+        return { oldStreamerIds, oldStreamers }
     }
     async updateFirestore(
         storedStreamers: Array<Streamer>,
@@ -157,35 +166,27 @@ export class StreamerSelectionLogic {
         }
         await this.batchRepository.commitBatch()
     }
-    private async storeFolloweres(
-        ids: Array<string>,
-        twitchStreamerApi: TwitchStreamerApi
-    ): Promise<Array<Streamer>> {
-        const streamers: Array<Streamer> = []
-
-        for (const key in ids) {
-            const id = ids[key]
-            //get follower num from twitch api
-            const followerNum = await twitchStreamerApi.getFollowerNum(id)
-            streamers.push(
-                new Streamer({
-                    id: id,
-                    follower_num: followerNum
-                })
+    async updateStreamerInfo(
+        selectedStreamers: Array<Streamer>
+    ): Promise<{ banedIds: Array<string>; storedStreamers: Array<Streamer> }> {
+        const selectedStreamerIds = selectedStreamers.map((e) => e.id)
+        //push to firestore
+        const storedStreamers =
+            await this.twitchStreamerApi.getStreamers(selectedStreamerIds)
+        //Re-enter the number of followers
+        for (const key in storedStreamers) {
+            const streamerInFollowerNum = selectedStreamers.find(
+                (e) => e.id == storedStreamers[key].id
             )
+            storedStreamers[key].follower_num = streamerInFollowerNum?.follower_num
         }
+        const sortedStreamers = this.sortByFollowerNum(storedStreamers)
 
-        return streamers
-    }
-    private sortByFollowerNum(streamers: Array<Streamer>) {
-        return streamers.sort((a, b) => {
-            if (b.follower_num == undefined) {
-                return -1
-            }
-            if (a.follower_num == undefined) {
-                return 1
-            }
-            return b.follower_num - a.follower_num
-        })
+        //if baned streamer exist
+        const banedIds = selectedStreamerIds.filter((id) =>
+            sortedStreamers.every((streamer) => streamer.id !== id)
+        )
+
+        return { banedIds, storedStreamers: sortedStreamers }
     }
 }

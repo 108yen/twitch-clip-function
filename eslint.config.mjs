@@ -1,9 +1,9 @@
+import cspellPlugin from "@cspell/eslint-plugin"
 import { fixupPluginRules } from "@eslint/compat"
 import eslint from "@eslint/js"
 import pluginImport from "eslint-plugin-import"
 import perfectionist from "eslint-plugin-perfectionist"
 import pluginUnusedImports from "eslint-plugin-unused-imports"
-import cspellPlugin from "@cspell/eslint-plugin"
 import globals from "globals"
 import {
   config as tseslintConfig,
@@ -185,7 +185,7 @@ const cspellConfig = {
     "@cspell/spellchecker": [
       "warn",
       {
-        configFile: new URL("../cspell.json", import.meta.url).toString(),
+        configFile: new URL("./cspell.json", import.meta.url).toString(),
         cspell: {},
       },
     ],

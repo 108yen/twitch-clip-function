@@ -13,17 +13,17 @@ export const streamerConverter = {
     return {
       streamers: doc.streamers.map((e) => {
         return {
+          broadcaster_type: e.broadcaster_type,
+          created_at: e.created_at,
+          description: e.description,
+          display_name: e.display_name,
+          follower_num: e.follower_num,
           id: e.id,
           login: e.login,
-          display_name: e.display_name,
-          type: e.type,
-          broadcaster_type: e.broadcaster_type,
-          description: e.description,
-          profile_image_url: e.profile_image_url,
           offline_image_url: e.offline_image_url,
+          profile_image_url: e.profile_image_url,
+          type: e.type,
           view_count: e.view_count,
-          created_at: e.created_at,
-          follower_num: e.follower_num,
         }
       }),
     }

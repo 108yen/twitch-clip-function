@@ -3,11 +3,11 @@ import { Streamer } from "../../../../models/streamer"
 import dayjs from "../../../../utils/dayjs"
 import { ClipFunction } from "../../clipFunction"
 
-type Periods = { [key: string]: { started_at?: dayjs.Dayjs; ended_at?: dayjs.Dayjs } }
+type Periods = Record<string, { ended_at?: dayjs.Dayjs; started_at?: dayjs.Dayjs }>
 
 export class UpdateEachPeriodsRankingLogic extends ClipFunction {
-    period: string
     day?: number
+    period: string
 
     constructor(twitchClipApi: TwitchClipApi, period: string, day?: number) {
         super(twitchClipApi, `summary`)
@@ -28,7 +28,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
         if (this.day) {
             const daysAgo = today.subtract(this.day, `day`)
             periods = {
-                [this.period]: { started_at: daysAgo, ended_at: today }
+                [this.period]: { ended_at: today, started_at: daysAgo }
             }
         } else {
             periods = {

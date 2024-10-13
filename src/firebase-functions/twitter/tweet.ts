@@ -6,8 +6,8 @@ import { logEntry } from "../../utils/logEntry"
 
 export async function tweetTopClip() {
     logEntry({
-        severity: `INFO`,
-        message: `start tweet`
+        message: `start tweet`,
+        severity: `INFO`
     })
     //get summary clip
     const clipRepository = new ClipRepository()
@@ -17,8 +17,8 @@ export async function tweetTopClip() {
     const clips = clipDoc.clipsMap.get(`day`)
     if (clips == undefined) {
         logEntry({
-            severity: `ERROR`,
-            message: `day clips is undefined`
+            message: `day clips is undefined`,
+            severity: `ERROR`
         })
         return
     }
@@ -30,16 +30,16 @@ export async function tweetTopClip() {
 
     //tweet
     const client = new Twitter({
-        appKey: process.env.TWITTER_API_KEY as string,
-        appSecret: process.env.TWITTER_API_SECRET as string,
+        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET as string,
         accessToken: process.env.TWITTER_ACCESS_TOKEN as string,
-        accessSecret: process.env.TWITTER_ACCESS_TOKEN_SECRET as string
+        appKey: process.env.TWITTER_API_KEY as string,
+        appSecret: process.env.TWITTER_API_SECRET as string
     })
 
     await client.v2.tweet(tweet).catch((error) => {
         logEntry({
-            severity: `ERROR`,
-            message: `tweet failed: \n${error}`
+            message: `tweet failed: \n${error}`,
+            severity: `ERROR`
         })
         return
     })

@@ -1,11 +1,10 @@
 import { logEntry } from "../../../utils/logEntry"
-
 import { UpdateEachPeriodsRankingLogic } from "./logic/updateEachPeriodsRankingLogic"
 
 export const updateYearRanking = async () => {
     logEntry({
-        severity: `INFO`,
-        message: `start update year ranking`
+        message: `start update year ranking`,
+        severity: `INFO`
     })
 
     try {
@@ -16,8 +15,8 @@ export const updateYearRanking = async () => {
         await updateEachPeriodsRanking.run()
     } catch (error) {
         logEntry({
-            severity: `ERROR`,
-            message: `Failed update year ranking: \n${error}`
+            message: `Failed update year ranking: \n${error}`,
+            severity: `ERROR`
         })
     }
 }

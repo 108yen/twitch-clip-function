@@ -1,24 +1,22 @@
 import assert from "assert"
-
 import axios, { AxiosRequestConfig } from "axios"
 
 import { Clip } from "../models/clip"
 import { Token } from "../models/token"
 import dayjs from "../utils/dayjs"
-
 import { TwitchApi } from "./twitchApi"
 
 export class TwitchClipApi extends TwitchApi {
     private CLIP_NUM = 100
 
-    constructor(props: { token: Token; client_id: string }) {
+    constructor(props: { client_id: string; token: Token }) {
         super(props)
     }
 
     public static async init(client_id: string, client_secret: string) {
         return new TwitchClipApi({
-            token: await this.getToken(client_id, client_secret),
-            client_id: client_id
+            client_id: client_id,
+            token: await this.getToken(client_id, client_secret)
         })
     }
 
@@ -28,16 +26,16 @@ export class TwitchClipApi extends TwitchApi {
         ended_at?: dayjs.Dayjs
     ): Promise<Array<Clip>> {
         const config: AxiosRequestConfig = {
-            url: `https://api.twitch.tv/helix/clips`,
-            method: `GET`,
             headers: {
-                Authorization: `Bearer ${this.token.access_token}`,
-                [`Client-Id`]: this.client_id
+                [`Client-Id`]: this.client_id,
+                Authorization: `Bearer ${this.token.access_token}`
             },
+            method: `GET`,
             params: {
                 broadcaster_id: broadcaster_id,
                 first: this.CLIP_NUM
-            }
+            },
+            url: `https://api.twitch.tv/helix/clips`
         }
 
         if (started_at && ended_at) {

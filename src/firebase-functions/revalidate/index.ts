@@ -1,6 +1,5 @@
-import crypto from "crypto"
-
 import axios, { AxiosRequestConfig } from "axios"
+import crypto from "crypto"
 
 import { logEntry } from "../../utils/logEntry"
 
@@ -13,8 +12,8 @@ function generateSignature(data: string) {
 
 export async function revalidate() {
     logEntry({
-        severity: `INFO`,
-        message: `start revalidate page cache`
+        message: `start revalidate page cache`,
+        severity: `INFO`
     })
 
     try {
@@ -23,32 +22,32 @@ export async function revalidate() {
         const signature = generateSignature(JSON.stringify(data))
 
         const config: AxiosRequestConfig = {
-            url: `https://www.twitchclipsranking.com/api/revalidate`,
-            method: `POST`,
+            data,
             headers: {
                 [`Content-Type`]: `application/json`,
                 [`x-twitch-clip-function-signature`]: signature
             },
-            data
+            method: `POST`,
+            url: `https://www.twitchclipsranking.com/api/revalidate`
         }
 
         const res = await axios(config)
 
         if (res.status === 200) {
             logEntry({
-                severity: `INFO`,
-                message: `Revalidation success`
+                message: `Revalidation success`,
+                severity: `INFO`
             })
         } else {
             logEntry({
-                severity: `ERROR`,
-                message: `Failed revalidation.\nError code: ${res.status}.\nError message: ${res.statusText}`
+                message: `Failed revalidation.\nError code: ${res.status}.\nError message: ${res.statusText}`,
+                severity: `ERROR`
             })
         }
     } catch (error) {
         logEntry({
-            severity: `ERROR`,
-            message: `Failed revalidate page cache: \n${error}`
+            message: `Failed revalidate page cache: \n${error}`,
+            severity: `ERROR`
         })
     }
 }

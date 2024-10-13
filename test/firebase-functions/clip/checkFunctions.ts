@@ -22,12 +22,12 @@ export function clipElementCheck(clips: Array<Clip>) {
 export function clipOrderCheck(clips: Array<Clip>) {
     //順番チェック
     for (let index = 0; index < clips.length - 1; index++) {
-        const currentClipViewConut = clips[index].view_count
+        const currentClipViewCount = clips[index].view_count
         const nextClipViewCount = clips[index + 1].view_count
-        expect(typeof currentClipViewConut).toEqual(`number`)
+        expect(typeof currentClipViewCount).toEqual(`number`)
         expect(typeof nextClipViewCount).toEqual(`number`)
-        assert(typeof currentClipViewConut === `number`)
+        assert(typeof currentClipViewCount === `number`)
         assert(typeof nextClipViewCount === `number`)
-        expect(currentClipViewConut).toBeGreaterThanOrEqual(nextClipViewCount)
+        expect(currentClipViewCount).toBeGreaterThanOrEqual(nextClipViewCount)
     }
 }

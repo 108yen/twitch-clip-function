@@ -1,12 +1,11 @@
 import { logEntry } from "../../../utils/logEntry"
-
 import { UpdatePastRankingLogic } from "./updatePastRankingLogic"
 
 //get twitch clip ranking for each year
 export const updatePastRanking = async () => {
     logEntry({
-        severity: `INFO`,
-        message: `start update past ranking`
+        message: `start update past ranking`,
+        severity: `INFO`
     })
     try {
         const updatePastRankingLogic = await UpdatePastRankingLogic.init()
@@ -15,8 +14,8 @@ export const updatePastRanking = async () => {
         await updatePastRankingLogic.run()
     } catch (error) {
         logEntry({
-            severity: `ERROR`,
-            message: `Failed update past ranking: \n${error}`
+            message: `Failed update past ranking: \n${error}`,
+            severity: `ERROR`
         })
     }
 }

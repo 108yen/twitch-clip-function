@@ -1,24 +1,24 @@
 export class Clip {
-    id?: string
-    url?: string
-    embed_url?: string
+    broadcaster_follower_num?: number
     broadcaster_id?: string
+    broadcaster_login?: string
     broadcaster_name?: string
+    created_at?: string
     creator_id?: string
     creator_name?: string
-    video_id?: string
-    game_id?: string
-    language?: string
-    title?: string
-    view_count?: number
-    created_at?: string
-    thumbnail_url?: string
     duration?: number
-    vod_offset?: number
+    embed_url?: string
+    game_id?: string
+    id?: string
     is_featured?: boolean
+    language?: string
     profile_image_url?: string
-    broadcaster_follower_num?: number
-    broadcaster_login?: string
+    thumbnail_url?: string
+    title?: string
+    url?: string
+    video_id?: string
+    view_count?: number
+    vod_offset?: number
 
     constructor(partial?: Partial<Clip>) {
         Object.assign(this, partial)

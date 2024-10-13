@@ -2,23 +2,15 @@ import { db } from "../firestore-refs/db"
 
 export class BatchRepository {
     private batch: FirebaseFirestore.WriteBatch
-    private chunck = 0
-    private chunckLimit: number
-    constructor(chunckLimit = 100) {
-        this.chunckLimit = chunckLimit
+    private chunk = 0
+    private chunkLimit: number
+    constructor(chunkLimit = 100) {
+        this.chunkLimit = chunkLimit
         this.batch = db.batch()
     }
-    async getBatch() {
-        if (this.chunck > this.chunckLimit) {
-            await this.commitBatch()
-        }
-        this.chunck++
-        return this.batch
-    }
-
     //batch commit request need less than 10MiB
     async commitBatch() {
-        this.chunck = 0
+        this.chunk = 0
         await this.batch.commit().catch((error) => {
             console.error(
                 `BatchRepository/commitBatch/this.batch.commit():${error}`
@@ -26,5 +18,13 @@ export class BatchRepository {
             throw new Error(error)
         })
         this.batch = db.batch()
+    }
+
+    async getBatch() {
+        if (this.chunk > this.chunkLimit) {
+            await this.commitBatch()
+        }
+        this.chunk++
+        return this.batch
     }
 }

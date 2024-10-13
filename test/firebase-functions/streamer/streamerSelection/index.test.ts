@@ -1,8 +1,7 @@
 import assert from "assert"
+import axios from "axios"
 import fs from "fs"
 import { describe } from "node:test"
-
-import axios from "axios"
 
 import { TwitchStreamerApi } from "../../../../src/apis/streamer"
 import { streamerSelection } from "../../../../src/firebase-functions/streamer/streamerSelection"
@@ -75,11 +74,11 @@ describe(`streamerSelectionのテスト`, () => {
                 )
                 return streams
             })
-        const oldStreamrsMockData: Array<Streamer> = oldStreamer
-        const newStreamrsMockData: Array<Streamer> = JSON.parse(
+        const oldStreamersMockData: Array<Streamer> = oldStreamer
+        const newStreamersMockData: Array<Streamer> = JSON.parse(
             fs.readFileSync(`test/test_data/streamerSelection/newStreamer.json`, `utf-8`)
         )
-        const allStreamersMockData = newStreamrsMockData.concat(oldStreamrsMockData)
+        const allStreamersMockData = newStreamersMockData.concat(oldStreamersMockData)
         const getFollowerNumSpy = jest
             .spyOn(TwitchStreamerApi.prototype, `getFollowerNum`)
             .mockImplementation(async (id: string) => {
@@ -149,7 +148,7 @@ describe(`streamerSelectionのテスト`, () => {
         for (let index = 0; index < newStreamer.length - 1; index++) {
             const currentFollowerNum = newStreamer[index].follower_num
             const nextFollowerNum = newStreamer[index + 1].follower_num
-            const message = `clips.view_count is undefind`
+            const message = `clips.view_count is undefined`
             assert(typeof currentFollowerNum === `number`, message)
             assert(typeof nextFollowerNum === `number`, message)
             expect(currentFollowerNum).toBeGreaterThanOrEqual(nextFollowerNum)

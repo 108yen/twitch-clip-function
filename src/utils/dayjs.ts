@@ -1,8 +1,8 @@
 import dayjs from 'dayjs'
 import ja from "dayjs/locale/ja"
-import utc from "dayjs/plugin/utc";
 import duration from "dayjs/plugin/duration"
 import timezone from 'dayjs/plugin/timezone';
+import utc from "dayjs/plugin/utc";
 
 dayjs.locale(ja)
 dayjs.extend(duration)

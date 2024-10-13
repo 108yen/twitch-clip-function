@@ -34,28 +34,28 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockResolvedValue([
                 new Streamer({
-                    id: `49207184`,
-                    follower_num: 100
+                    follower_num: 100,
+                    id: `49207184`
                 }),
                 new Streamer({
-                    id: `545050196`,
-                    follower_num: 200
+                    follower_num: 200,
+                    id: `545050196`
                 })
             ])
 
-        const { oldStreamers, oldStreamerIds } =
+        const { oldStreamerIds, oldStreamers } =
             await streamerSelectionLogic.getOldStreamer()
 
         expect(getStreamersSpy).toHaveBeenCalled()
         expect(oldStreamers.map((e) => e.id)).toEqual(oldStreamerIds)
         expect(oldStreamers).toEqual([
             new Streamer({
-                id: `49207184`,
-                follower_num: 400
+                follower_num: 400,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 500
+                follower_num: 500,
+                id: `545050196`
             })
         ])
     }, 100000)
@@ -65,12 +65,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
             .spyOn(StreamerRepository.prototype, `getStreamers`)
             .mockResolvedValue([
                 new Streamer({
-                    id: `49207184`,
-                    follower_num: 100
+                    follower_num: 100,
+                    id: `49207184`
                 }),
                 new Streamer({
-                    id: `545050196`,
-                    follower_num: 200
+                    follower_num: 200,
+                    id: `545050196`
                 })
             ])
 
@@ -91,9 +91,9 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const mockData = [...Array(100)].map(
             (_, index) =>
                 new Stream({
-                    user_id: `${index}`,
-                    tags: [``],
                     language: `ja`,
+                    tags: [``],
+                    user_id: `${index}`,
                     viewer_count: index
                 })
         )
@@ -119,38 +119,38 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const streamsMockData = [
             //追加
             new Stream({
-                user_id: `49207184`,
                 tags: [``],
+                user_id: `49207184`,
                 viewer_count: 500
             }),
             //重複削除
             new Stream({
-                user_id: `49207184`,
                 tags: [``],
+                user_id: `49207184`,
                 viewer_count: 400
             }),
             // タグで削除
             new Stream({
-                user_id: `545050196`,
                 tags: [`Commissions`, `日本語`],
+                user_id: `545050196`,
                 viewer_count: 300
             }),
             // idで削除
             new Stream({
-                user_id: `126482446`,
                 tags: [``],
+                user_id: `126482446`,
                 viewer_count: 300
             }),
             // 既存
             new Stream({
-                user_id: `104363564`,
                 tags: [``],
+                user_id: `104363564`,
                 viewer_count: 300
             }),
-            // viewr count足りない
+            // viewer count足りない
             new Stream({
-                user_id: `104363564`,
                 tags: [``],
+                user_id: `104363564`,
                 viewer_count: 200
             })
         ]
@@ -171,12 +171,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
 
         expect(newStreamers).toEqual([
             new Streamer({
-                id: `49207184`,
-                follower_num: 400
+                follower_num: 400,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 500
+                follower_num: 500,
+                id: `545050196`
             })
         ])
     }, 100000)
@@ -191,18 +191,18 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         const oldStreamers = [...Array(streamerNumLimit - 5)].map(
             (_, index) =>
                 new Streamer({
-                    id: `${index}`,
-                    follower_num: streamerNumLimit - 100 - index
+                    follower_num: streamerNumLimit - 100 - index,
+                    id: `${index}`
                 })
         )
         const newStreamers = [...Array(10)].map(
             (_, index) =>
                 new Streamer({
-                    id: `${index + streamerNumLimit - 5}`,
-                    follower_num: streamerNumLimit + 100 - index
+                    follower_num: streamerNumLimit + 100 - index,
+                    id: `${index + streamerNumLimit - 5}`
                 })
         )
-        const { selectedStreamers, removedStreamerIds, addedStreamerIds } =
+        const { addedStreamerIds, removedStreamerIds, selectedStreamers } =
             streamerSelectionLogic.concatAndFilter(oldStreamers, newStreamers)
 
         const expectSelectedStreamers = newStreamers
@@ -243,12 +243,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
 
         const selectedStreamers = [
             new Streamer({
-                id: `49207184`,
-                follower_num: 100
+                follower_num: 100,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 200
+                follower_num: 200,
+                id: `545050196`
             })
         ]
         const { storedStreamers } =
@@ -289,20 +289,20 @@ describe(`StreamerSelectionLogicのテスト`, () => {
 
         const selectedStreamers = [
             new Streamer({
-                id: `49207184`,
-                follower_num: 100
+                follower_num: 100,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 200
+                follower_num: 200,
+                id: `545050196`
             }),
             //banされる想定のやつ
             new Streamer({
-                id: `0000000`,
-                follower_num: 200
+                follower_num: 200,
+                id: `0000000`
             })
         ]
-        const { storedStreamers, banedIds } =
+        const { banedIds, storedStreamers } =
             await streamerSelectionLogic.updateStreamerInfo(selectedStreamers)
         const expectData = JSON.parse(JSON.stringify(mockData)).reverse()
         expectData[0].follower_num = 200
@@ -315,12 +315,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
 
         const selectedStreamers = [
             new Streamer({
-                id: `49207184`,
-                follower_num: 100
+                follower_num: 100,
+                id: `49207184`
             }),
             new Streamer({
-                id: `545050196`,
-                follower_num: 200
+                follower_num: 200,
+                id: `545050196`
             })
         ]
         expect(
@@ -347,26 +347,26 @@ describe(`StreamerSelectionLogicのテスト`, () => {
                 created_at: `2013-09-19T13:21:29Z`,
                 description: ``,
                 display_name: `fps_shaka`,
+                follower_num: 100,
                 id: `49207184`,
                 login: `fps_shaka`,
                 offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
                 profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
                 type: ``,
-                view_count: 0,
-                follower_num: 100
+                view_count: 0
             }),
             new Streamer({
                 broadcaster_type: `partner`,
                 created_at: `2020-06-18T04:04:09Z`,
                 description: `命尽き果てるまで`,
                 display_name: `加藤純一です`,
+                follower_num: 200,
                 id: `545050196`,
                 login: `kato_junichi0817`,
                 offline_image_url: ``,
                 profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
                 type: ``,
-                view_count: 0,
-                follower_num: 200
+                view_count: 0
             })
         ]
         const removeStreamerIds = [`102631269`, `104363564`]
@@ -407,26 +407,26 @@ describe(`StreamerSelectionLogicのテスト`, () => {
                 created_at: `2013-09-19T13:21:29Z`,
                 description: ``,
                 display_name: `fps_shaka`,
+                follower_num: 100,
                 id: `49207184`,
                 login: `fps_shaka`,
                 offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
                 profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
                 type: ``,
-                view_count: 0,
-                follower_num: 100
+                view_count: 0
             }),
             new Streamer({
                 broadcaster_type: `partner`,
                 created_at: `2020-06-18T04:04:09Z`,
                 description: `命尽き果てるまで`,
                 display_name: `加藤純一です`,
+                follower_num: 200,
                 id: `545050196`,
                 login: `kato_junichi0817`,
                 offline_image_url: ``,
                 profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
                 type: ``,
-                view_count: 0,
-                follower_num: 200
+                view_count: 0
             })
         ]
         const removeStreamerIds = [`102631269`, `104363564`]

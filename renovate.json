@@ -1,0 +1,35 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "dependencyDashboard": false,
+  "extends": ["config:base"],
+  "schedule": ["every weekend"],
+  "labels": ["dependencies"],
+  "rebaseWhen": "conflicted",
+  "timezone": "Asia/Tokyo",
+  "assignees": ["108yen"],
+  "packageRules": [
+    {
+      "groupName": "dependencies",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "automerge": false
+    },
+    {
+      "groupName": "dependencies",
+      "labels": ["major"],
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["major"],
+      "automerge": false
+    },
+    {
+      "groupName": "devDependencies",
+      "matchDepTypes": ["devDependencies"],
+      "automerge": true
+    },
+    {
+      "groupName": "eslint",
+      "matchPackageNames": ["/eslint/"],
+      "automerge": true
+    }
+  ]
+}

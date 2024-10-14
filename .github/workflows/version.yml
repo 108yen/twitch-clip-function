@@ -1,4 +1,4 @@
-name: Release
+name: Version
 
 on:
   push:
@@ -8,8 +8,8 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 jobs:
-  release:
-    name: Release
+  version:
+    name: Version
 
     permissions:
       pull-requests: write

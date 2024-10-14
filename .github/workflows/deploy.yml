@@ -9,7 +9,7 @@ on:
 
 jobs:
   deploy:
-    name: Deploy to Cloud Run
+    name: Deploy
 
     if: github.event.pull_request.merged == true && startsWith(github.head_ref, 'changeset-release')
     runs-on: ubuntu-latest
@@ -55,3 +55,20 @@ jobs:
             --region $GCP_REGION \
             --service-account $SERVICE_ACCOUNT_NAME \
             --set-secrets=TWITCH_CLIENT_ID=TWITCH_CLIENT_ID:latest,TWITCH_CLIENT_SECRET=TWITCH_CLIENT_SECRET:latest,TWITTER_API_KEY=TWITTER_API_KEY:latest,TWITTER_API_SECRET=TWITTER_API_SECRET:latest,TWITTER_ACCESS_TOKEN=TWITTER_ACCESS_TOKEN:latest,TWITTER_ACCESS_TOKEN_SECRET=TWITTER_ACCESS_TOKEN_SECRET:latest,TWITCH_CLIP_FUNCTION_SIGNATURE=TWITCH_CLIP_FUNCTION_SIGNATURE:latest
+
+  release:
+    name: Release
+    needs: deploy
+
+    permissions:
+      contents: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create GitHub Release
+        uses: 108yen/changeset-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

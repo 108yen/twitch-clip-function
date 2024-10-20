@@ -1,15 +1,11 @@
 import * as admin from "firebase-admin"
 
-// Firebase Admin SDK の初期化
-// https://firebase.google.com/docs/functions/config-env?hl=ja
-// importより前に実行する必要がある
 if (admin.apps.length === 0) {
   admin.initializeApp({
     credential: admin.credential.applicationDefault(),
   })
 }
 
-//deploy function
 import {
   revalidate,
   streamerSelection,
@@ -28,6 +24,8 @@ async function main() {
   const startedAt = dayjs()
   const hour = startedAt.tz().hour()
 
+  const revalidatePaths = []
+
   logEntry({
     message: `started at ${startedAt.tz().format()}`,
     severity: `INFO`,
@@ -36,16 +34,19 @@ async function main() {
   // every 6 hours
   if ([0, 6, 12, 18].includes(hour)) {
     await streamerSelection()
+    revalidatePaths.push("/streamers")
   }
 
   // every 3 hours
   await updateDayRanking()
+  revalidatePaths.push("/")
 
   // everyday at 0 o'clock
   if (hour == 0) {
     await updateWeekRanking()
     await updateMonthRanking()
     await updateYearRanking()
+    revalidatePaths.push("/daily")
 
     //tweet
     await tweetTopClip()
@@ -55,10 +56,11 @@ async function main() {
   if (startedAt.date() == 1 && hour == 0) {
     await updatePastRanking()
     await updateAllRanking()
+    revalidatePaths.push("/past")
   }
 
   // revalidate page cache
-  await revalidate()
+  await revalidate({ paths: revalidatePaths })
 
   const endedAt = dayjs()
   const executionTime = endedAt.diff(startedAt)
@@ -67,7 +69,9 @@ async function main() {
     .format(`HH時間 mm分 ss.SSS秒`)
 
   logEntry({
-    message: `ended at ${endedAt.tz().format()}, execution time ${formattedDiff}`,
+    message: `ended at ${endedAt
+      .tz()
+      .format()}, execution time ${formattedDiff}`,
     severity: `INFO`,
   })
 }

@@ -10,15 +10,18 @@ function generateSignature(data: string) {
     .digest(`hex`)
 }
 
-export async function revalidate() {
+interface revalidateProps {
+  paths: string[]
+}
+
+export async function revalidate({ paths }: revalidateProps) {
   logEntry({
     message: `start revalidate page cache`,
     severity: `INFO`,
   })
 
   try {
-    const date = new Date().toString()
-    const data = { text: date }
+    const data = { paths }
     const signature = generateSignature(JSON.stringify(data))
 
     const config: AxiosRequestConfig = {

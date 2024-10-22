@@ -1,5 +1,6 @@
 import { BatchRepository } from "../../..//repositories/batch"
 import { TwitchStreamerApi } from "../../../apis/streamer"
+import { BLACKLIST } from "../../../constant"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Stream } from "../../../models/stream"
 import { Streamer } from "../../../models/streamer"
@@ -56,6 +57,7 @@ export class StreamerSelectionLogic {
 
     return streamers
   }
+
   concatAndFilter(
     oldStreamers: Array<Streamer>,
     newStreamers: Array<Streamer>,
@@ -64,48 +66,41 @@ export class StreamerSelectionLogic {
     const sumStreamers = this.sortByFollowerNum(
       oldStreamers.concat(newStreamers),
     )
-    const selectedStreamers = sumStreamers.slice(0, this.STREAMER_NUM_LIMIT)
+
+    const selectedStreamers = sumStreamers
+      .filter(({ id }) => !BLACKLIST.IDs.includes(id))
+      .slice(0, this.STREAMER_NUM_LIMIT)
     const selectedStreamerIds = selectedStreamers.map((e) => e.id)
+
     const newStreamerIds = newStreamers.map((e) => e.id)
     const removedStreamerIds = sumStreamers
-      .slice(this.STREAMER_NUM_LIMIT)
       .map((e) => e.id)
-      .filter((id) => newStreamerIds.indexOf(id) == -1)
-    const addedStreamerIds = selectedStreamerIds.filter(
-      (id) => newStreamerIds.indexOf(id) != -1,
+      .filter(
+        (id) =>
+          !selectedStreamerIds.includes(id) && !newStreamerIds.includes(id),
+      )
+
+    const addedStreamerIds = selectedStreamerIds.filter((id) =>
+      newStreamerIds.includes(id),
     )
+
     return { addedStreamerIds, removedStreamerIds, selectedStreamers }
   }
+
   filterStreams(
     streams: Array<Stream>,
     oldStreamerIds: Array<string>,
   ): Array<string> {
-    const removeTag = [`ASMR`, `Commissions`]
-    const removeId = [
-      `496970086`, //
-      `126482446`,
-      `9504944`,
-      `840446934`,
-      `208760543`,
-      `134850221`, //RTAinJapan
-      `182565961`, //World of Warships
-      `179988448`, //PUBG JAPAN
-      `144740532`, //japanese_stream
-      `229395457`, //east geeks mash
-      `79294007`, //mira
-    ]
     const filteredId = streams
-      .filter((stream) => {
-        const viewer_count = stream.viewer_count
-        const user_id = stream.user_id
+      .filter(({ tags, user_id, viewer_count }) => {
         if (viewer_count == undefined || user_id == undefined) {
           return false
         }
         //remove by tag or id
-        if (stream.tags?.some((tag) => removeTag.includes(tag))) {
+        if (tags?.some((tag) => BLACKLIST.Tags.includes(tag))) {
           return false
         }
-        if (removeId.includes(user_id)) {
+        if (BLACKLIST.IDs.includes(user_id)) {
           return false
         }
         //remove less than 500 views live
@@ -116,19 +111,23 @@ export class StreamerSelectionLogic {
         if (oldStreamerIds.includes(user_id)) {
           return false
         }
+
         return true
       })
       .map((e) => e.user_id) as Array<string>
+
     //remove duplicate
     const newStreamerIds: Array<string> = filteredId.filter(
       (id, index) => filteredId.indexOf(id) === index,
     )
     return newStreamerIds
   }
+
   async getJpLiveStreaming(): Promise<Array<Stream>> {
     const streams = await this.twitchStreamerApi.getJpStreams()
     return streams
   }
+
   async getNewStreamerFollower(
     newStreamerIds: Array<string>,
   ): Promise<Array<Streamer>> {
@@ -138,6 +137,7 @@ export class StreamerSelectionLogic {
     )
     return newStreamers
   }
+
   async getOldStreamer(): Promise<{
     oldStreamerIds: Array<string>
     oldStreamers: Array<Streamer>
@@ -150,6 +150,7 @@ export class StreamerSelectionLogic {
     )
     return { oldStreamerIds, oldStreamers }
   }
+
   async updateFirestore(
     storedStreamers: Array<Streamer>,
     removedStreamerIds: Array<string>,
@@ -173,6 +174,7 @@ export class StreamerSelectionLogic {
     }
     await this.batchRepository.commitBatch()
   }
+
   async updateStreamerInfo(
     selectedStreamers: Array<Streamer>,
   ): Promise<{ banedIds: Array<string>; storedStreamers: Array<Streamer> }> {

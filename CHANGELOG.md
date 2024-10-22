@@ -1,5 +1,15 @@
 # twitch-clip-function
 
+## 1.2.0
+
+### Minor Changes
+
+- [#146](https://github.com/108yen/twitch-clip-function/pull/146) [`a9230cc`](https://github.com/108yen/twitch-clip-function/commit/a9230cc9f16a6ed73380de6167d16d4f9eaee2d9) Thanks [@108yen](https://github.com/108yen)! - Removed streamers by id blacklists. And remove existing streamer not only new streamer.
+
+### Patch Changes
+
+- [#146](https://github.com/108yen/twitch-clip-function/pull/146) [`835f376`](https://github.com/108yen/twitch-clip-function/commit/835f3763ccc25a11f71aef1a9bf23c7a81a4031e) Thanks [@108yen](https://github.com/108yen)! - Added to blacklist.
+
 ## 1.1.0
 
 ### Minor Changes

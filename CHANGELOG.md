@@ -1,5 +1,15 @@
 # twitch-clip-function
 
+## 1.3.0
+
+### Minor Changes
+
+- [#171](https://github.com/108yen/twitch-clip-function/pull/171) [`43ba5b5`](https://github.com/108yen/twitch-clip-function/commit/43ba5b553a4296dc4c8a8120a7d5cc62f2f5a2c8) Thanks [@108yen](https://github.com/108yen)! - Added tweet top clip of year ranking when new year begins.
+
+### Patch Changes
+
+- [#169](https://github.com/108yen/twitch-clip-function/pull/169) [`37cfe52`](https://github.com/108yen/twitch-clip-function/commit/37cfe52346f1f0341a644b8c4b5dffc4d051efa6) Thanks [@108yen](https://github.com/108yen)! - Fixed timezone of conditional statement.
+
 ## 1.2.0
 
 ### Minor Changes

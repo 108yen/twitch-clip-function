@@ -53,7 +53,7 @@ async function main() {
   }
 
   // every month at 1st
-  if (startedAt.date() == 1 && hour == 0) {
+  if (startedAt.tz().date() == 1 && hour == 0) {
     await updatePastRanking()
     await updateAllRanking()
     revalidatePaths.push("/past")

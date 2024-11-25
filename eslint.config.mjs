@@ -171,7 +171,26 @@ const sortTSESConfig = {
   plugins: {
     perfectionist,
   },
-  rules: perfectionist.configs["recommended-natural"].rules,
+  rules: {
+    ...perfectionist.configs["recommended-natural"].rules,
+    "perfectionist/sort-classes": "off",
+    "perfectionist/sort-modules": [
+      "error",
+      {
+        groups: [
+          "declare-enum",
+          "export-enum",
+          "enum",
+          ["declare-interface", "declare-type"],
+          ["export-interface", "export-type"],
+          "declare-class",
+          "class",
+          "export-class",
+          "declare-function",
+        ],
+      },
+    ],
+  },
 }
 
 /** @type {Pick<TSESLintConfig, "name" | "files" | "plugins" | "rules" | "settings">} */

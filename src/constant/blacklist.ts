@@ -24,6 +24,10 @@ export const BLACKLIST = {
     "557720142", // AmazonMusicUK
     "971372287", // thek4sen
     "238320465", // zetadivision
+    "247057028", // VGBC_JPN
+    "738746247", // 湊あくあ
+    "1071995316", // ゼンレスゾーンゼロ公式
+    "156948981", // EVOJapan01
   ],
   Tags: ["ASMR", "Commissions"],
 }

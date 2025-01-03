@@ -18,19 +18,22 @@ import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { createDailyDummyData, getClipsSpyImp } from "../spy"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`update***Rankingのテスト`, () => {
+describe("update***Rankingのテスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
+
   beforeAll(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
-    const ids = [`49207184`, `545050196`, `summary`]
+    const ids = ["49207184", "545050196", "summary"]
     for (const id of ids) {
       const jsonObj = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/oldClipDoc/${id}.json`, `utf-8`),
+        fs.readFileSync(`test/test_data/clip/oldClipDoc/${id}.json`, "utf-8"),
       )
+
       const clipDoc = new ClipDoc()
+
       for (const period in jsonObj) {
         if (Object.prototype.hasOwnProperty.call(jsonObj, period)) {
           const clips: Array<Clip> = []
@@ -46,61 +49,73 @@ describe(`update***Rankingのテスト`, () => {
       await clipRepository.updateClip(id, clipDoc)
     }
     const streamers: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
     )
     await streamerRepository.updateStreamers(streamers)
 
     const dailyClipDoc = await createDailyDummyData(1)
-    await clipRepository.updateClip(`daily`, dailyClipDoc)
+    await clipRepository.updateClip("daily", dailyClipDoc)
   })
+
   beforeEach(() => {
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
   })
+
   afterAll(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
-    const ids = [`49207184`, `545050196`]
+    const ids = ["49207184", "545050196"]
     for (const id of ids) {
       await clipRepository.deleteClipDoc(id)
     }
-    await clipRepository.deleteClipDoc(`summary`)
-    await clipRepository.createClipDoc(`summary`)
+    await clipRepository.deleteClipDoc("summary")
+    await clipRepository.createClipDoc("summary")
     await streamerRepository.updateStreamers([])
-    await clipRepository.deleteClipDoc(`daily`)
+    await clipRepository.deleteClipDoc("daily")
   })
+
   afterEach(() => jest.restoreAllMocks())
-  test(`updateDayRanking（Dailyランキングの更新もやる）`, async () => {
-    await testOnePeriodFunction(updateDayRanking, `day`)
+
+  test("updateDayRanking（Dailyランキングの更新もやる）", async () => {
+    await testOnePeriodFunction(updateDayRanking, "day")
     await checkDailyClipDoc()
   }, 300000)
-  test(`updateWeekRanking`, async () => {
-    await testOnePeriodFunction(updateWeekRanking, `week`)
+
+  test("updateWeekRanking", async () => {
+    await testOnePeriodFunction(updateWeekRanking, "week")
   }, 300000)
-  test(`updateMonthRanking`, async () => {
-    await testOnePeriodFunction(updateMonthRanking, `month`)
+
+  test("updateMonthRanking", async () => {
+    await testOnePeriodFunction(updateMonthRanking, "month")
   }, 300000)
-  test(`updateYearRanking`, async () => {
-    await testOnePeriodFunction(updateYearRanking, `year`)
+
+  test("updateYearRanking", async () => {
+    await testOnePeriodFunction(updateYearRanking, "year")
   }, 300000)
-  test(`updateAllRanking`, async () => {
-    await testOnePeriodFunction(updateAllRanking, `all`)
+
+  test("updateAllRanking", async () => {
+    await testOnePeriodFunction(updateAllRanking, "all")
   }, 300000)
+
+  test("clips is overwritten when has no clips", async () => {
+    await testOnePeriodFunction(updateDayRanking, "day", true)
+  })
 })
 
 async function checkDailyClipDoc() {
   const clipRepository = new ClipRepository()
-  const dailyClipDoc = await clipRepository.getClip(`daily`)
+  const dailyClipDoc = await clipRepository.getClip("daily")
   const expectedKeys = [...Array(7).keys()].map((index) => {
     return dayjs()
-      .subtract(index + 1, `day`)
+      .subtract(index + 1, "day")
       .tz()
-      .format(`M/D`)
+      .format("M/D")
   })
   expect(Array.from(dailyClipDoc.clipsMap.keys()).sort()).toEqual(
     expectedKeys.sort(),
@@ -114,10 +129,13 @@ async function checkDailyClipDoc() {
 async function testOnePeriodFunction(
   cloudFunction: () => void,
   period: string,
+  emptyClip?: boolean,
 ) {
-  const getClipsSpy = jest
-    .spyOn(TwitchClipApi.prototype, `getClips`)
-    .mockImplementation(getClipsSpyImp)
+  const getClipsSpy = emptyClip
+    ? jest.spyOn(TwitchClipApi.prototype, "getClips").mockResolvedValue([])
+    : jest
+        .spyOn(TwitchClipApi.prototype, "getClips")
+        .mockImplementation(getClipsSpyImp)
 
   const streamerRepository = new StreamerRepository()
   const clipRepository = new ClipRepository()
@@ -132,20 +150,27 @@ async function testOnePeriodFunction(
     oldClipDocs.set(element.id, await clipRepository.getClip(element.id))
     await clipRepository.updateClip(element.id, initdClipDoc)
   }
-  oldClipDocs.set(`summary`, await clipRepository.getClip(`summary`))
-  await clipRepository.updateClip(`summary`, initdClipDoc)
+  oldClipDocs.set("summary", await clipRepository.getClip("summary"))
+  await clipRepository.updateClip("summary", initdClipDoc)
 
   //実行
   await cloudFunction()
 
   expect(getClipsSpy).toHaveBeenCalledTimes(2)
+
   //各ストリーマーのクリップ
   for (const key in streamers) {
     const streamer = streamers[key]
-    await checkClipDoc(streamer.id, period, clipRepository, oldClipDocs)
+    await checkClipDoc(
+      streamer.id,
+      period,
+      clipRepository,
+      oldClipDocs,
+      emptyClip,
+    )
   }
   //全体のランキング
-  await checkClipDoc(`summary`, period, clipRepository, oldClipDocs)
+  await checkClipDoc("summary", period, clipRepository, oldClipDocs, emptyClip)
 }
 
 async function checkClipDoc(
@@ -153,15 +178,20 @@ async function checkClipDoc(
   period: string,
   clipRepository: ClipRepository,
   oldClipDocs: Map<string, ClipDoc>,
+  emptyClip?: boolean,
 ) {
   const clipDoc = await clipRepository.getClip(id)
 
   //期間のクリップがあるか
   const clips = clipDoc.clipsMap.get(period)
-  expect(typeof clips).not.toEqual(`undefined`)
-  assert(typeof clips !== `undefined`, `clips is undefined`)
+  expect(typeof clips).not.toEqual("undefined")
+  assert(typeof clips !== "undefined", "clips is undefined")
 
-  expect(clips.length).toEqual(100)
+  if (emptyClip) {
+    expect(clips).toHaveLength(0)
+  } else {
+    expect(clips).toHaveLength(100)
+  }
 
   //  中身の要素,順番チェック
   clipElementCheck(clips)
@@ -169,7 +199,7 @@ async function checkClipDoc(
   //all以外に影響を与えていないか
   clipDoc.clipsMap.delete(period)
   const oldClipDoc = oldClipDocs.get(id)
-  assert(typeof oldClipDoc !== `undefined`, `oldClipDoc is undefined`)
+  assert(typeof oldClipDoc !== "undefined", "oldClipDoc is undefined")
   oldClipDoc.clipsMap.delete(period)
   expect(clipDoc).toEqual(oldClipDoc)
 }

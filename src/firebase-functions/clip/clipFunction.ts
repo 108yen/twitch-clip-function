@@ -39,6 +39,7 @@ export abstract class ClipFunction {
 
   protected addStreamerInfoToClips(clips: Array<Clip>, streamer: Streamer) {
     const result: Array<Clip> = []
+
     for (const clip of clips) {
       const addStreamerInfoClip = new Clip({
         ...clip,
@@ -46,6 +47,7 @@ export abstract class ClipFunction {
         broadcaster_login: streamer.login,
         profile_image_url: streamer.profile_image_url,
       })
+
       result.push(addStreamerInfoClip)
     }
 
@@ -78,22 +80,18 @@ export abstract class ClipFunction {
         const period = periods[key]
 
         const clips = await this.getClips(period, streamer.id)
+        const addStreamerInfoClip = this.addStreamerInfoToClips(clips, streamer)
+        clipDoc.clipsMap.set(key, addStreamerInfoClip)
 
-        if (clips.length != 0) {
-          const addStreamerInfoClip = this.addStreamerInfoToClips(
-            clips,
-            streamer,
-          )
-
-          clipDoc.clipsMap.set(key, addStreamerInfoClip)
-        } else {
+        if (clips.length == 0) {
           logEntry({
             message: `update clip info: ${streamer.display_name}: has no ${key} clips`,
-            severity: `DEBUG`,
+            severity: "DEBUG",
           })
         }
       }
     }
+
     if (clipDoc.clipsMap.size == 0) {
       return
     }

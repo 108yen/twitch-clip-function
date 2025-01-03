@@ -61,6 +61,7 @@ export abstract class ClipFunction {
       period.started_at,
       period.ended_at,
     )
+
     return clips
   }
 
@@ -71,10 +72,13 @@ export abstract class ClipFunction {
   private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
     const periods = this.getPeriods(streamer)
     const clipDoc = new ClipDoc()
+
     for (const key in periods) {
       if (Object.prototype.hasOwnProperty.call(periods, key)) {
         const period = periods[key]
+
         const clips = await this.getClips(period, streamer.id)
+
         if (clips.length != 0) {
           const addStreamerInfoClip = this.addStreamerInfoToClips(
             clips,
@@ -103,6 +107,7 @@ export abstract class ClipFunction {
     //get for each streamer's clips
     for (const streamer of streamers) {
       const clipDoc = await this.getClipDoc(streamer)
+
       if (clipDoc) {
         clipDoc.sort()
         this.clipRepository.batchUpdateClip(

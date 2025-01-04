@@ -39,6 +39,7 @@ export abstract class ClipFunction {
 
   protected addStreamerInfoToClips(clips: Array<Clip>, streamer: Streamer) {
     const result: Array<Clip> = []
+
     for (const clip of clips) {
       const addStreamerInfoClip = new Clip({
         ...clip,
@@ -46,6 +47,7 @@ export abstract class ClipFunction {
         broadcaster_login: streamer.login,
         profile_image_url: streamer.profile_image_url,
       })
+
       result.push(addStreamerInfoClip)
     }
 
@@ -61,6 +63,7 @@ export abstract class ClipFunction {
       period.started_at,
       period.ended_at,
     )
+
     return clips
   }
 
@@ -71,25 +74,24 @@ export abstract class ClipFunction {
   private async getClipDoc(streamer: Streamer): Promise<ClipDoc | undefined> {
     const periods = this.getPeriods(streamer)
     const clipDoc = new ClipDoc()
+
     for (const key in periods) {
       if (Object.prototype.hasOwnProperty.call(periods, key)) {
         const period = periods[key]
-        const clips = await this.getClips(period, streamer.id)
-        if (clips.length != 0) {
-          const addStreamerInfoClip = this.addStreamerInfoToClips(
-            clips,
-            streamer,
-          )
 
-          clipDoc.clipsMap.set(key, addStreamerInfoClip)
-        } else {
+        const clips = await this.getClips(period, streamer.id)
+        const addStreamerInfoClip = this.addStreamerInfoToClips(clips, streamer)
+        clipDoc.clipsMap.set(key, addStreamerInfoClip)
+
+        if (clips.length == 0) {
           logEntry({
             message: `update clip info: ${streamer.display_name}: has no ${key} clips`,
-            severity: `DEBUG`,
+            severity: "DEBUG",
           })
         }
       }
     }
+
     if (clipDoc.clipsMap.size == 0) {
       return
     }
@@ -103,6 +105,7 @@ export abstract class ClipFunction {
     //get for each streamer's clips
     for (const streamer of streamers) {
       const clipDoc = await this.getClipDoc(streamer)
+
       if (clipDoc) {
         clipDoc.sort()
         this.clipRepository.batchUpdateClip(

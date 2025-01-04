@@ -14,6 +14,7 @@ jest.mock(`axios`)
 
 describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
   let updateEachPeriodsRankingLogic: UpdateEachPeriodsRankingLogic
+
   beforeAll(async () => {
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
     mockedAxios.mockResolvedValueOnce({
@@ -28,7 +29,9 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       1,
     )
   })
+
   afterEach(() => jest.restoreAllMocks())
+
   test(`getPeriodsのテスト`, () => {
     const periods = updateEachPeriodsRankingLogic.getPeriods(new Streamer())
 
@@ -38,6 +41,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix(),
     ).toEqual(24 * 60 * 60)
   })
+
   test(`getStreamersのテスト`, async () => {
     const getStreamersSpy = jest
       .spyOn(StreamerRepository.prototype, `getStreamers`)
@@ -66,6 +70,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       }),
     ])
   }, 100000)
+
   test(`getStreamersのテスト:firestoreエラー`, async () => {
     const getStreamersSpy = jest
       .spyOn(StreamerRepository.prototype, `getStreamers`)
@@ -73,9 +78,10 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
 
     await expect(
       updateEachPeriodsRankingLogic[`getStreamers`](),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
+
   test(`getClipForEachStreamersのテスト`, async () => {
     const getClipsSpy = jest
       .spyOn(TwitchClipApi.prototype, `getClips`)
@@ -112,6 +118,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       }
     }
   }, 100000)
+
   test(`getClipForEachStreamersのテスト:axiosエラー`, async () => {
     const getClipsSpy = jest
       .spyOn(TwitchClipApi.prototype, `getClips`)
@@ -129,13 +136,14 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
 
     await expect(
       updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
 
     //呼び出し回数チェック
     expect(getClipsSpy).toHaveBeenCalledTimes(1)
     expect(updateClipDocSpy).not.toHaveBeenCalled()
     expect(commitBatchSpy).not.toHaveBeenCalled()
   }, 100000)
+
   test(`getClipForEachStreamersのテスト:firestoreエラー`, async () => {
     const getClipsSpy = jest
       .spyOn(TwitchClipApi.prototype, `getClips`)
@@ -153,7 +161,7 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
 
     await expect(
       updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
 
     //呼び出し回数チェック
     expect(getClipsSpy).toHaveBeenCalledTimes(2)

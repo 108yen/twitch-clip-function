@@ -28,7 +28,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
 
   async deleteOverLimitYear() {
     const streamers = await this.getStreamers()
-    const current_year = new Date().getFullYear()
+    const current_year = dayjs().tz().year()
     const limit_year = current_year - this.past_limit
 
     //each streamer
@@ -66,31 +66,29 @@ export class UpdatePastRankingLogic extends ClipFunction {
         `GetYearRankingFunctionLogic/getClipDoc: ${streamer.display_name}: created_at is not string`,
       ),
     )
+
     const created_at = dayjs(streamer.created_at)
     const periods: Periods = {}
 
-    const current_year = dayjs().year()
-    if (created_at.year() == current_year) {
+    const current_year = dayjs().tz().year()
+
+    if (created_at.tz().year() == current_year) {
       console.info(`${streamer.display_name}: account created at this year`)
       return periods
     }
+
     const start_year =
-      created_at.year() < current_year - this.past_limit
+      created_at.tz().year() < current_year - this.past_limit
         ? current_year - this.past_limit
-        : created_at.year()
+        : created_at.tz().year()
 
     for (let year = start_year; year < current_year; year++) {
-      //JTCなので-9
-      const started_at = dayjs()
-        .set(`year`, year)
-        .startOf(`year`)
-        .subtract(9, `hour`)
-      const ended_at = dayjs()
-        .set(`year`, year)
-        .endOf(`year`)
-        .subtract(9, `hour`)
-      periods[`${year}`] = { ended_at: ended_at, started_at: started_at }
+      const started_at = dayjs().set(`year`, year).tz().startOf(`year`)
+      const ended_at = dayjs().set(`year`, year).tz().endOf(`year`)
+
+      periods[`${year}`] = { ended_at, started_at }
     }
+
     return periods
   }
 }

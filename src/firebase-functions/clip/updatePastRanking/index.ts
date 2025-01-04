@@ -7,6 +7,7 @@ export const updatePastRanking = async () => {
     message: `start update past ranking`,
     severity: `INFO`,
   })
+
   try {
     const updatePastRankingLogic = await UpdatePastRankingLogic.init()
 

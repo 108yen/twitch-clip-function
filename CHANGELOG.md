@@ -1,5 +1,13 @@
 # twitch-clip-function
 
+## 1.3.2
+
+### Patch Changes
+
+- [#195](https://github.com/108yen/twitch-clip-function/pull/195) [`0e4b4be`](https://github.com/108yen/twitch-clip-function/commit/0e4b4beeadd1759c8d8eef15c1e240b3af102365) Thanks [@108yen](https://github.com/108yen)! - Fixed locale of date in past ranking function.
+
+- [#197](https://github.com/108yen/twitch-clip-function/pull/197) [`bdd6c0d`](https://github.com/108yen/twitch-clip-function/commit/bdd6c0d1a401b6ed0992189459f26c03753f1732) Thanks [@108yen](https://github.com/108yen)! - Fixed clip list is not overwritten when has no clip.
+
 ## 1.3.1
 
 ### Patch Changes

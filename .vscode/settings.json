@@ -19,5 +19,6 @@
   "npm.packageManager": "yarn",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.preferences.importModuleSpecifier": "relative",
-  "eslint.workingDirectories": ["./functions"]
+  "eslint.workingDirectories": ["./functions"],
+  "typescript.tsdk": "node_modules\\typescript\\lib"
 }

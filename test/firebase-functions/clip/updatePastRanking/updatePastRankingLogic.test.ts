@@ -96,9 +96,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
       .spyOn(StreamerRepository.prototype, `getStreamers`)
       .mockRejectedValueOnce(new Error(`firestore error test`))
 
-    await expect(
-      updatePastRankingLogic[`getStreamers`](),
-    ).rejects.toThrowError()
+    await expect(updatePastRankingLogic[`getStreamers`]()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
   test(`getClipForEachStreamersのテスト`, async () => {
@@ -159,7 +157,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
     await expect(
       updatePastRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
 
     //呼び出し回数チェック
     expect(getClipsSpy).toHaveBeenCalledTimes(1)
@@ -183,7 +181,7 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
     await expect(
       updatePastRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
 
     //呼び出し回数チェック
     const katoCreatedAt = 2020

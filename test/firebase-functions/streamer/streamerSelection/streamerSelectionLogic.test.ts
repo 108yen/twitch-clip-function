@@ -74,7 +74,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         }),
       ])
 
-    await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError()
+    await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
   test(`getOldStreamerのテスト:firestoreエラー`, async () => {
@@ -84,7 +84,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
       .spyOn(StreamerRepository.prototype, `getStreamers`)
       .mockRejectedValueOnce(new Error(`firestore error test`))
 
-    await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrowError()
+    await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
   test(`getJpLiveStreamingのテスト`, async () => {
@@ -185,9 +185,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
     const ids = [`49207184`, `545050196`]
 
-    expect(
-      streamerSelectionLogic.getNewStreamerFollower(ids),
-    ).rejects.toThrowError()
+    expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrow()
   }, 100000)
   test(`concatAndFilterのテスト`, () => {
     const streamerNumLimit = streamerSelectionLogic.STREAMER_NUM_LIMIT
@@ -442,7 +440,7 @@ describe(`StreamerSelectionLogicのテスト`, () => {
         storedStreamers,
         removeStreamerIds,
       ),
-    ).rejects.toThrowError()
+    ).rejects.toThrow()
 
     expect(updateStreamers).toHaveBeenCalledTimes(1)
     expect(updateStreamers.mock.calls[0][0]).toEqual(storedStreamers)

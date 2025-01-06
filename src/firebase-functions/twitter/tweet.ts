@@ -42,7 +42,7 @@ export async function tweetTopClip() {
   const topClip = clips[0]
 
   const rankingDate = dayjs().subtract(1, `day`).tz().format(`MM/DD`)
-  const message = `${rankingDate}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
+  const message = `${rankingDate}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/daily\n\n${topClip.url}`
 
   await tweet(message)
 
@@ -60,7 +60,7 @@ export async function tweetTopClip() {
     const topClip = clips[0]
 
     const rankingDate = dayjs().subtract(1, "day").tz().format("YYYY")
-    const message = `${rankingDate}年に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/\n\n${topClip.url}`
+    const message = `${rankingDate}年に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/past\n\n${topClip.url}`
 
     await tweet(message)
   }

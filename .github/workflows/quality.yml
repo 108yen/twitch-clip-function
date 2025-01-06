@@ -43,7 +43,7 @@ jobs:
         run: pnpm install -g firebase-tools
 
       - name: Run test
-        run: firebase emulators:exec 'pnpm test' --project=twitch-clip-dev --only firestore --import test/test_data/firestore
+        run: pnpm test:ci
         env:
           TYPE: ${{secrets.TYPE}}
           PROJECT_ID: ${{secrets.PROJECT_ID}}

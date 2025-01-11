@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.3.3
+
+### Patch Changes
+
+- [`5e132ac`](https://github.com/108yen/twitch-clip-function/commit/5e132ac25924fd4633dc165a44e859d4c1ab8c84) Thanks [@108yen](https://github.com/108yen)! - Updated tweet url.
+
 ## 1.3.2
 
 ### Patch Changes

@@ -132,6 +132,7 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
       const commitBatchSpy = jest
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
+      const consoleSpy = jest.spyOn(console, "log").mockImplementation()
 
       const streamer: Array<Streamer> = JSON.parse(
         fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
@@ -140,9 +141,16 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
       await updateEachPeriodsRankingLogic["getClipForEachStreamers"](streamer)
 
       //呼び出し回数チェック
-      expect(getClipsSpy).toHaveBeenCalled()
-      expect(updateClipDocSpy).not.toHaveBeenCalled()
-      expect(commitBatchSpy).not.toHaveBeenCalled()
+      expect(getClipsSpy).toHaveBeenCalledTimes(2)
+      //summaryの更新で一度コールされる
+      expect(updateClipDocSpy).toHaveBeenCalledTimes(1)
+      expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringMatching(
+          /Failed to get [\w-]+'s [\w-]+ clips by twitch api./,
+        ),
+      )
     })
 
     test("firestoreエラー", async () => {

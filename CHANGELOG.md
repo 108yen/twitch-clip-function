@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.3.4
+
+### Patch Changes
+
+- [#212](https://github.com/108yen/twitch-clip-function/pull/212) [`d28174f`](https://github.com/108yen/twitch-clip-function/commit/d28174f97f1f6a0e8d15a5a7a3edbdf3f576c971) Thanks [@108yen](https://github.com/108yen)! - Updated error handling in get clips from Twitch API.
+
 ## 1.3.3
 
 ### Patch Changes

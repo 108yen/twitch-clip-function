@@ -33,10 +33,12 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
     })
     updatePastRankingLogic = await UpdatePastRankingLogic.init()
   })
+
   afterEach(() => {
     mockedAxios.mockRestore()
     jest.restoreAllMocks()
   })
+
   test(`getPeriodsのテスト`, async () => {
     const streamers: Array<Streamer> = JSON.parse(
       fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
@@ -63,10 +65,26 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
       }
     }
   })
-  test(`getStreamersのテスト`, async () => {
-    const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
-      .mockResolvedValue([
+
+  describe("getStreamersのテスト", () => {
+    test("正常処理", async () => {
+      const getStreamersSpy = jest
+        .spyOn(StreamerRepository.prototype, `getStreamers`)
+        .mockResolvedValue([
+          new Streamer({
+            follower_num: 100,
+            id: `49207184`,
+          }),
+          new Streamer({
+            follower_num: 200,
+            id: `545050196`,
+          }),
+        ])
+
+      const streamers = await updatePastRankingLogic[`getStreamers`]()
+
+      expect(getStreamersSpy).toHaveBeenCalled()
+      expect(streamers).toEqual([
         new Streamer({
           follower_num: 100,
           id: `49207184`,
@@ -76,121 +94,115 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
           id: `545050196`,
         }),
       ])
+    }, 100000)
 
-    const streamers = await updatePastRankingLogic[`getStreamers`]()
+    test("firestoreエラー", async () => {
+      const getStreamersSpy = jest
+        .spyOn(StreamerRepository.prototype, `getStreamers`)
+        .mockRejectedValueOnce(new Error(`firestore error test`))
 
-    expect(getStreamersSpy).toHaveBeenCalled()
-    expect(streamers).toEqual([
-      new Streamer({
-        follower_num: 100,
-        id: `49207184`,
-      }),
-      new Streamer({
-        follower_num: 200,
-        id: `545050196`,
-      }),
-    ])
-  }, 100000)
-  test(`getStreamersのテスト:firestoreエラー`, async () => {
-    const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
-      .mockRejectedValueOnce(new Error(`firestore error test`))
+      await expect(updatePastRankingLogic[`getStreamers`]()).rejects.toThrow()
+      expect(getStreamersSpy).toHaveBeenCalled()
+    }, 100000)
+  })
 
-    await expect(updatePastRankingLogic[`getStreamers`]()).rejects.toThrow()
-    expect(getStreamersSpy).toHaveBeenCalled()
-  }, 100000)
-  test(`getClipForEachStreamersのテスト`, async () => {
-    const getClipsSpy = jest
-      .spyOn(TwitchClipApi.prototype, `getClips`)
-      .mockImplementation(getClipsSpyImp)
-    const updateClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchUpdateClip`)
-      .mockImplementation()
-    const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
-      .mockResolvedValue()
+  describe("getClipForEachStreamersのテスト", () => {
+    test("正常処理", async () => {
+      const getClipsSpy = jest
+        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .mockImplementation(getClipsSpyImp)
+      const updateClipDocSpy = jest
+        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .mockImplementation()
+      const commitBatchSpy = jest
+        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .mockResolvedValue()
 
-    const streamer: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
-    )
+      const streamer: Array<Streamer> = JSON.parse(
+        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      )
 
-    await updatePastRankingLogic[`getClipForEachStreamers`](streamer)
+      await updatePastRankingLogic[`getClipForEachStreamers`](streamer)
 
-    //呼び出し回数チェック
-    const katoCreatedAt = 2020
-    const sekiCreatedAt = 2016
-    const expectCallGetClips = calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
-    expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
-    expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
-    expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+      //呼び出し回数チェック
+      const katoCreatedAt = 2020
+      const sekiCreatedAt = 2016
+      const expectCallGetClips =
+        calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
+      expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
+      expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
+      expect(commitBatchSpy).toHaveBeenCalledTimes(1)
 
-    //中身のデータチェック
-    for (const key in updateClipDocSpy.mock.calls) {
-      if (
-        Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)
-      ) {
-        const args = updateClipDocSpy.mock.calls[key]
+      //中身のデータチェック
+      for (const key in updateClipDocSpy.mock.calls) {
+        if (
+          Object.prototype.hasOwnProperty.call(updateClipDocSpy.mock.calls, key)
+        ) {
+          const args = updateClipDocSpy.mock.calls[key]
 
-        //順番チェック
-        for (const [_, clips] of args[1].clipsMap) {
-          expect(clips.length).toEqual(100)
-          clipOrderCheck(clips)
-          clipElementCheck(clips)
+          //順番チェック
+          for (const [_, clips] of args[1].clipsMap) {
+            expect(clips.length).toEqual(100)
+            clipOrderCheck(clips)
+            clipElementCheck(clips)
+          }
         }
       }
-    }
-  }, 100000)
-  test(`getClipForEachStreamersのテスト:axiosエラー`, async () => {
-    const getClipsSpy = jest
-      .spyOn(TwitchClipApi.prototype, `getClips`)
-      .mockRejectedValue(new Error(`axios error test`))
-    const updateClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchUpdateClip`)
-      .mockImplementation()
-    const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
-      .mockResolvedValue()
+    }, 100000)
 
-    const streamer: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
-    )
+    test("Twitch API エラー", async () => {
+      const getClipsSpy = jest
+        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .mockRejectedValue(new Error(`axios error test`))
+      const updateClipDocSpy = jest
+        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .mockImplementation()
+      const commitBatchSpy = jest
+        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .mockResolvedValue()
 
-    await expect(
-      updatePastRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrow()
+      const streamer: Array<Streamer> = JSON.parse(
+        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      )
 
-    //呼び出し回数チェック
-    expect(getClipsSpy).toHaveBeenCalledTimes(1)
-    expect(updateClipDocSpy).not.toHaveBeenCalled()
-    expect(commitBatchSpy).not.toHaveBeenCalled()
+      await updatePastRankingLogic[`getClipForEachStreamers`](streamer)
+
+      //呼び出し回数チェック
+      expect(getClipsSpy).toHaveBeenCalled()
+      expect(updateClipDocSpy).not.toHaveBeenCalled()
+      expect(commitBatchSpy).not.toHaveBeenCalled()
+    })
+
+    test("firestoreエラー", async () => {
+      const getClipsSpy = jest
+        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .mockImplementation(getClipsSpyImp)
+      const updateClipDocSpy = jest
+        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .mockImplementation()
+      const commitBatchSpy = jest
+        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .mockRejectedValue(new Error(`batch commit error test`))
+
+      const streamer: Array<Streamer> = JSON.parse(
+        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      )
+
+      await expect(
+        updatePastRankingLogic[`getClipForEachStreamers`](streamer),
+      ).rejects.toThrow()
+
+      //呼び出し回数チェック
+      const katoCreatedAt = 2020
+      const sekiCreatedAt = 2016
+      const expectCallGetClips =
+        calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
+      expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
+      expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
+      expect(commitBatchSpy).toHaveBeenCalledTimes(1)
+    })
   })
-  test(`getClipForEachStreamersのテスト:firestoreエラー`, async () => {
-    const getClipsSpy = jest
-      .spyOn(TwitchClipApi.prototype, `getClips`)
-      .mockImplementation(getClipsSpyImp)
-    const updateClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchUpdateClip`)
-      .mockImplementation()
-    const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
-      .mockRejectedValue(new Error(`batch commit error test`))
 
-    const streamer: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
-    )
-
-    await expect(
-      updatePastRankingLogic[`getClipForEachStreamers`](streamer),
-    ).rejects.toThrow()
-
-    //呼び出し回数チェック
-    const katoCreatedAt = 2020
-    const sekiCreatedAt = 2016
-    const expectCallGetClips = calcCall(katoCreatedAt) + calcCall(sekiCreatedAt)
-    expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
-    expect(updateClipDocSpy).toHaveBeenCalledTimes(3)
-    expect(commitBatchSpy).toHaveBeenCalledTimes(1)
-  })
   test(`deleteOverLimitYearのテスト`, async () => {
     //何年かこのものまで格納する想定か設定する
     //ここで制限はみ出している年のものが削除される

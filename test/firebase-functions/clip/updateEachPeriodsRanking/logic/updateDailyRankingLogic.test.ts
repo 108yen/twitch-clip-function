@@ -8,12 +8,15 @@ import { createClipsData, createDailyDummyData } from "../../spy"
 
 describe(`UpdateDailyRankingLogicのテスト`, () => {
   let todayClips: Array<Clip>
+
   beforeAll(() => {
     const today = dayjs().toDate()
     const lastDay = dayjs().subtract(1, `day`).toDate()
     todayClips = createClipsData(undefined, lastDay, today)
   })
+
   afterEach(() => jest.restoreAllMocks())
+
   test(`ダミーデータがちゃんと作成出来ているかの確認`, async () => {
     const clipDoc = await createDailyDummyData(1)
     for (const [, clips] of clipDoc.clipsMap) {
@@ -21,6 +24,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
       clipElementCheck(clips)
     }
   })
+
   test(`0じの実行だった場合、clipDocを受け取ってdayランキングだけ出す`, async () => {
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([[`day`, todayClips]]),
@@ -31,6 +35,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
 
     expect(clips).toEqual(todayClips)
   })
+
   test(`firestoreの今のdayランキングをとって入れなおす`, async () => {
     const getClipsSpy = jest
       .spyOn(ClipRepository.prototype, `getClip`)
@@ -63,6 +68,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
       clipElementCheck(clips)
     }
   })
+
   test(`2回目の更新はされないことのチェック`, async () => {
     const getClipsSpy = jest
       .spyOn(ClipRepository.prototype, `getClip`)
@@ -81,6 +87,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     expect(getClipsSpy).toHaveBeenCalledTimes(1)
     expect(setClipSpy).not.toHaveBeenCalled()
   })
+
   test(`compareDatesのテスト`, () => {
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([[`day`, todayClips]]),
@@ -93,6 +100,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     expect(updateDailyRankingLogic[`compareDates`](`10/9`, `9/10`)).toEqual(1)
     expect(updateDailyRankingLogic[`compareDates`](`9/9`, `10/10`)).toEqual(-1)
   })
+
   test(`compareDatesのテスト:年またぎ`, () => {
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([[`day`, todayClips]]),
@@ -103,6 +111,7 @@ describe(`UpdateDailyRankingLogicのテスト`, () => {
     expect(updateDailyRankingLogic[`compareDates`](`1/1`, `12/31`)).toEqual(1)
     expect(updateDailyRankingLogic[`compareDates`](`12/31`, `1/1`)).toEqual(-1)
   })
+
   test(`compareDatesを使ったソートのテスト`, () => {
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([[`day`, todayClips]]),

@@ -3,20 +3,20 @@ import { UpdateEachPeriodsRankingLogic } from "./logic/updateEachPeriodsRankingL
 
 export const updateWeekRanking = async () => {
   logEntry({
-    message: `start update week ranking`,
-    severity: `INFO`,
+    message: "start update week ranking",
+    severity: "INFO",
   })
 
   try {
     const updateEachPeriodsRanking = await UpdateEachPeriodsRankingLogic.init(
-      `week`,
+      "week",
       7,
     )
     await updateEachPeriodsRanking.run()
   } catch (error) {
     logEntry({
       message: `Failed update week ranking: \n${error}`,
-      severity: `ERROR`,
+      severity: "ERROR",
     })
   }
 }

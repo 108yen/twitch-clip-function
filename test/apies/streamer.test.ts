@@ -2,7 +2,7 @@ import { describe } from "node:test"
 
 import { TwitchStreamerApi } from "../../src/apis/streamer"
 
-describe(`TwitchStreamerApiのテスト`, () => {
+describe("TwitchStreamerApiのテスト", () => {
   let twitchStreamerApi: TwitchStreamerApi
   beforeAll(async () => {
     twitchStreamerApi = await TwitchStreamerApi.init(
@@ -10,13 +10,13 @@ describe(`TwitchStreamerApiのテスト`, () => {
       process.env.TWITCH_CLIENT_SECRET!,
     )
   })
-  test(`getFollowerNum`, async () => {
-    const id = `49207184` //釈迦
+  test("getFollowerNum", async () => {
+    const id = "49207184" //釈迦
     const followerNum = await twitchStreamerApi.getFollowerNum(id)
     expect(followerNum).toBeGreaterThan(0)
   })
-  test(`getStreamers:id指定`, async () => {
-    const idList = [`49207184`, `50988750`]
+  test("getStreamers:id指定", async () => {
+    const idList = ["49207184", "50988750"]
     const streamers = await twitchStreamerApi.getStreamers(idList)
 
     //streamerが存在しているか
@@ -33,7 +33,7 @@ describe(`TwitchStreamerApiのテスト`, () => {
       expect(element.profile_image_url).toBeDefined()
     }
   })
-  test(`getJpStreams`, async () => {
+  test("getJpStreams", async () => {
     const streams = await twitchStreamerApi.getJpStreams()
 
     expect(streams.length).toBeGreaterThan(90)

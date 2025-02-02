@@ -107,6 +107,7 @@ const eslintTSESConfig = {
   name: "@twitch-clip-function/eslint/base",
   rules: {
     ...eslint.configs.recommended.rules,
+    quotes: ["error", "double"],
   },
 }
 

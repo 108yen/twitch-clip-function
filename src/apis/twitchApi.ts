@@ -14,16 +14,16 @@ export class TwitchApi {
   protected static async getToken(client_id: string, client_secret: string) {
     const config: AxiosRequestConfig = {
       headers: {
-        [`Content-Type`]: `application/x-www-form-urlencoded`,
+        ["Content-Type"]: "application/x-www-form-urlencoded",
       },
-      method: `POST`,
+      method: "POST",
       params: {
         client_id: client_id,
         client_secret: client_secret,
-        grant_type: `client_credentials`,
+        grant_type: "client_credentials",
       },
       paramsSerializer: { indexes: null },
-      url: `https://id.twitch.tv/oauth2/token`,
+      url: "https://id.twitch.tv/oauth2/token",
     }
 
     const res = await axios<Token>(config).catch((error) => {
@@ -32,8 +32,8 @@ export class TwitchApi {
     })
     const token = res?.data
     assert(
-      typeof token !== `undefined`,
-      new Error(`TwitchAPI/getToken: token is undefined`),
+      typeof token !== "undefined",
+      new Error("TwitchAPI/getToken: token is undefined"),
     )
 
     return token

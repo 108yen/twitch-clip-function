@@ -4,7 +4,7 @@ export class Streamer {
   description?: string
   display_name?: string
   follower_num?: number
-  id = ``
+  id = ""
   login?: string
   offline_image_url?: string
   profile_image_url?: string

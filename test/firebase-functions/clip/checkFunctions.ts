@@ -24,10 +24,10 @@ export function clipOrderCheck(clips: Array<Clip>) {
   for (let index = 0; index < clips.length - 1; index++) {
     const currentClipViewCount = clips[index].view_count
     const nextClipViewCount = clips[index + 1].view_count
-    expect(typeof currentClipViewCount).toEqual(`number`)
-    expect(typeof nextClipViewCount).toEqual(`number`)
-    assert(typeof currentClipViewCount === `number`)
-    assert(typeof nextClipViewCount === `number`)
+    expect(typeof currentClipViewCount).toEqual("number")
+    expect(typeof nextClipViewCount).toEqual("number")
+    assert(typeof currentClipViewCount === "number")
+    assert(typeof nextClipViewCount === "number")
     expect(currentClipViewCount).toBeGreaterThanOrEqual(nextClipViewCount)
   }
 }

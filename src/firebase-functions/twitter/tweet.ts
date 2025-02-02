@@ -15,7 +15,7 @@ async function tweet(message: string) {
   await client.v2.tweet(message).catch((error) => {
     logEntry({
       message: `tweet failed: \n${error}`,
-      severity: `ERROR`,
+      severity: "ERROR",
     })
     return
   })
@@ -23,25 +23,25 @@ async function tweet(message: string) {
 
 export async function tweetTopClip() {
   logEntry({
-    message: `start tweet`,
-    severity: `INFO`,
+    message: "start tweet",
+    severity: "INFO",
   })
 
   const clipRepository = new ClipRepository()
-  const clipDoc = await clipRepository.getClip(`summary`)
+  const clipDoc = await clipRepository.getClip("summary")
 
   // tweet day ranking
-  const clips = clipDoc.clipsMap.get(`day`)
+  const clips = clipDoc.clipsMap.get("day")
   if (clips == undefined) {
     logEntry({
-      message: `day clips is undefined`,
-      severity: `ERROR`,
+      message: "day clips is undefined",
+      severity: "ERROR",
     })
     return
   }
   const topClip = clips[0]
 
-  const rankingDate = dayjs().subtract(1, `day`).tz().format(`MM/DD`)
+  const rankingDate = dayjs().subtract(1, "day").tz().format("MM/DD")
   const message = `${rankingDate}に最も再生されたクリップ\n\n${topClip.broadcaster_name} - ${topClip.title}\n\nクリップをもっと見る\nhttps://www.twitchclipsranking.com/daily\n\n${topClip.url}`
 
   await tweet(message)
@@ -49,11 +49,11 @@ export async function tweetTopClip() {
   // tweet year ranking
   const now = dayjs()
   if (now.tz().month() == 0 && now.tz().date() == 1) {
-    const clips = clipDoc.clipsMap.get(`year`)
+    const clips = clipDoc.clipsMap.get("year")
     if (clips == undefined) {
       logEntry({
-        message: `year clips is undefined`,
-        severity: `ERROR`,
+        message: "year clips is undefined",
+        severity: "ERROR",
       })
       return
     }

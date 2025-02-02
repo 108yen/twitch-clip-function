@@ -8,6 +8,6 @@ dayjs.locale(ja)
 dayjs.extend(duration)
 dayjs.extend(timezone)
 dayjs.extend(utc)
-dayjs.tz.setDefault(`Asia/Tokyo`)
+dayjs.tz.setDefault("Asia/Tokyo")
 
 export default dayjs

@@ -4,7 +4,7 @@ import { TwitchClipApi } from "../../src/apis/clip"
 import { Clip } from "../../src/models/clip"
 import dayjs from "../../src/utils/dayjs"
 
-describe(`TwitchClipApiのテスト`, () => {
+describe("TwitchClipApiのテスト", () => {
   const broadcasterId = 203654142 // ファン太
   let twitchClipApi: TwitchClipApi
 
@@ -15,9 +15,9 @@ describe(`TwitchClipApiのテスト`, () => {
     )
   })
 
-  test(`getClips:期間指定`, async () => {
+  test("getClips:期間指定", async () => {
     const now = dayjs()
-    const daysAgo = now.subtract(1, `year`)
+    const daysAgo = now.subtract(1, "year")
     const result: Array<Clip> = await twitchClipApi.getClips(
       broadcasterId,
       daysAgo,
@@ -49,7 +49,7 @@ describe(`TwitchClipApiのテスト`, () => {
     }
   })
 
-  test(`getClips:期間未指定`, async () => {
+  test("getClips:期間未指定", async () => {
     const result: Array<Clip> = await twitchClipApi.getClips(broadcasterId)
 
     expect(result.length).toBeGreaterThan(90)

@@ -58,7 +58,7 @@ export class ClipRepository {
       })
     const clipDoc = ds?.data()
     assert(
-      typeof clipDoc !== `undefined`,
+      typeof clipDoc !== "undefined",
       new Error(
         `ClipRepository/getClip/clipDocRef.get(): clipId: ${clipId}, clipDoc is undefined`,
       ),

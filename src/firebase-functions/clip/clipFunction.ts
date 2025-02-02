@@ -17,12 +17,12 @@ export abstract class ClipFunction {
   protected batchRepository = new BatchRepository(10)
   protected clipRepository = new ClipRepository()
   protected streamerRepository = new StreamerRepository()
-  protected summaryType: `past_summary` | `summary`
+  protected summaryType: "past_summary" | "summary"
   protected twitchClipApi: TwitchClipApi
 
   constructor(
     twitchClipApi: TwitchClipApi,
-    summaryType: `past_summary` | `summary`,
+    summaryType: "past_summary" | "summary",
   ) {
     this.twitchClipApi = twitchClipApi
     this.summaryType = summaryType
@@ -79,7 +79,18 @@ export abstract class ClipFunction {
       if (Object.prototype.hasOwnProperty.call(periods, key)) {
         const period = periods[key]
 
-        const clips = await this.getClips(period, streamer.id)
+        let clips: Clip[]
+        try {
+          clips = await this.getClips(period, streamer.id)
+        } catch (error) {
+          logEntry({
+            message: `Failed to get ${streamer.display_name}'s ${key} clips by twitch api. Error message: ${error}`,
+            severity: "ERROR",
+          })
+
+          continue
+        }
+
         const addStreamerInfoClip = this.addStreamerInfoToClips(clips, streamer)
         clipDoc.clipsMap.set(key, addStreamerInfoClip)
 

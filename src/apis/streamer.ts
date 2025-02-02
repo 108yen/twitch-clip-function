@@ -23,15 +23,15 @@ export class TwitchStreamerApi extends TwitchApi {
   }): Promise<Array<Streamer>> {
     const config: AxiosRequestConfig = {
       headers: {
-        [`Client-Id`]: this.client_id,
         Authorization: `Bearer ${this.token.access_token}`,
+        ["Client-Id"]: this.client_id,
       },
-      method: `GET`,
+      method: "GET",
       params: {
         id: props.ids,
       },
       paramsSerializer: { indexes: null },
-      url: `https://api.twitch.tv/helix/users`,
+      url: "https://api.twitch.tv/helix/users",
     }
 
     const res = await axios<{ data: Array<Streamer> }>(config).catch(
@@ -44,9 +44,9 @@ export class TwitchStreamerApi extends TwitchApi {
     )
     const streamer = res?.data.data
     assert(
-      typeof streamer !== `undefined`,
+      typeof streamer !== "undefined",
       new Error(
-        `TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers: streamer is undefined`,
+        "TwitchStreamerApi/getLeesThanOrEqualFiftyStreamers: streamer is undefined",
       ),
     )
 
@@ -56,15 +56,15 @@ export class TwitchStreamerApi extends TwitchApi {
   async getFollowerNum(id: string): Promise<number> {
     const config: AxiosRequestConfig = {
       headers: {
-        [`Client-Id`]: this.client_id,
         Authorization: `Bearer ${this.token.access_token}`,
+        ["Client-Id"]: this.client_id,
       },
-      method: `GET`,
+      method: "GET",
       params: {
         broadcaster_id: id,
         first: 1,
       },
-      url: `https://api.twitch.tv/helix/channels/followers`,
+      url: "https://api.twitch.tv/helix/channels/followers",
     }
     const res = await axios<{ total: number }>(config).catch((error) => {
       console.error(`TwitchStreamerApi/getFollowerNum/axios: ${error}`)
@@ -72,8 +72,8 @@ export class TwitchStreamerApi extends TwitchApi {
     })
     const followerNum = res?.data.total
     assert(
-      typeof followerNum === `number`,
-      new Error(`TwitchStreamerApi/getFollowerNum: followerNum is not number`),
+      typeof followerNum === "number",
+      new Error("TwitchStreamerApi/getFollowerNum: followerNum is not number"),
     )
 
     return followerNum
@@ -82,16 +82,16 @@ export class TwitchStreamerApi extends TwitchApi {
   async getJpStreams(): Promise<Array<Stream>> {
     const config: AxiosRequestConfig = {
       headers: {
-        [`Client-Id`]: this.client_id,
         Authorization: `Bearer ${this.token.access_token}`,
+        ["Client-Id"]: this.client_id,
       },
-      method: `GET`,
+      method: "GET",
       params: {
         first: 100,
-        language: `ja`,
+        language: "ja",
       },
       paramsSerializer: { indexes: null },
-      url: `https://api.twitch.tv/helix/streams`,
+      url: "https://api.twitch.tv/helix/streams",
     }
     const res = await axios<{ data: Array<Stream> }>(config).catch((error) => {
       console.error(`TwitchStreamerApi/getJpStreams/axios: ${error}`)
@@ -99,8 +99,8 @@ export class TwitchStreamerApi extends TwitchApi {
     })
     const streams = res?.data.data
     assert(
-      typeof streams !== `undefined`,
-      new Error(`TwitchStreamerApi/getJpStreams: streams is undefined`),
+      typeof streams !== "undefined",
+      new Error("TwitchStreamerApi/getJpStreams: streams is undefined"),
     )
 
     return streams

@@ -7,6 +7,6 @@ import { db } from "./db"
 export const streamersDocRef: DocumentReference<{
   streamers: Array<Streamer>
 }> = db
-  .collection(`streamers`)
-  .doc(`streamers`)
+  .collection("streamers")
+  .doc("streamers")
   .withConverter<{ streamers: Array<Streamer> }>(streamerConverter)

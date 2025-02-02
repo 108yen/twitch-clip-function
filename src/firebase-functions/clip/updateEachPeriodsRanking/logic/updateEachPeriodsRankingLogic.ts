@@ -13,7 +13,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
   period: string
 
   constructor(twitchClipApi: TwitchClipApi, period: string, day?: number) {
-    super(twitchClipApi, `summary`)
+    super(twitchClipApi, "summary")
 
     this.period = period
     this.day = day
@@ -29,7 +29,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     const today = dayjs()
     let periods: Periods
     if (this.day) {
-      const daysAgo = today.subtract(this.day, `day`)
+      const daysAgo = today.subtract(this.day, "day")
       periods = {
         [this.period]: { ended_at: today, started_at: daysAgo },
       }

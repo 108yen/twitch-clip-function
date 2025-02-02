@@ -13,7 +13,7 @@ export const clipDocConverter = {
 
     const result = new ClipDoc()
     for (const key in data) {
-      if (key == `streamerInfo`) {
+      if (key == "streamerInfo") {
         const streamerInfo = data[key]
         result.streamerInfo = streamerInfo
       } else {

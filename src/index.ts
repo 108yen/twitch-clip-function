@@ -28,7 +28,7 @@ async function main() {
 
   logEntry({
     message: `started at ${startedAt.tz().format()}`,
-    severity: `INFO`,
+    severity: "INFO",
   })
 
   // every 6 hours
@@ -66,13 +66,13 @@ async function main() {
   const executionTime = endedAt.diff(startedAt)
   const formattedDiff = dayjs
     .duration(executionTime)
-    .format(`HH時間 mm分 ss.SSS秒`)
+    .format("HH時間 mm分 ss.SSS秒")
 
   logEntry({
     message: `ended at ${endedAt
       .tz()
       .format()}, execution time ${formattedDiff}`,
-    severity: `INFO`,
+    severity: "INFO",
   })
 }
 

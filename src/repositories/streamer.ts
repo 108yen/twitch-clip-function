@@ -34,8 +34,8 @@ export class StreamerRepository {
     })
     const streamers = ds?.data()?.streamers
     assert(
-      typeof streamers !== `undefined`,
-      new Error(`StreamerRepository/getStreamers: ds.data() is undefined`),
+      typeof streamers !== "undefined",
+      new Error("StreamerRepository/getStreamers: ds.data() is undefined"),
     )
 
     return streamers

@@ -12,9 +12,9 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { getClipsSpyImp, getJSTDate } from "../spy"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`UpdatePastRankingLogicのテスト`, () => {
+describe("UpdatePastRankingLogicのテスト", () => {
   let updatePastRankingLogic: UpdatePastRankingLogic
   const currentYear = getJSTDate().getFullYear()
   const pastYear = 5 //何年前までとるか
@@ -26,9 +26,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
     updatePastRankingLogic = await UpdatePastRankingLogic.init()
@@ -39,9 +39,9 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
     jest.restoreAllMocks()
   })
 
-  test(`getPeriodsのテスト`, async () => {
+  test("getPeriodsのテスト", async () => {
     const streamers: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
     )
     for (const streamer of streamers) {
       const created_at = new Date(streamer!.created_at!)
@@ -69,39 +69,39 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
   describe("getStreamersのテスト", () => {
     test("正常処理", async () => {
       const getStreamersSpy = jest
-        .spyOn(StreamerRepository.prototype, `getStreamers`)
+        .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
             follower_num: 100,
-            id: `49207184`,
+            id: "49207184",
           }),
           new Streamer({
             follower_num: 200,
-            id: `545050196`,
+            id: "545050196",
           }),
         ])
 
-      const streamers = await updatePastRankingLogic[`getStreamers`]()
+      const streamers = await updatePastRankingLogic["getStreamers"]()
 
       expect(getStreamersSpy).toHaveBeenCalled()
       expect(streamers).toEqual([
         new Streamer({
           follower_num: 100,
-          id: `49207184`,
+          id: "49207184",
         }),
         new Streamer({
           follower_num: 200,
-          id: `545050196`,
+          id: "545050196",
         }),
       ])
     }, 100000)
 
     test("firestoreエラー", async () => {
       const getStreamersSpy = jest
-        .spyOn(StreamerRepository.prototype, `getStreamers`)
-        .mockRejectedValueOnce(new Error(`firestore error test`))
+        .spyOn(StreamerRepository.prototype, "getStreamers")
+        .mockRejectedValueOnce(new Error("firestore error test"))
 
-      await expect(updatePastRankingLogic[`getStreamers`]()).rejects.toThrow()
+      await expect(updatePastRankingLogic["getStreamers"]()).rejects.toThrow()
       expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
   })
@@ -109,20 +109,20 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
   describe("getClipForEachStreamersのテスト", () => {
     test("正常処理", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
-      await updatePastRankingLogic[`getClipForEachStreamers`](streamer)
+      await updatePastRankingLogic["getClipForEachStreamers"](streamer)
 
       //呼び出し回数チェック
       const katoCreatedAt = 2020
@@ -152,20 +152,20 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
     test("Twitch API エラー", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
-        .mockRejectedValue(new Error(`axios error test`))
+        .spyOn(TwitchClipApi.prototype, "getClips")
+        .mockRejectedValue(new Error("axios error test"))
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
-      await updatePastRankingLogic[`getClipForEachStreamers`](streamer)
+      await updatePastRankingLogic["getClipForEachStreamers"](streamer)
 
       //呼び出し回数チェック
       expect(getClipsSpy).toHaveBeenCalled()
@@ -175,21 +175,21 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
 
     test("firestoreエラー", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
-        .mockRejectedValue(new Error(`batch commit error test`))
+        .spyOn(BatchRepository.prototype, "commitBatch")
+        .mockRejectedValue(new Error("batch commit error test"))
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
       await expect(
-        updatePastRankingLogic[`getClipForEachStreamers`](streamer),
+        updatePastRankingLogic["getClipForEachStreamers"](streamer),
       ).rejects.toThrow()
 
       //呼び出し回数チェック
@@ -203,26 +203,26 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
     })
   })
 
-  test(`deleteOverLimitYearのテスト`, async () => {
+  test("deleteOverLimitYearのテスト", async () => {
     //何年かこのものまで格納する想定か設定する
     //ここで制限はみ出している年のものが削除される
     const setAgo = 7
     const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
+      .spyOn(StreamerRepository.prototype, "getStreamers")
       .mockResolvedValue([
         new Streamer({
           created_at: new Date(currentYear - setAgo, 1, 1).toISOString(),
           follower_num: 100,
-          id: `49207184`,
+          id: "49207184",
         }),
         new Streamer({
           created_at: new Date(currentYear, 1, 1).toISOString(),
           follower_num: 200,
-          id: `545050196`,
+          id: "545050196",
         }),
       ])
     const getClipSpy = jest
-      .spyOn(ClipRepository.prototype, `getClip`)
+      .spyOn(ClipRepository.prototype, "getClip")
       .mockImplementation(async (clipId: string) => {
         const clipDoc = new ClipDoc()
         for (
@@ -235,13 +235,13 @@ describe(`UpdatePastRankingLogicのテスト`, () => {
         return clipDoc
       })
     const batchDeleteFieldValueSpy = jest
-      .spyOn(ClipRepository.prototype, `batchDeleteFieldValue`)
+      .spyOn(ClipRepository.prototype, "batchDeleteFieldValue")
       .mockImplementation()
     const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
+      .spyOn(BatchRepository.prototype, "commitBatch")
       .mockResolvedValue()
 
-    await updatePastRankingLogic[`deleteOverLimitYear`]()
+    await updatePastRankingLogic["deleteOverLimitYear"]()
 
     expect(getStreamersSpy).toHaveBeenCalledTimes(1)
     //past_summaryとストリーマー一人分で2倍呼ばれる

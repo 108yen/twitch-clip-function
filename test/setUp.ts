@@ -1,7 +1,7 @@
 import { config } from "dotenv"
 import * as admin from "firebase-admin"
 
-config({ path: `.env` })
+config({ path: ".env" })
 
 // サービスアカウントを環境変数から取得
 const devServiceAccount = {
@@ -10,7 +10,7 @@ const devServiceAccount = {
   clientC509CertUrl: process.env.CLIENT_X509_CERT_URL!,
   clientEmail: process.env.CLIENT_EMAIL!,
   clientId: process.env.CLIENT_ID!,
-  privateKey: process.env.PRIVATE_KEY!.replace(/\\n/g, `\n`),
+  privateKey: process.env.PRIVATE_KEY!.replace(/\\n/g, "\n"),
   privateKeyId: process.env.PRIVATE_KEY_ID!,
   projectId: process.env.PROJECT_ID!,
   tokenUri: process.env.TOKEN_URI!,

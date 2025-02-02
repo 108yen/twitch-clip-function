@@ -8,17 +8,17 @@ import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`StreamerSelectionLogicのテスト`, () => {
+describe("StreamerSelectionLogicのテスト", () => {
   let streamerSelectionLogic: StreamerSelectionLogic
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
     streamerSelectionLogic = await StreamerSelectionLogic.init()
@@ -27,19 +27,19 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     mockedAxios.mockRestore()
     jest.restoreAllMocks()
   })
-  test(`getOldStreamerのテスト`, async () => {
+  test("getOldStreamerのテスト", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
     const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
+      .spyOn(StreamerRepository.prototype, "getStreamers")
       .mockResolvedValue([
         new Streamer({
           follower_num: 100,
-          id: `49207184`,
+          id: "49207184",
         }),
         new Streamer({
           follower_num: 200,
-          id: `545050196`,
+          id: "545050196",
         }),
       ])
 
@@ -51,48 +51,48 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     expect(oldStreamers).toEqual([
       new Streamer({
         follower_num: 400,
-        id: `49207184`,
+        id: "49207184",
       }),
       new Streamer({
         follower_num: 500,
-        id: `545050196`,
+        id: "545050196",
       }),
     ])
   }, 100000)
-  test(`getOldStreamerのテスト:axiosエラー`, async () => {
-    mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
+  test("getOldStreamerのテスト:axiosエラー", async () => {
+    mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
     const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
+      .spyOn(StreamerRepository.prototype, "getStreamers")
       .mockResolvedValue([
         new Streamer({
           follower_num: 100,
-          id: `49207184`,
+          id: "49207184",
         }),
         new Streamer({
           follower_num: 200,
-          id: `545050196`,
+          id: "545050196",
         }),
       ])
 
     await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
-  test(`getOldStreamerのテスト:firestoreエラー`, async () => {
+  test("getOldStreamerのテスト:firestoreエラー", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
     const getStreamersSpy = jest
-      .spyOn(StreamerRepository.prototype, `getStreamers`)
-      .mockRejectedValueOnce(new Error(`firestore error test`))
+      .spyOn(StreamerRepository.prototype, "getStreamers")
+      .mockRejectedValueOnce(new Error("firestore error test"))
 
     await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
-  test(`getJpLiveStreamingのテスト`, async () => {
+  test("getJpLiveStreamingのテスト", async () => {
     const mockData = [...Array(100)].map(
       (_, index) =>
         new Stream({
-          language: `ja`,
-          tags: [``],
+          language: "ja",
+          tags: [""],
           user_id: `${index}`,
           viewer_count: index,
         }),
@@ -105,52 +105,52 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     for (let index = 0; index < streams.length; index++) {
       const stream = streams[index]
       expect(stream.user_id).toEqual(`${index}`)
-      expect(stream.tags).toEqual([``])
-      expect(stream.language).toEqual(`ja`)
+      expect(stream.tags).toEqual([""])
+      expect(stream.language).toEqual("ja")
       expect(stream.viewer_count).toEqual(index)
     }
   }, 100000)
-  test(`getJpLiveStreamingのテスト:axiosエラー`, async () => {
-    mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
+  test("getJpLiveStreamingのテスト:axiosエラー", async () => {
+    mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
     await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrow()
   }, 100000)
-  test(`filterStreamsのテスト`, () => {
-    const oldStreamerIdsMockData = [`102631269`, `104363564`]
+  test("filterStreamsのテスト", () => {
+    const oldStreamerIdsMockData = ["102631269", "104363564"]
     const streamsMockData = [
       //追加
       new Stream({
-        tags: [``],
-        user_id: `49207184`,
+        tags: [""],
+        user_id: "49207184",
         viewer_count: 500,
       }),
       //重複削除
       new Stream({
-        tags: [``],
-        user_id: `49207184`,
+        tags: [""],
+        user_id: "49207184",
         viewer_count: 400,
       }),
       // タグで削除
       new Stream({
-        tags: [`Commissions`, `日本語`],
-        user_id: `545050196`,
+        tags: ["Commissions", "日本語"],
+        user_id: "545050196",
         viewer_count: 300,
       }),
       // idで削除
       new Stream({
-        tags: [``],
-        user_id: `126482446`,
+        tags: [""],
+        user_id: "126482446",
         viewer_count: 300,
       }),
       // 既存
       new Stream({
-        tags: [``],
-        user_id: `104363564`,
+        tags: [""],
+        user_id: "104363564",
         viewer_count: 300,
       }),
       // viewer count足りない
       new Stream({
-        tags: [``],
-        user_id: `104363564`,
+        tags: [""],
+        user_id: "104363564",
         viewer_count: 200,
       }),
     ]
@@ -160,12 +160,12 @@ describe(`StreamerSelectionLogicのテスト`, () => {
       oldStreamerIdsMockData,
     )
 
-    expect(newStreamerIds).toEqual([`49207184`])
+    expect(newStreamerIds).toEqual(["49207184"])
   }, 100000)
-  test(`getNewStreamerFollowerのテスト`, async () => {
+  test("getNewStreamerFollowerのテスト", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
-    const ids = [`49207184`, `545050196`]
+    const ids = ["49207184", "545050196"]
 
     const newStreamers =
       await streamerSelectionLogic.getNewStreamerFollower(ids)
@@ -173,21 +173,21 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     expect(newStreamers).toEqual([
       new Streamer({
         follower_num: 400,
-        id: `49207184`,
+        id: "49207184",
       }),
       new Streamer({
         follower_num: 500,
-        id: `545050196`,
+        id: "545050196",
       }),
     ])
   }, 100000)
-  test(`getNewStreamerFollowerのテスト:axiosエラー`, async () => {
-    mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
-    const ids = [`49207184`, `545050196`]
+  test("getNewStreamerFollowerのテスト:axiosエラー", async () => {
+    mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
+    const ids = ["49207184", "545050196"]
 
     expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrow()
   }, 100000)
-  test(`concatAndFilterのテスト`, () => {
+  test("concatAndFilterのテスト", () => {
     const streamerNumLimit = streamerSelectionLogic.STREAMER_NUM_LIMIT
     const oldStreamers = [...Array(streamerNumLimit - 5)].map(
       (_, index) =>
@@ -213,30 +213,33 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     expect(removedStreamerIds).toEqual(oldStreamers.map((e) => e.id).slice(-5))
     expect(addedStreamerIds).toEqual(newStreamers.map((e) => e.id))
   }, 100000)
-  test(`updateStreamerInfoのテスト`, async () => {
+  test("updateStreamerInfoのテスト", async () => {
     const mockData = [
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2013-09-19T13:21:29Z`,
-        description: ``,
-        display_name: `fps_shaka`,
-        id: `49207184`,
-        login: `fps_shaka`,
-        offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-        type: ``,
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "fps_shaka",
+        id: "49207184",
+        login: "fps_shaka",
+        offline_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2020-06-18T04:04:09Z`,
-        description: `命尽き果てるまで`,
-        display_name: `加藤純一です`,
-        id: `545050196`,
-        login: `kato_junichi0817`,
-        offline_image_url: ``,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
-        type: ``,
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
     ]
@@ -245,11 +248,11 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     const selectedStreamers = [
       new Streamer({
         follower_num: 100,
-        id: `49207184`,
+        id: "49207184",
       }),
       new Streamer({
         follower_num: 200,
-        id: `545050196`,
+        id: "545050196",
       }),
     ]
     const { storedStreamers } =
@@ -259,30 +262,33 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     expectData[1].follower_num = 100
     expect(storedStreamers).toEqual(expectData)
   }, 100000)
-  test(`updateStreamerInfoのテスト:banされたストリーマーがいたとき`, async () => {
+  test("updateStreamerInfoのテスト:banされたストリーマーがいたとき", async () => {
     const mockData = [
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2013-09-19T13:21:29Z`,
-        description: ``,
-        display_name: `fps_shaka`,
-        id: `49207184`,
-        login: `fps_shaka`,
-        offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-        type: ``,
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "fps_shaka",
+        id: "49207184",
+        login: "fps_shaka",
+        offline_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2020-06-18T04:04:09Z`,
-        description: `命尽き果てるまで`,
-        display_name: `加藤純一です`,
-        id: `545050196`,
-        login: `kato_junichi0817`,
-        offline_image_url: ``,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
-        type: ``,
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
     ]
@@ -291,16 +297,16 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     const selectedStreamers = [
       new Streamer({
         follower_num: 100,
-        id: `49207184`,
+        id: "49207184",
       }),
       new Streamer({
         follower_num: 200,
-        id: `545050196`,
+        id: "545050196",
       }),
       //banされる想定のやつ
       new Streamer({
         follower_num: 200,
-        id: `0000000`,
+        id: "0000000",
       }),
     ]
     const { banedIds, storedStreamers } =
@@ -309,68 +315,71 @@ describe(`StreamerSelectionLogicのテスト`, () => {
     expectData[0].follower_num = 200
     expectData[1].follower_num = 100
     expect(storedStreamers).toEqual(expectData)
-    expect(banedIds).toEqual([`0000000`])
+    expect(banedIds).toEqual(["0000000"])
   }, 100000)
-  test(`updateStreamerInfoのテスト:axiosエラー`, async () => {
-    mockedAxios.mockRejectedValueOnce(new Error(`axios error test`))
+  test("updateStreamerInfoのテスト:axiosエラー", async () => {
+    mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
 
     const selectedStreamers = [
       new Streamer({
         follower_num: 100,
-        id: `49207184`,
+        id: "49207184",
       }),
       new Streamer({
         follower_num: 200,
-        id: `545050196`,
+        id: "545050196",
       }),
     ]
     expect(
       streamerSelectionLogic.updateStreamerInfo(selectedStreamers),
     ).rejects.toThrow()
   }, 100000)
-  test(`updateFirestoreのテスト`, async () => {
+  test("updateFirestoreのテスト", async () => {
     const updateStreamers = jest
-      .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+      .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
       .mockImplementation()
     const deleteClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
+      .spyOn(ClipRepository.prototype, "batchDeleteClipDoc")
       .mockImplementation()
     const updateClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+      .spyOn(ClipRepository.prototype, "batchUpdateClip")
       .mockImplementation()
     const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
+      .spyOn(BatchRepository.prototype, "commitBatch")
       .mockResolvedValueOnce()
 
     const storedStreamers = [
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2013-09-19T13:21:29Z`,
-        description: ``,
-        display_name: `fps_shaka`,
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "fps_shaka",
         follower_num: 100,
-        id: `49207184`,
-        login: `fps_shaka`,
-        offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-        type: ``,
+        id: "49207184",
+        login: "fps_shaka",
+        offline_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2020-06-18T04:04:09Z`,
-        description: `命尽き果てるまで`,
-        display_name: `加藤純一です`,
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
         follower_num: 200,
-        id: `545050196`,
-        login: `kato_junichi0817`,
-        offline_image_url: ``,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
-        type: ``,
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
     ]
-    const removeStreamerIds = [`102631269`, `104363564`]
+    const removeStreamerIds = ["102631269", "104363564"]
 
     await streamerSelectionLogic.updateFirestore(
       storedStreamers,
@@ -391,49 +400,52 @@ describe(`StreamerSelectionLogicのテスト`, () => {
       new ClipDoc({ streamerInfo: storedStreamers[1] }),
     )
   }, 100000)
-  test(`updateFirestoreのテスト:batchエラー`, async () => {
+  test("updateFirestoreのテスト:batchエラー", async () => {
     const updateStreamers = jest
-      .spyOn(StreamerRepository.prototype, `batchUpdateStreamers`)
+      .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
       .mockImplementation()
     const deleteClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchDeleteClipDoc`)
+      .spyOn(ClipRepository.prototype, "batchDeleteClipDoc")
       .mockImplementation()
     const updateClipDocSpy = jest
-      .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+      .spyOn(ClipRepository.prototype, "batchUpdateClip")
       .mockImplementation()
     const commitBatchSpy = jest
-      .spyOn(BatchRepository.prototype, `commitBatch`)
-      .mockRejectedValueOnce(new Error(`batch error test`))
+      .spyOn(BatchRepository.prototype, "commitBatch")
+      .mockRejectedValueOnce(new Error("batch error test"))
 
     const storedStreamers = [
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2013-09-19T13:21:29Z`,
-        description: ``,
-        display_name: `fps_shaka`,
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "fps_shaka",
         follower_num: 100,
-        id: `49207184`,
-        login: `fps_shaka`,
-        offline_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg`,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png`,
-        type: ``,
+        id: "49207184",
+        login: "fps_shaka",
+        offline_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/282d883a-8e00-4fd3-88fa-bfcbd370c2cd-channel_offline_image-1920x1080.jpeg",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/61f568bf-884b-4126-b17c-fc525c6d3bd4-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
       new Streamer({
-        broadcaster_type: `partner`,
-        created_at: `2020-06-18T04:04:09Z`,
-        description: `命尽き果てるまで`,
-        display_name: `加藤純一です`,
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
         follower_num: 200,
-        id: `545050196`,
-        login: `kato_junichi0817`,
-        offline_image_url: ``,
-        profile_image_url: `https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png`,
-        type: ``,
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url:
+          "https://static-cdn.jtvnw.net/jtv_user_pictures/a4977cfd-1962-41ec-9355-ab2611b97552-profile_image-300x300.png",
+        type: "",
         view_count: 0,
       }),
     ]
-    const removeStreamerIds = [`102631269`, `104363564`]
+    const removeStreamerIds = ["102631269", "104363564"]
 
     await expect(
       streamerSelectionLogic.updateFirestore(

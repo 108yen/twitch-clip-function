@@ -12,17 +12,17 @@ import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { getStreamersSpy } from "../spy"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`streamerSelectionのテスト`, () => {
+describe("streamerSelectionのテスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
   let streamerSelectionLogic: StreamerSelectionLogic
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
     streamerSelectionLogic = await StreamerSelectionLogic.init()
@@ -30,9 +30,9 @@ describe(`streamerSelectionのテスト`, () => {
   beforeEach(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
     const oldStreamer: Array<Streamer> = getStreamersSpy(
@@ -55,7 +55,7 @@ describe(`streamerSelectionのテスト`, () => {
     await streamerRepository.updateStreamers([])
     jest.restoreAllMocks()
   })
-  test(`streamerSelectionの実行テスト`, async () => {
+  test("streamerSelectionの実行テスト", async () => {
     //準備
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
@@ -64,12 +64,12 @@ describe(`streamerSelectionのテスト`, () => {
     const oldStreamerIds = oldStreamer.map((e) => e.id)
     //mock
     const getJpStreamsSpy = jest
-      .spyOn(TwitchStreamerApi.prototype, `getJpStreams`)
+      .spyOn(TwitchStreamerApi.prototype, "getJpStreams")
       .mockImplementation(async () => {
         const streams: Array<Stream> = JSON.parse(
           fs.readFileSync(
-            `test/test_data/streamerSelection/jpStreams.json`,
-            `utf-8`,
+            "test/test_data/streamerSelection/jpStreams.json",
+            "utf-8",
           ),
         )
         return streams
@@ -77,23 +77,23 @@ describe(`streamerSelectionのテスト`, () => {
     const oldStreamersMockData: Array<Streamer> = oldStreamer
     const newStreamersMockData: Array<Streamer> = JSON.parse(
       fs.readFileSync(
-        `test/test_data/streamerSelection/newStreamer.json`,
-        `utf-8`,
+        "test/test_data/streamerSelection/newStreamer.json",
+        "utf-8",
       ),
     )
     const allStreamersMockData =
       newStreamersMockData.concat(oldStreamersMockData)
     const getFollowerNumSpy = jest
-      .spyOn(TwitchStreamerApi.prototype, `getFollowerNum`)
+      .spyOn(TwitchStreamerApi.prototype, "getFollowerNum")
       .mockImplementation(async (id: string) => {
         const streamer = allStreamersMockData.find(
           (streamer) => streamer.id == id,
         )
-        assert(typeof streamer?.follower_num !== `undefined`)
+        assert(typeof streamer?.follower_num !== "undefined")
         return streamer.follower_num
       })
     const getStreamersSpy = jest
-      .spyOn(TwitchStreamerApi.prototype, `getStreamers`)
+      .spyOn(TwitchStreamerApi.prototype, "getStreamers")
       .mockImplementation(async (ids: Array<string>) => {
         return allStreamersMockData
           .map((streamer) => {
@@ -152,9 +152,9 @@ describe(`streamerSelectionのテスト`, () => {
     for (let index = 0; index < newStreamer.length - 1; index++) {
       const currentFollowerNum = newStreamer[index].follower_num
       const nextFollowerNum = newStreamer[index + 1].follower_num
-      const message = `clips.view_count is undefined`
-      assert(typeof currentFollowerNum === `number`, message)
-      assert(typeof nextFollowerNum === `number`, message)
+      const message = "clips.view_count is undefined"
+      assert(typeof currentFollowerNum === "number", message)
+      assert(typeof nextFollowerNum === "number", message)
       expect(currentFollowerNum).toBeGreaterThanOrEqual(nextFollowerNum)
     }
     //重複チェック

@@ -27,15 +27,15 @@ export class TwitchClipApi extends TwitchApi {
   ): Promise<Array<Clip>> {
     const config: AxiosRequestConfig = {
       headers: {
-        [`Client-Id`]: this.client_id,
         Authorization: `Bearer ${this.token.access_token}`,
+        ["Client-Id"]: this.client_id,
       },
-      method: `GET`,
+      method: "GET",
       params: {
         broadcaster_id: broadcaster_id,
         first: this.CLIP_NUM,
       },
-      url: `https://api.twitch.tv/helix/clips`,
+      url: "https://api.twitch.tv/helix/clips",
     }
 
     if (started_at && ended_at) {
@@ -48,7 +48,7 @@ export class TwitchClipApi extends TwitchApi {
     })
     const clips = res?.data.data
     assert(
-      typeof clips !== `undefined`,
+      typeof clips !== "undefined",
       new Error(
         `TwitchClipApi/getClips: clipId:${broadcaster_id}, clips is undefined`,
       ),

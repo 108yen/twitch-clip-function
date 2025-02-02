@@ -72,7 +72,7 @@ export async function getClipsSpyImp(
   const display_name = faker.person.fullName()
   const clips: Array<Clip> = [...Array(100).keys()].map(() => {
     const created_at =
-      typeof started_at === `undefined` || typeof ended_at === `undefined`
+      typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
         : faker.date
             .between({
@@ -92,11 +92,11 @@ export async function getClipsSpyImp(
       game_id: faker.string.numeric(10),
       id: faker.string.uuid(),
       is_featured: faker.datatype.boolean(),
-      language: `ja`,
+      language: "ja",
       thumbnail_url: faker.internet.url(),
       title: faker.lorem.sentence(3),
       url: faker.internet.url(),
-      video_id: ``,
+      video_id: "",
       view_count: faker.number.int(),
     }
   })
@@ -107,14 +107,14 @@ export async function createDailyDummyData(dayAfter: number) {
   const clipDoc = new ClipDoc()
   const today = dayjs()
   for (let index = dayAfter; index < dayAfter + 7; index++) {
-    const ended_at = today.subtract(index, `day`)
-    const started_at = ended_at.subtract(1, `day`)
+    const ended_at = today.subtract(index, "day")
+    const started_at = ended_at.subtract(1, "day")
     const clips = createClipsData(
       undefined,
       started_at.toDate(),
       ended_at.toDate(),
     )
-    clipDoc.clipsMap.set(started_at.tz().format(`M/D`), clips)
+    clipDoc.clipsMap.set(started_at.tz().format("M/D"), clips)
   }
   return clipDoc
 }
@@ -127,22 +127,22 @@ export function createSummaryClipDoc() {
   }
 
   clipDoc.clipsMap.set(
-    `day`,
+    "day",
     createClipsData(undefined, dayAfter(1), currentDate),
   )
   clipDoc.clipsMap.set(
-    `week`,
+    "week",
     createClipsData(undefined, dayAfter(7), currentDate),
   )
   clipDoc.clipsMap.set(
-    `month`,
+    "month",
     createClipsData(undefined, dayAfter(30), currentDate),
   )
   clipDoc.clipsMap.set(
-    `year`,
+    "year",
     createClipsData(undefined, dayAfter(365), currentDate),
   )
-  clipDoc.clipsMap.set(`all`, createClipsData())
+  clipDoc.clipsMap.set("all", createClipsData())
 
   return clipDoc
 }
@@ -155,7 +155,7 @@ export function createClipsData(
   const display_name = faker.person.fullName()
   const clips: Array<Clip> = [...Array(100).keys()].map(() => {
     const created_at =
-      typeof started_at === `undefined` || typeof ended_at === `undefined`
+      typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
         : faker.date
             .between({
@@ -177,12 +177,12 @@ export function createClipsData(
       game_id: faker.string.numeric(10),
       id: faker.string.uuid(),
       is_featured: faker.datatype.boolean(),
-      language: `ja`,
+      language: "ja",
       profile_image_url: faker.internet.url(),
       thumbnail_url: faker.internet.url(),
       title: faker.lorem.sentence(3),
       url: faker.internet.url(),
-      video_id: ``,
+      video_id: "",
       view_count: faker.number.int(),
     }
   })
@@ -203,8 +203,8 @@ export function getJSTDate() {
 }
 
 function utcToJst(date: Date) {
-  const jstFormatter = new Intl.DateTimeFormat(`ja-JP`, {
-    timeZone: `Asia/Tokyo`,
+  const jstFormatter = new Intl.DateTimeFormat("ja-JP", {
+    timeZone: "Asia/Tokyo",
   })
   const jstTime = jstFormatter.format(date)
   return new Date(jstTime)

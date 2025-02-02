@@ -8,7 +8,7 @@ import { ClipDoc } from "../models/clipDoc"
 import { db } from "./db"
 
 export const clipColRef: CollectionReference<ClipDoc> = db
-  .collection(`clips`)
+  .collection("clips")
   .withConverter<ClipDoc>(clipDocConverter)
 
 export const clipDocRef = ({

@@ -3,8 +3,8 @@ import { StreamerSelectionLogic } from "./streamerSelectionLogic"
 
 export const streamerSelection = async () => {
   logEntry({
-    message: `start update streamer info`,
-    severity: `INFO`,
+    message: "start update streamer info",
+    severity: "INFO",
   })
 
   try {
@@ -46,12 +46,12 @@ export const streamerSelection = async () => {
 
     logEntry({
       message: `update streamer info: add ${addedStreamerIds.length}, delete ${removedStreamerIds.length} (total:${storedStreamers.length})`,
-      severity: `INFO`,
+      severity: "INFO",
     })
   } catch (error) {
     logEntry({
       message: `Failed update streamer info: \n${error}`,
-      severity: `ERROR`,
+      severity: "ERROR",
     })
   }
 }

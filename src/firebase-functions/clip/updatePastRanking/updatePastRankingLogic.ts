@@ -14,7 +14,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
 
   public static async init() {
     const twitchClipApi = await this.getTwitchClipApi()
-    return new UpdatePastRankingLogic(twitchClipApi, `past_summary`)
+    return new UpdatePastRankingLogic(twitchClipApi, "past_summary")
   }
 
   //5年以上前のランキングの削除処理を別で入れる
@@ -34,7 +34,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
     //each streamer
     for (const streamer of streamers) {
       assert(
-        typeof streamer.created_at === `string`,
+        typeof streamer.created_at === "string",
         new Error(
           `GetYearRankingFunctionLogic/getClipDoc: ${streamer.display_name}: created_at is not string`,
         ),
@@ -48,12 +48,12 @@ export class UpdatePastRankingLogic extends ClipFunction {
     }
 
     //past_summary
-    const past_summary = await this.clipRepository.getClip(`past_summary`)
+    const past_summary = await this.clipRepository.getClip("past_summary")
     for (let year = limit_year - 1; year > 2015; year--) {
       const clips = past_summary.clipsMap.get(year.toString())
       if (clips == undefined) break
 
-      await this.deleteFieldVal(`past_summary`, year.toString())
+      await this.deleteFieldVal("past_summary", year.toString())
     }
 
     await this.batchRepository.commitBatch()
@@ -61,7 +61,7 @@ export class UpdatePastRankingLogic extends ClipFunction {
 
   getPeriods(streamer: Streamer): Periods {
     assert(
-      typeof streamer.created_at === `string`,
+      typeof streamer.created_at === "string",
       new Error(
         `GetYearRankingFunctionLogic/getClipDoc: ${streamer.display_name}: created_at is not string`,
       ),
@@ -83,8 +83,8 @@ export class UpdatePastRankingLogic extends ClipFunction {
         : created_at.tz().year()
 
     for (let year = start_year; year < current_year; year++) {
-      const started_at = dayjs().set(`year`, year).tz().startOf(`year`)
-      const ended_at = dayjs().set(`year`, year).tz().endOf(`year`)
+      const started_at = dayjs().set("year", year).tz().startOf("year")
+      const ended_at = dayjs().set("year", year).tz().endOf("year")
 
       periods[`${year}`] = { ended_at, started_at }
     }

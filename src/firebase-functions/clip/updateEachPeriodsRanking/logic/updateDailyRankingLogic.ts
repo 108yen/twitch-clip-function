@@ -14,8 +14,8 @@ export class UpdateDailyRankingLogic {
   }
 
   private compareDates(date1: string, date2: string): number {
-    const [month1, day1] = date1.split(`/`).map(Number)
-    const [month2, day2] = date2.split(`/`).map(Number)
+    const [month1, day1] = date1.split("/").map(Number)
+    const [month2, day2] = date2.split("/").map(Number)
 
     if (month1 == 1 && month2 == 12) return 1
     if (month1 == 12 && month2 == 1) return -1
@@ -30,17 +30,17 @@ export class UpdateDailyRankingLogic {
   }
 
   private extractDayClips(clipDoc: ClipDoc): Array<Clip> {
-    const clips = clipDoc.clipsMap.get(`day`)
-    assert(typeof clips !== `undefined`)
+    const clips = clipDoc.clipsMap.get("day")
+    assert(typeof clips !== "undefined")
     return clips
   }
 
   async update() {
-    const clipDoc = await this.clipRepository.getClip(`daily`)
+    const clipDoc = await this.clipRepository.getClip("daily")
 
     const today = dayjs()
-    const yesterday = today.subtract(1, `day`)
-    const key = yesterday.tz().format(`M/D`)
+    const yesterday = today.subtract(1, "day")
+    const key = yesterday.tz().format("M/D")
     if (clipDoc.clipsMap.has(key)) {
       return
     }
@@ -54,6 +54,6 @@ export class UpdateDailyRankingLogic {
       }
     }
 
-    await this.clipRepository.setClip(`daily`, clipDoc)
+    await this.clipRepository.setClip("daily", clipDoc)
   }
 }

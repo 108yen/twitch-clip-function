@@ -17,12 +17,12 @@ export abstract class ClipFunction {
   protected batchRepository = new BatchRepository(10)
   protected clipRepository = new ClipRepository()
   protected streamerRepository = new StreamerRepository()
-  protected summaryType: `past_summary` | `summary`
+  protected summaryType: "past_summary" | "summary"
   protected twitchClipApi: TwitchClipApi
 
   constructor(
     twitchClipApi: TwitchClipApi,
-    summaryType: `past_summary` | `summary`,
+    summaryType: "past_summary" | "summary",
   ) {
     this.twitchClipApi = twitchClipApi
     this.summaryType = summaryType

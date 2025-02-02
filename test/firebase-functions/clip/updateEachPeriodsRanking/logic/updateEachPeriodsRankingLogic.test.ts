@@ -10,75 +10,75 @@ import { StreamerRepository } from "../../../../../src/repositories/streamer"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
 import { getClipsSpyImp } from "../../spy"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
+describe("UpdateEachPeriodsRankingLogicのテスト", () => {
   let updateEachPeriodsRankingLogic: UpdateEachPeriodsRankingLogic
 
   beforeAll(async () => {
     const mockedAxios = axios as jest.MockedFunction<typeof axios>
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
     updateEachPeriodsRankingLogic = await UpdateEachPeriodsRankingLogic.init(
-      `day`,
+      "day",
       1,
     )
   })
 
   afterEach(() => jest.restoreAllMocks())
 
-  test(`getPeriodsのテスト`, () => {
+  test("getPeriodsのテスト", () => {
     const periods = updateEachPeriodsRankingLogic.getPeriods(new Streamer())
 
-    expect(typeof periods[`day`].started_at).toBeDefined()
-    expect(typeof periods[`day`].ended_at).toBeDefined()
+    expect(typeof periods["day"].started_at).toBeDefined()
+    expect(typeof periods["day"].ended_at).toBeDefined()
     expect(
-      periods[`day`].ended_at!.unix() - periods[`day`].started_at!.unix(),
+      periods["day"].ended_at!.unix() - periods["day"].started_at!.unix(),
     ).toEqual(24 * 60 * 60)
   })
 
   describe("getStreamersのテスト", () => {
     test("正常処理", async () => {
       const getStreamersSpy = jest
-        .spyOn(StreamerRepository.prototype, `getStreamers`)
+        .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
             follower_num: 100,
-            id: `49207184`,
+            id: "49207184",
           }),
           new Streamer({
             follower_num: 200,
-            id: `545050196`,
+            id: "545050196",
           }),
         ])
 
-      const streamers = await updateEachPeriodsRankingLogic[`getStreamers`]()
+      const streamers = await updateEachPeriodsRankingLogic["getStreamers"]()
 
       expect(getStreamersSpy).toHaveBeenCalled()
       expect(streamers).toEqual([
         new Streamer({
           follower_num: 100,
-          id: `49207184`,
+          id: "49207184",
         }),
         new Streamer({
           follower_num: 200,
-          id: `545050196`,
+          id: "545050196",
         }),
       ])
     }, 100000)
 
     test("firestoreエラー", async () => {
       const getStreamersSpy = jest
-        .spyOn(StreamerRepository.prototype, `getStreamers`)
-        .mockRejectedValueOnce(new Error(`firestore error test`))
+        .spyOn(StreamerRepository.prototype, "getStreamers")
+        .mockRejectedValueOnce(new Error("firestore error test"))
 
       await expect(
-        updateEachPeriodsRankingLogic[`getStreamers`](),
+        updateEachPeriodsRankingLogic["getStreamers"](),
       ).rejects.toThrow()
       expect(getStreamersSpy).toHaveBeenCalled()
     }, 100000)
@@ -87,20 +87,20 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
   describe("getClipForEachStreamersのテスト", () => {
     test("正常処理", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
-      await updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer)
+      await updateEachPeriodsRankingLogic["getClipForEachStreamers"](streamer)
 
       //呼び出し回数チェック
       expect(getClipsSpy).toHaveBeenCalledTimes(2)
@@ -122,22 +122,22 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       }
     }, 100000)
 
-    test(`Twitch API エラー`, async () => {
+    test("Twitch API エラー", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
-        .mockRejectedValue(new Error(`axios error test`))
+        .spyOn(TwitchClipApi.prototype, "getClips")
+        .mockRejectedValue(new Error("axios error test"))
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
+        .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
-      await updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer)
+      await updateEachPeriodsRankingLogic["getClipForEachStreamers"](streamer)
 
       //呼び出し回数チェック
       expect(getClipsSpy).toHaveBeenCalled()
@@ -145,23 +145,23 @@ describe(`UpdateEachPeriodsRankingLogicのテスト`, () => {
       expect(commitBatchSpy).not.toHaveBeenCalled()
     })
 
-    test(`firestoreエラー`, async () => {
+    test("firestoreエラー", async () => {
       const getClipsSpy = jest
-        .spyOn(TwitchClipApi.prototype, `getClips`)
+        .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
       const updateClipDocSpy = jest
-        .spyOn(ClipRepository.prototype, `batchUpdateClip`)
+        .spyOn(ClipRepository.prototype, "batchUpdateClip")
         .mockImplementation()
       const commitBatchSpy = jest
-        .spyOn(BatchRepository.prototype, `commitBatch`)
-        .mockRejectedValue(new Error(`batch commit error test`))
+        .spyOn(BatchRepository.prototype, "commitBatch")
+        .mockRejectedValue(new Error("batch commit error test"))
 
       const streamer: Array<Streamer> = JSON.parse(
-        fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+        fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
       )
 
       await expect(
-        updateEachPeriodsRankingLogic[`getClipForEachStreamers`](streamer),
+        updateEachPeriodsRankingLogic["getClipForEachStreamers"](streamer),
       ).rejects.toThrow()
 
       //呼び出し回数チェック

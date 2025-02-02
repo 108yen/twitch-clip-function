@@ -17,9 +17,9 @@ import {
   getJSTDate,
 } from "../spy"
 
-jest.mock(`axios`)
+jest.mock("axios")
 
-describe(`updatePastRankingのテスト`, () => {
+describe("updatePastRankingのテスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
   //todo: ちゃんとlogicの中に定義した値からとりたい。ほかのとこに格納してもいいかも
   const pastYear = 5 //何年前までとるか
@@ -28,7 +28,7 @@ describe(`updatePastRankingのテスト`, () => {
     const clipRepository = new ClipRepository()
     //ストリーマー情報格納
     const streamers: Array<Streamer> = JSON.parse(
-      fs.readFileSync(`test/test_data/clip/streamer.json`, `utf-8`),
+      fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
     )
     await streamerRepository.updateStreamers(streamers)
     //ストリーマーのclip情報格納
@@ -41,32 +41,32 @@ describe(`updatePastRankingのテスト`, () => {
     }
     //past_summary格納
     const clipDoc = generatePastClipDoc()
-    await clipRepository.updateClip(`past_summary`, clipDoc)
+    await clipRepository.updateClip("past_summary", clipDoc)
 
     mockedAxios.mockResolvedValueOnce({
       data: {
-        access_token: `test`,
+        access_token: "test",
         expire_in: 0,
-        token_type: `test`,
+        token_type: "test",
       },
     })
   })
   afterEach(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
-    const ids = [`49207184`, `545050196`]
+    const ids = ["49207184", "545050196"]
     for (const id of ids) {
       await clipRepository.deleteClipDoc(id)
     }
-    await clipRepository.deleteClipDoc(`past_summary`)
+    await clipRepository.deleteClipDoc("past_summary")
     await streamerRepository.updateStreamers([])
     mockedAxios.mockRestore()
     jest.restoreAllMocks()
   })
 
-  test(`更新`, async () => {
+  test("更新", async () => {
     const getClipsSpy = jest
-      .spyOn(TwitchClipApi.prototype, `getClips`)
+      .spyOn(TwitchClipApi.prototype, "getClips")
       .mockImplementation(getClipsSpyImp)
 
     const clipRepository = new ClipRepository()
@@ -79,7 +79,7 @@ describe(`updatePastRankingのテスト`, () => {
       const clipDoc = await clipRepository.getClip(streamer.id)
       oldClipDocs.set(streamer.id, clipDoc)
     }
-    await clipRepository.createClipDoc(`past_summary`)
+    await clipRepository.createClipDoc("past_summary")
 
     //実行
     await updatePastRanking()
@@ -100,16 +100,16 @@ describe(`updatePastRankingのテスト`, () => {
       const streamer = streamers[key]
       const clipDoc = await clipRepository.getClip(streamer.id)
       const oldClipDoc = oldClipDocs.get(streamer.id)
-      assert(typeof oldClipDoc !== `undefined`, `oldClipDoc is undefined`)
+      assert(typeof oldClipDoc !== "undefined", "oldClipDoc is undefined")
 
       //各期間のクリップがあるか
       for (const [period, clips] of clipDoc.clipsMap) {
         if (
-          period == `all` ||
-          period == `day` ||
-          period == `week` ||
-          period == `month` ||
-          period == `year`
+          period == "all" ||
+          period == "day" ||
+          period == "week" ||
+          period == "month" ||
+          period == "year"
         ) {
           break
         }
@@ -128,8 +128,8 @@ describe(`updatePastRankingのテスト`, () => {
           const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
           const ended_at = new Date(year, 11, 31, 14, 59, 59)
           assert(
-            typeof clip.created_at !== `undefined`,
-            `created_at is undefined`,
+            typeof clip.created_at !== "undefined",
+            "created_at is undefined",
           )
           expect(new Date(clip.created_at).getTime()).toBeGreaterThanOrEqual(
             started_at.getTime(),
@@ -149,7 +149,7 @@ describe(`updatePastRankingのテスト`, () => {
     }
     //全体のランキング
     //todo: ５年以降のがある場合も削除されているかテストしたい
-    const clipDoc = await clipRepository.getClip(`past_summary`)
+    const clipDoc = await clipRepository.getClip("past_summary")
     for (const [period, clips] of clipDoc.clipsMap) {
       expect(clips).toBeDefined()
       expect(clips.length).toEqual(100)
@@ -166,8 +166,8 @@ describe(`updatePastRankingのテスト`, () => {
           const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
           const ended_at = new Date(year, 11, 31, 14, 59, 59)
           assert(
-            typeof clip.created_at !== `undefined`,
-            `created_at is undefined`,
+            typeof clip.created_at !== "undefined",
+            "created_at is undefined",
           )
           expect(new Date(clip.created_at).getTime()).toBeGreaterThanOrEqual(
             started_at.getTime(),
@@ -180,16 +180,16 @@ describe(`updatePastRankingのテスト`, () => {
     }
   }, 1000000)
 
-  test(`過去ランキングの削除テスト`, async () => {
+  test("過去ランキングの削除テスト", async () => {
     const getClipsSpy = jest
-      .spyOn(TwitchClipApi.prototype, `getClips`)
+      .spyOn(TwitchClipApi.prototype, "getClips")
       .mockImplementation(getClipsSpyImp)
 
     const clipRepository = new ClipRepository()
     //実行
     await updatePastRanking()
 
-    const resultPastSummary = await clipRepository.getClip(`past_summary`)
+    const resultPastSummary = await clipRepository.getClip("past_summary")
     //要素数がpastYearで指定した数とあっているか確認
     expect(resultPastSummary.clipsMap.size).toEqual(pastYear)
 

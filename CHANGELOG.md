@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.3.5
+
+### Patch Changes
+
+- [#215](https://github.com/108yen/twitch-clip-function/pull/215) [`91bb460`](https://github.com/108yen/twitch-clip-function/commit/91bb460461eb71053b9647460967cccfc0b11dbd) Thanks [@108yen](https://github.com/108yen)! - Implemented temporary workaround for corepack errors.
+
 ## 1.3.4
 
 ### Patch Changes

@@ -1,7 +1,8 @@
 FROM node:22-slim AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
+# RUN corepack enable
+RUN npm i -g corepack@latest
 COPY . /app
 WORKDIR /app
 

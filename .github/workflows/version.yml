@@ -42,5 +42,7 @@ jobs:
 
       - name: Create Release Pull Request
         uses: changesets/action@v1
+        with:
+          commit: "ci(changesets): updated changelog"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

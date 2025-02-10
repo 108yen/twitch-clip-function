@@ -23,6 +23,7 @@ import { logEntry } from "./utils/logEntry"
 async function main() {
   const startedAt = dayjs()
   const hour = startedAt.tz().hour()
+  const date = startedAt.tz().date()
 
   const revalidatePaths = []
 
@@ -45,7 +46,6 @@ async function main() {
   if (hour == 0) {
     await updateWeekRanking()
     await updateMonthRanking()
-    await updateYearRanking()
     revalidatePaths.push("/daily")
 
     //tweet
@@ -53,7 +53,8 @@ async function main() {
   }
 
   // every month at 1st
-  if (startedAt.tz().date() == 1 && hour == 0) {
+  if (date == 1 && hour == 0) {
+    await updateYearRanking()
     await updatePastRanking()
     await updateAllRanking()
     revalidatePaths.push("/past")

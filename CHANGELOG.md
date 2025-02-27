@@ -1,5 +1,13 @@
 # twitch-clip-function
 
+## 1.3.6
+
+### Patch Changes
+
+- [#217](https://github.com/108yen/twitch-clip-function/pull/217) [`a71320b`](https://github.com/108yen/twitch-clip-function/commit/a71320b819dbbbf87945ebfd124b97df9e33d78f) Thanks [@108yen](https://github.com/108yen)! - Revoke temporary workaround for corepack errors.
+
+- [#217](https://github.com/108yen/twitch-clip-function/pull/217) [`a9a8540`](https://github.com/108yen/twitch-clip-function/commit/a9a8540fad020094167d1e573bdec35531d67221) Thanks [@108yen](https://github.com/108yen)! - Change updating year ranking timing to update each day.
+
 ## 1.3.5
 
 ### Patch Changes

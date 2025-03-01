@@ -199,5 +199,18 @@ export class StreamerSelectionLogic {
     return { banedIds, storedStreamers: sortedStreamers }
   }
 
-  // async storeTeam(streamers: Streamer[]): Promise<Streamer[]> {}
+  async storeTeam(streamers: Streamer[]): Promise<Streamer[]> {
+    const result: Streamer[] = []
+
+    for (const streamer of streamers) {
+      const teams = await this.twitchStreamerApi.getTeams(streamer.id)
+
+      result.push({
+        ...streamer,
+        teams,
+      })
+    }
+
+    return result
+  }
 }

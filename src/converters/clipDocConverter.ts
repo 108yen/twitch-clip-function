@@ -3,7 +3,7 @@ import { ClipDoc } from "../models/clipDoc"
 import { Streamer } from "../models/streamer"
 
 interface FirestoreClipDoc {
-  [key: string]: Array<Clip> | Streamer | undefined
+  [key: string]: Clip[] | Streamer | undefined
   streamerInfo?: Streamer
 }
 
@@ -17,7 +17,7 @@ export const clipDocConverter = {
         const streamerInfo = data[key]
         result.streamerInfo = streamerInfo
       } else {
-        const clips = data[key] as Array<Clip>
+        const clips = data[key] as Clip[]
         result.clipsMap.set(key, clips)
       }
     }

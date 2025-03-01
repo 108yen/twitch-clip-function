@@ -2,14 +2,12 @@ import { Streamer } from "../models/streamer"
 
 export const streamerConverter = {
   fromFirestore(qds: FirebaseFirestore.QueryDocumentSnapshot): {
-    streamers: Array<Streamer>
+    streamers: Streamer[]
   } {
-    const data = qds.data() as { streamers: Array<Streamer> }
+    const data = qds.data() as { streamers: Streamer[] }
     return data
   },
-  toFirestore(doc: {
-    streamers: Array<Streamer>
-  }): FirebaseFirestore.DocumentData {
+  toFirestore(doc: { streamers: Streamer[] }): FirebaseFirestore.DocumentData {
     return {
       streamers: doc.streamers.map((e) => {
         return {
@@ -22,6 +20,7 @@ export const streamerConverter = {
           login: e.login,
           offline_image_url: e.offline_image_url,
           profile_image_url: e.profile_image_url,
+          teams: e.teams,
           type: e.type,
           view_count: e.view_count,
         }

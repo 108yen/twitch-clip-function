@@ -13,6 +13,7 @@ jest.mock("axios")
 describe("StreamerSelectionLogicのテスト", () => {
   let streamerSelectionLogic: StreamerSelectionLogic
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
+
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
@@ -23,10 +24,12 @@ describe("StreamerSelectionLogicのテスト", () => {
     })
     streamerSelectionLogic = await StreamerSelectionLogic.init()
   })
+
   afterEach(() => {
     mockedAxios.mockRestore()
     jest.restoreAllMocks()
   })
+
   test("getOldStreamerのテスト", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
@@ -59,6 +62,7 @@ describe("StreamerSelectionLogicのテスト", () => {
       }),
     ])
   }, 100000)
+
   test("getOldStreamerのテスト:axiosエラー", async () => {
     mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
     const getStreamersSpy = jest
@@ -77,6 +81,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
+
   test("getOldStreamerのテスト:firestoreエラー", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
@@ -87,6 +92,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
+
   test("getJpLiveStreamingのテスト", async () => {
     const mockData = [...Array(100)].map(
       (_, index) =>
@@ -110,10 +116,12 @@ describe("StreamerSelectionLogicのテスト", () => {
       expect(stream.viewer_count).toEqual(index)
     }
   }, 100000)
+
   test("getJpLiveStreamingのテスト:axiosエラー", async () => {
     mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
     await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrow()
   }, 100000)
+
   test("filterStreamsのテスト", () => {
     const oldStreamerIdsMockData = ["102631269", "104363564"]
     const streamsMockData = [
@@ -162,6 +170,7 @@ describe("StreamerSelectionLogicのテスト", () => {
 
     expect(newStreamerIds).toEqual(["49207184"])
   }, 100000)
+
   test("getNewStreamerFollowerのテスト", async () => {
     mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
     mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
@@ -181,12 +190,14 @@ describe("StreamerSelectionLogicのテスト", () => {
       }),
     ])
   }, 100000)
+
   test("getNewStreamerFollowerのテスト:axiosエラー", async () => {
     mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
     const ids = ["49207184", "545050196"]
 
     expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrow()
   }, 100000)
+
   test("concatAndFilterのテスト", () => {
     const streamerNumLimit = streamerSelectionLogic.STREAMER_NUM_LIMIT
     const oldStreamers = [...Array(streamerNumLimit - 5)].map(
@@ -213,6 +224,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     expect(removedStreamerIds).toEqual(oldStreamers.map((e) => e.id).slice(-5))
     expect(addedStreamerIds).toEqual(newStreamers.map((e) => e.id))
   }, 100000)
+
   test("updateStreamerInfoのテスト", async () => {
     const mockData = [
       new Streamer({
@@ -262,6 +274,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     expectData[1].follower_num = 100
     expect(storedStreamers).toEqual(expectData)
   }, 100000)
+
   test("updateStreamerInfoのテスト:banされたストリーマーがいたとき", async () => {
     const mockData = [
       new Streamer({
@@ -317,6 +330,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     expect(storedStreamers).toEqual(expectData)
     expect(banedIds).toEqual(["0000000"])
   }, 100000)
+
   test("updateStreamerInfoのテスト:axiosエラー", async () => {
     mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
 
@@ -334,6 +348,7 @@ describe("StreamerSelectionLogicのテスト", () => {
       streamerSelectionLogic.updateStreamerInfo(selectedStreamers),
     ).rejects.toThrow()
   }, 100000)
+
   test("updateFirestoreのテスト", async () => {
     const updateStreamers = jest
       .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
@@ -400,6 +415,7 @@ describe("StreamerSelectionLogicのテスト", () => {
       new ClipDoc({ streamerInfo: storedStreamers[1] }),
     )
   }, 100000)
+
   test("updateFirestoreのテスト:batchエラー", async () => {
     const updateStreamers = jest
       .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
@@ -468,4 +484,109 @@ describe("StreamerSelectionLogicのテスト", () => {
       new ClipDoc({ streamerInfo: storedStreamers[1] }),
     )
   }, 100000)
+
+  test("storeTeamsのテスト", async () => {
+    const streamers: Streamer[] = [
+      {
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "天帝フォルテ",
+        id: "854833174",
+        login: "tentei_forte",
+        offline_image_url: "",
+        profile_image_url: "",
+        type: "",
+        view_count: 0,
+      },
+      {
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url: "",
+        type: "",
+        view_count: 0,
+      },
+    ]
+
+    mockedAxios.mockImplementation(async (url) => {
+      const broadcaster_id = (url as unknown as any)?.params.broadcaster_id
+
+      if (broadcaster_id == "854833174") {
+        return {
+          data: {
+            data: [
+              {
+                background_image_url: null,
+                banner: null,
+                broadcaster_id: "854833174",
+                broadcaster_login: "tentei_forte",
+                broadcaster_name: "天帝フォルテ",
+                created_at: "2023-02-19T21:30:14Z",
+                id: "988431688",
+                info: "",
+                team_display_name: "Neo-Porte",
+                team_name: "neoporte",
+                thumbnail_url:
+                  "https://static-cdn.jtvnw.net/team-assets/neoporte-38956fd9f173478a8556db14c3f94d72.png",
+                updated_at: "2024-12-11T13:54:54Z",
+              },
+            ],
+          },
+        }
+      } else {
+        return { data: { data: [] } }
+      }
+    })
+
+    const result = await streamerSelectionLogic.storeTeam(streamers)
+
+    const expectedResult = [
+      {
+        broadcaster_type: "partner",
+        created_at: "2013-09-19T13:21:29Z",
+        description: "",
+        display_name: "天帝フォルテ",
+        id: "854833174",
+        login: "tentei_forte",
+        offline_image_url: "",
+        profile_image_url: "",
+        teams: [
+          {
+            background_image_url: null,
+            banner: null,
+            created_at: "2023-02-19T21:30:14Z",
+            display_name: "Neo-Porte",
+            id: "988431688",
+            info: "",
+            name: "neoporte",
+            thumbnail_url:
+              "https://static-cdn.jtvnw.net/team-assets/neoporte-38956fd9f173478a8556db14c3f94d72.png",
+            updated_at: "2024-12-11T13:54:54Z",
+          },
+        ],
+        type: "",
+        view_count: 0,
+      },
+      {
+        broadcaster_type: "partner",
+        created_at: "2020-06-18T04:04:09Z",
+        description: "命尽き果てるまで",
+        display_name: "加藤純一です",
+        id: "545050196",
+        login: "kato_junichi0817",
+        offline_image_url: "",
+        profile_image_url: "",
+        teams: [],
+        type: "",
+        view_count: 0,
+      },
+    ]
+
+    expect(result).toStrictEqual(expectedResult)
+  })
 })

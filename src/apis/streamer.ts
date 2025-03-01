@@ -158,6 +158,7 @@ export class TwitchStreamerApi extends TwitchApi {
         throw new Error(error)
       },
     )
+
     const teams = res?.data.data.map(
       ({
         background_image_url,

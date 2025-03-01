@@ -10,15 +10,19 @@ export const streamerSelection = async () => {
   try {
     const findOutNewStreamer = await StreamerSelectionLogic.init()
 
-    /* ==================================
-        Update existing streamer information
-        ================================== */
+    /**
+     *  ==================================
+     *  Fetch old streamer and update existing streamer follower num
+     *  ==================================
+     */
     const { oldStreamerIds, oldStreamers } =
       await findOutNewStreamer.getOldStreamer()
 
-    /* ==================================
-        Find out new streamer
-        ================================== */
+    /**
+     *  ==================================
+     *  Find out new streamer and store follower num
+     *  ==================================
+     */
     const stream = await findOutNewStreamer.getJpLiveStreaming()
     const newStreamerIds = findOutNewStreamer.filterStreams(
       stream,
@@ -27,21 +31,24 @@ export const streamerSelection = async () => {
     const newStreamers =
       await findOutNewStreamer.getNewStreamerFollower(newStreamerIds)
 
-    /* ==================================
-        Filter streamer
-        ================================== */
+    /**
+     *  ==================================
+     *  Filter streamer by follower num
+     *  ==================================
+     */
     const { addedStreamerIds, removedStreamerIds, selectedStreamers } =
       findOutNewStreamer.concatAndFilter(oldStreamers, newStreamers)
     const { banedIds, storedStreamers } =
       await findOutNewStreamer.updateStreamerInfo(selectedStreamers)
 
-    /* ==================================
-        update Firestore
-        ================================== */
+    /**
+     *  ==================================
+     *  Update Firestore
+     *  ==================================
+     */
     await findOutNewStreamer.updateFirestore(
       storedStreamers,
       removedStreamerIds.concat(banedIds),
-      // addedStreamerIds
     )
 
     logEntry({

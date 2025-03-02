@@ -2,4 +2,4 @@
 "twitch-clip-function": minor
 ---
 
-Add team infomations to streamer.
+Add team information to streamer.

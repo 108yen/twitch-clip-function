@@ -8,7 +8,8 @@ export class BatchRepository {
     this.chunkLimit = chunkLimit
     this.batch = db.batch()
   }
-  //batch commit request need less than 10MiB
+
+  //NOTE: batch commit request need less than 10MiB
   async commitBatch() {
     this.chunk = 0
     await this.batch.commit().catch((error) => {

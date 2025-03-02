@@ -179,7 +179,7 @@ export class StreamerSelectionLogic {
     selectedStreamers: Array<Streamer>,
   ): Promise<{ banedIds: Array<string>; storedStreamers: Array<Streamer> }> {
     const selectedStreamerIds = selectedStreamers.map((e) => e.id)
-    //push to firestore
+
     const storedStreamers =
       await this.twitchStreamerApi.getStreamers(selectedStreamerIds)
     //Re-enter the number of followers
@@ -197,5 +197,20 @@ export class StreamerSelectionLogic {
     )
 
     return { banedIds, storedStreamers: sortedStreamers }
+  }
+
+  async storeTeam(streamers: Streamer[]): Promise<Streamer[]> {
+    const result: Streamer[] = []
+
+    for (const streamer of streamers) {
+      const teams = await this.twitchStreamerApi.getTeams(streamer.id)
+
+      result.push({
+        ...streamer,
+        teams,
+      })
+    }
+
+    return result
   }
 }

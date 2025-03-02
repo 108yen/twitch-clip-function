@@ -5,7 +5,7 @@ import { streamersDocRef } from "../firestore-refs/streamerRefs"
 import { Streamer } from "../models/streamer"
 
 export class StreamerRepository {
-  async addStreamers(streamers: Array<Streamer>) {
+  async addStreamers(streamers: Streamer[]) {
     await streamersDocRef
       .update({
         streamers: FieldValue.arrayUnion(...streamers),
@@ -19,13 +19,13 @@ export class StreamerRepository {
   }
 
   batchUpdateStreamers(
-    streamers: Array<Streamer>,
+    streamers: Streamer[],
     batch: FirebaseFirestore.WriteBatch,
   ) {
     batch.set(streamersDocRef, { streamers: streamers }, { merge: true })
   }
 
-  async getStreamers(): Promise<Array<Streamer>> {
+  async getStreamers(): Promise<Streamer[]> {
     const ds = await streamersDocRef.get().catch((error) => {
       console.error(
         `StreamerRepository/getStreamers/streamersDocRef.get(): ${error}`,
@@ -41,7 +41,7 @@ export class StreamerRepository {
     return streamers
   }
 
-  async updateStreamers(streamers: Array<Streamer>) {
+  async updateStreamers(streamers: Streamer[]) {
     await streamersDocRef
       .set({ streamers: streamers }, { merge: true })
       .catch((error) => {

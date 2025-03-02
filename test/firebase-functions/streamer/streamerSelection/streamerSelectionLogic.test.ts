@@ -78,7 +78,21 @@ describe("StreamerSelectionLogicのテスト", () => {
         }),
       ])
 
-    await expect(streamerSelectionLogic.getOldStreamer()).rejects.toThrow()
+    const { oldStreamerIds, oldStreamers } =
+      await streamerSelectionLogic.getOldStreamer()
+
+    expect(getStreamersSpy).toHaveBeenCalled()
+    expect(oldStreamers.map((e) => e.id)).toEqual(oldStreamerIds)
+    expect(oldStreamers).toStrictEqual([
+      new Streamer({
+        follower_num: undefined,
+        id: "49207184",
+      }),
+      new Streamer({
+        follower_num: undefined,
+        id: "545050196",
+      }),
+    ])
     expect(getStreamersSpy).toHaveBeenCalled()
   }, 100000)
 
@@ -119,7 +133,10 @@ describe("StreamerSelectionLogicのテスト", () => {
 
   test("getJpLiveStreamingのテスト:axiosエラー", async () => {
     mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
-    await expect(streamerSelectionLogic.getJpLiveStreaming()).rejects.toThrow()
+
+    const streams = await streamerSelectionLogic.getJpLiveStreaming()
+
+    expect(streams).toHaveLength(0)
   }, 100000)
 
   test("filterStreamsのテスト", () => {
@@ -192,10 +209,22 @@ describe("StreamerSelectionLogicのテスト", () => {
   }, 100000)
 
   test("getNewStreamerFollowerのテスト:axiosエラー", async () => {
-    mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
+    mockedAxios.mockRejectedValue(new Error("axios error test"))
     const ids = ["49207184", "545050196"]
 
-    expect(streamerSelectionLogic.getNewStreamerFollower(ids)).rejects.toThrow()
+    const newStreamers =
+      await streamerSelectionLogic.getNewStreamerFollower(ids)
+
+    expect(newStreamers).toStrictEqual([
+      new Streamer({
+        follower_num: undefined,
+        id: "49207184",
+      }),
+      new Streamer({
+        follower_num: undefined,
+        id: "545050196",
+      }),
+    ])
   }, 100000)
 
   test("concatAndFilterのテスト", () => {

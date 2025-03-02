@@ -14,9 +14,30 @@ import { getStreamersSpy } from "../spy"
 
 jest.mock("axios")
 
-describe("streamerSelectionのテスト", () => {
+interface TeamApiReturn {
+  background_image_url?: string
+  banner?: string
+  broadcaster_id?: string
+  broadcaster_login?: string
+  broadcaster_name?: string
+  created_at?: string
+  id?: string
+  info?: string
+  team_display_name?: string
+  team_name?: string
+  thumbnail_url?: string
+  updated_at?: string
+}
+
+interface TeamsTestData {
+  id: string
+  response: TeamApiReturn[]
+}
+
+describe("streamerSelectionの統合テスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
   let streamerSelectionLogic: StreamerSelectionLogic
+
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
@@ -27,6 +48,7 @@ describe("streamerSelectionのテスト", () => {
     })
     streamerSelectionLogic = await StreamerSelectionLogic.init()
   })
+
   beforeEach(async () => {
     mockedAxios.mockResolvedValueOnce({
       data: {
@@ -35,7 +57,7 @@ describe("streamerSelectionのテスト", () => {
         token_type: "test",
       },
     })
-    const oldStreamer: Array<Streamer> = getStreamersSpy(
+    const oldStreamer: Streamer[] = getStreamersSpy(
       streamerSelectionLogic.STREAMER_NUM_LIMIT,
     )
     const streamerRepository = new StreamerRepository()
@@ -45,6 +67,7 @@ describe("streamerSelectionのテスト", () => {
       await clipRepository.createClipDoc(streamer.id)
     }
   })
+
   afterEach(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
@@ -53,8 +76,10 @@ describe("streamerSelectionのテスト", () => {
       await clipRepository.deleteClipDoc(streamer.id)
     }
     await streamerRepository.updateStreamers([])
+
     jest.restoreAllMocks()
   })
+
   test("streamerSelectionの実行テスト", async () => {
     //準備
     const streamerRepository = new StreamerRepository()
@@ -74,12 +99,15 @@ describe("streamerSelectionのテスト", () => {
         )
         return streams
       })
-    const oldStreamersMockData: Array<Streamer> = oldStreamer
-    const newStreamersMockData: Array<Streamer> = JSON.parse(
+    const oldStreamersMockData: Streamer[] = oldStreamer
+    const newStreamersMockData: Streamer[] = JSON.parse(
       fs.readFileSync(
         "test/test_data/streamerSelection/newStreamer.json",
         "utf-8",
       ),
+    )
+    const teamsMockData: TeamsTestData[] = JSON.parse(
+      fs.readFileSync("test/test_data/streamerSelection/teams.json", "utf-8"),
     )
     const allStreamersMockData =
       newStreamersMockData.concat(oldStreamersMockData)
@@ -102,6 +130,13 @@ describe("streamerSelectionのテスト", () => {
           })
           .filter((streamer) => ids.includes(streamer.id))
       })
+    const getTeamsSpy = jest
+      .spyOn(TwitchStreamerApi.prototype, "getTeams")
+      .mockImplementation(async (id) => {
+        const teams = teamsMockData.find(({ id: _id }) => _id == id)
+
+        return teams?.response ?? []
+      })
 
     //実行
     await streamerSelection()
@@ -112,12 +147,16 @@ describe("streamerSelectionのテスト", () => {
       streamerSelectionLogic.STREAMER_NUM_LIMIT + 1,
     ) //1つ追加になる
     expect(getStreamersSpy).toHaveBeenCalledTimes(1)
+    expect(getTeamsSpy).toHaveBeenCalledTimes(
+      streamerSelectionLogic.STREAMER_NUM_LIMIT,
+    )
 
     const newStreamer = await streamerRepository.getStreamers()
     const newStreamerIds = newStreamer.map((e) => e.id)
     const removedStreamerIds = oldStreamerIds.filter(
       (id) => newStreamerIds.indexOf(id) == -1,
     )
+
     //ドキュメントが作成されている,ストリーマーリストのドキュメントが作成されている
     for (const key in newStreamerIds) {
       const id = newStreamerIds[key]
@@ -128,26 +167,43 @@ describe("streamerSelectionのテスト", () => {
       expect(clipDoc.streamerInfo?.description).toBeDefined()
       expect(clipDoc.streamerInfo?.follower_num).toBeDefined()
     }
+
     //ドキュメントが削除されている
     for (const key in removedStreamerIds) {
       const id = removedStreamerIds[key]
       await expect(clipRepository.getClip(id)).rejects.toThrow()
     }
+
     //ストリーマー情報チェック
     expect(newStreamer.length).toBeGreaterThan(0)
+
     //主要な情報があるか
-    for (const key in newStreamer) {
-      const element = newStreamer[key]
+    for (const streamer of newStreamer) {
       //idが存在しているか
-      expect(element.id).toBeDefined()
+      expect(streamer.id).toBeDefined()
       //その他主要な項目があるか
-      expect(element.created_at).toBeDefined()
-      expect(element.description).toBeDefined()
-      expect(element.display_name).toBeDefined()
-      expect(element.login).toBeDefined()
-      expect(element.profile_image_url).toBeDefined()
-      expect(element.follower_num).toBeDefined()
+      expect(streamer.created_at).toBeDefined()
+      expect(streamer.description).toBeDefined()
+      expect(streamer.display_name).toBeDefined()
+      expect(streamer.login).toBeDefined()
+      expect(streamer.profile_image_url).toBeDefined()
+      expect(streamer.follower_num).toBeDefined()
+      expect(streamer.teams).toBeDefined()
+
+      // teams内のデータの内容が正しいか
+      const teams = teamsMockData.find(({ id }) => id == streamer.id)
+      const expectedTeams = teams?.response ?? []
+
+      for (const { id, info, team_display_name, team_name } of expectedTeams) {
+        const resultTeams = streamer.teams?.find(({ id: _id }) => _id == id)
+
+        expect(resultTeams).toBeDefined()
+        expect(resultTeams?.display_name).toEqual(team_display_name)
+        expect(resultTeams?.info).toEqual(info)
+        expect(resultTeams?.name).toEqual(team_name)
+      }
     }
+
     //順番チェック
     for (let index = 0; index < newStreamer.length - 1; index++) {
       const currentFollowerNum = newStreamer[index].follower_num
@@ -157,6 +213,7 @@ describe("streamerSelectionのテスト", () => {
       assert(typeof nextFollowerNum === "number", message)
       expect(currentFollowerNum).toBeGreaterThanOrEqual(nextFollowerNum)
     }
+
     //重複チェック
     const newStreamerIdSets = new Set(newStreamerIds)
     expect(newStreamerIdSets.size).toEqual(newStreamerIds.length)

@@ -43,11 +43,18 @@ export const streamerSelection = async () => {
 
     /**
      *  ==================================
+     *  Add team info
+     *  ==================================
+     */
+    const computedStreamer = await findOutNewStreamer.storeTeam(storedStreamers)
+
+    /**
+     *  ==================================
      *  Update Firestore
      *  ==================================
      */
     await findOutNewStreamer.updateFirestore(
-      storedStreamers,
+      computedStreamer,
       removedStreamerIds.concat(banedIds),
     )
 

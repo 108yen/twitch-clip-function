@@ -4,8 +4,10 @@ import { BLACKLIST } from "../../../constant"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Stream } from "../../../models/stream"
 import { Streamer } from "../../../models/streamer"
+import { Team } from "../../../models/team"
 import { ClipRepository } from "../../../repositories/clip"
 import { StreamerRepository } from "../../../repositories/streamer"
+import { logEntry } from "../../../utils/logEntry"
 
 export class StreamerSelectionLogic {
   private batchRepository = new BatchRepository()
@@ -43,13 +45,22 @@ export class StreamerSelectionLogic {
   ): Promise<Array<Streamer>> {
     const streamers: Array<Streamer> = []
 
-    for (const key in ids) {
-      const id = ids[key]
-      //get follower num from twitch api
-      const followerNum = await twitchStreamerApi.getFollowerNum(id)
+    for (const id of ids) {
+      let follower_num: number | undefined
+
+      try {
+        //get follower num from twitch api
+        follower_num = await twitchStreamerApi.getFollowerNum(id)
+      } catch {
+        logEntry({
+          message: `Failed get ${id} follower from twitch.`,
+          severity: "ERROR",
+        })
+      }
+
       streamers.push(
         new Streamer({
-          follower_num: followerNum,
+          follower_num,
           id: id,
         }),
       )
@@ -124,8 +135,17 @@ export class StreamerSelectionLogic {
   }
 
   async getJpLiveStreaming(): Promise<Array<Stream>> {
-    const streams = await this.twitchStreamerApi.getJpStreams()
-    return streams
+    try {
+      const streams = await this.twitchStreamerApi.getJpStreams()
+      return streams
+    } catch {
+      logEntry({
+        message: "Failed get streams from twitch.",
+        severity: "ERROR",
+      })
+
+      return []
+    }
   }
 
   async getNewStreamerFollower(
@@ -203,7 +223,16 @@ export class StreamerSelectionLogic {
     const result: Streamer[] = []
 
     for (const streamer of streamers) {
-      const teams = await this.twitchStreamerApi.getTeams(streamer.id)
+      let teams: Team[] | undefined
+
+      try {
+        teams = await this.twitchStreamerApi.getTeams(streamer.id)
+      } catch {
+        logEntry({
+          message: `Failed get ${streamer.display_name} teams from twitch.`,
+          severity: "ERROR",
+        })
+      }
 
       result.push({
         ...streamer,

@@ -1,5 +1,15 @@
 # twitch-clip-function
 
+## 1.4.0
+
+### Minor Changes
+
+- [#232](https://github.com/108yen/twitch-clip-function/pull/232) [`79bc07c`](https://github.com/108yen/twitch-clip-function/commit/79bc07cc2328110fb975cb8d65a8066adc93d521) Thanks [@108yen](https://github.com/108yen)! - Add team information to streamer.
+
+### Patch Changes
+
+- [#234](https://github.com/108yen/twitch-clip-function/pull/234) [`abfdf1e`](https://github.com/108yen/twitch-clip-function/commit/abfdf1e4fbe5cc2fd487c5ff80b65e66e5600fa0) Thanks [@108yen](https://github.com/108yen)! - Fix error handling of `streamerSelectionLogic`.
+
 ## 1.3.6
 
 ### Patch Changes

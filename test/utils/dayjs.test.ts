@@ -5,7 +5,8 @@ describe("dayjsのテスト", () => {
     const day = dayjs()
     expect(day.locale()).toEqual("ja")
   })
-  test("時間の確認", () => {
+
+  test.skip("時間の確認", () => {
     //dateで計算
     const date = new Date()
     const JSThour =

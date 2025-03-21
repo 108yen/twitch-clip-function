@@ -3,12 +3,14 @@ import axios from "axios"
 import fs from "fs"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
+import { RANGE_DATE } from "../../../../src/constant"
 import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
 import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
+import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { getClipsSpyImp, getJSTDate } from "../spy"
 
@@ -17,10 +19,11 @@ jest.mock("axios")
 describe("UpdatePastRankingLogicのテスト", () => {
   let updatePastRankingLogic: UpdatePastRankingLogic
   const currentYear = getJSTDate().getFullYear()
-  const pastYear = 5 //何年前までとるか
-  const fiveYearsAgo = currentYear - pastYear
+  const fiveYearsAgo = currentYear - RANGE_DATE.PastRangeYears
   const calcCall = (createdAt: number) =>
-    createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+    createdAt > fiveYearsAgo
+      ? currentYear - createdAt
+      : RANGE_DATE.PastRangeYears
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
 
   beforeAll(async () => {
@@ -53,14 +56,21 @@ describe("UpdatePastRankingLogicのテスト", () => {
       )
       for (const key in periods) {
         const period = periods[key]
-        const started_at = new Date(Number(key) - 1, 11, 31, 15, 0, 0)
-        const ended_at = new Date(Number(key), 11, 31, 14, 59, 59, 999)
+        const started_at = dayjs()
+          .set("year", Number(key))
+          .startOf("year")
+          .toISOString()
+        const ended_at = dayjs()
+          .set("year", Number(key))
+          .endOf("year")
+          .toISOString()
+
         expect({
-          ended_at: period.ended_at?.toDate(),
-          started_at: period.started_at?.toDate(),
+          ended_at: period.ended_at?.toISOString(),
+          started_at: period.started_at?.toISOString(),
         }).toEqual({
-          ended_at: ended_at,
-          started_at: started_at,
+          ended_at,
+          started_at,
         })
       }
     }
@@ -258,7 +268,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
     expect(getStreamersSpy).toHaveBeenCalledTimes(1)
     //past_summaryとストリーマー一人分で2倍呼ばれる
     expect(batchDeleteFieldValueSpy).toHaveBeenCalledTimes(
-      (setAgo - pastYear) * 2,
+      (setAgo - RANGE_DATE.PastRangeYears) * 2,
     )
     expect(commitBatchSpy).toHaveBeenCalledTimes(1)
     expect(getClipSpy).toHaveBeenCalledTimes(1)

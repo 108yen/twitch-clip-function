@@ -124,19 +124,19 @@ export function createSummaryClipDoc() {
 
   clipDoc.clipsMap.set(
     "day",
-    createClipsData(undefined, currentDate.add(1, "day"), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "day"), currentDate),
   )
   clipDoc.clipsMap.set(
     "week",
-    createClipsData(undefined, currentDate.add(1, "week"), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "week"), currentDate),
   )
   clipDoc.clipsMap.set(
     "month",
-    createClipsData(undefined, currentDate.add(1, "month"), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "month"), currentDate),
   )
   clipDoc.clipsMap.set(
     "year",
-    createClipsData(undefined, currentDate.add(1, "year"), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "year"), currentDate),
   )
   clipDoc.clipsMap.set("all", createClipsData())
 

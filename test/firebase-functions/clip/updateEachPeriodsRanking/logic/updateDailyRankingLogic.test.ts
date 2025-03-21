@@ -7,11 +7,11 @@ import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
 import { createClipsData, createDailyDummyData } from "../../spy"
 
 describe("UpdateDailyRankingLogicのテスト", () => {
-  let todayClips: Array<Clip>
+  let todayClips: Clip[]
 
   beforeAll(() => {
-    const today = dayjs().toDate()
-    const lastDay = dayjs().subtract(1, "day").toDate()
+    const today = dayjs()
+    const lastDay = dayjs().subtract(1, "day")
     todayClips = createClipsData(undefined, lastDay, today)
   })
 

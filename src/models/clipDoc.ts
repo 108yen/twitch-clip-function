@@ -1,9 +1,8 @@
+import { CLIPS } from "../constant"
 import { Clip } from "./clip"
 import { Streamer } from "./streamer"
 
 export class ClipDoc {
-  private CLIP_NUM = 100
-
   clipsMap: Map<string, Array<Clip>> = new Map<string, Array<Clip>>()
   streamerInfo?: Streamer
 
@@ -22,7 +21,7 @@ export class ClipDoc {
         }
         return b.view_count - a.view_count
       })
-      .slice(0, this.CLIP_NUM)
+      .slice(0, CLIPS.NUM)
   }
 
   clipDocConcat(clipDoc: ClipDoc) {

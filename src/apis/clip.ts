@@ -7,6 +7,7 @@ import dayjs from "../utils/dayjs"
 import { TwitchApi } from "./twitchApi"
 
 export class TwitchClipApi extends TwitchApi {
+  // 上限100
   private CLIP_NUM = 100
 
   constructor(props: { client_id: string; token: Token }) {

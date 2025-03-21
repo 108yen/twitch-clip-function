@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker"
 
+import { RANGE_DATE } from "../../../src/constant"
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
 import dayjs from "../../../src/utils/dayjs"
@@ -11,7 +12,9 @@ export function generatePastClipDoc(id?: string, createdAt?: Date) {
   const current_year = getJSTDate().getFullYear()
   const created_year = createdAt ? utcToJst(createdAt).getFullYear() : 2016
   const start_year =
-    created_year < current_year - 4 ? current_year - 4 : created_year
+    created_year < current_year - RANGE_DATE.PastRangeYears
+      ? current_year - RANGE_DATE.PastRangeYears
+      : created_year
 
   for (let year = start_year; year < current_year; year++) {
     const started_at = dayjs().set("year", year).startOf("year")

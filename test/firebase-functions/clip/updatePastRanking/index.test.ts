@@ -4,6 +4,7 @@ import fs from "fs"
 import { describe } from "node:test"
 
 import { TwitchClipApi } from "../../../../src/apis/clip"
+import { RANGE_DATE } from "../../../../src/constant"
 import { updatePastRanking } from "../../../../src/firebase-functions/clip/updatePastRanking"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
@@ -22,8 +23,7 @@ jest.mock("axios")
 
 describe("updatePastRankingのテスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
-  //todo: ちゃんとlogicの中に定義した値からとりたい。ほかのとこに格納してもいいかも
-  const pastYear = 5 //何年前までとるか
+
   beforeEach(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
@@ -88,11 +88,13 @@ describe("updatePastRankingのテスト", () => {
 
     //呼び出し回数チェック
     const currentYear = new Date().getFullYear()
-    const fiveYearsAgo = currentYear - pastYear
+    const fiveYearsAgo = currentYear - RANGE_DATE.PastRangeYears
     const katoCreatedAt = 2020
     const shakaCreatedAt = 2013
     const calcCall = (createdAt: number) =>
-      createdAt > fiveYearsAgo ? currentYear - createdAt : pastYear
+      createdAt > fiveYearsAgo
+        ? currentYear - createdAt
+        : RANGE_DATE.PastRangeYears
     const expectCallGetClips =
       calcCall(katoCreatedAt) + calcCall(shakaCreatedAt)
     expect(getClipsSpy).toHaveBeenCalledTimes(expectCallGetClips)
@@ -120,7 +122,9 @@ describe("updatePastRankingのテスト", () => {
         clipElementCheck(clips)
         clipOrderCheck(clips)
         //過去５年になっているかの確認
-        expect(parseInt(period)).toBeGreaterThanOrEqual(currentYear - pastYear)
+        expect(parseInt(period)).toBeGreaterThanOrEqual(
+          currentYear - RANGE_DATE.PastRangeYears,
+        )
         expect(parseInt(period)).toBeLessThan(currentYear)
 
         //期間通りになっているかの確認
@@ -139,7 +143,11 @@ describe("updatePastRankingのテスト", () => {
         oldClipDoc.clipsMap.delete(period)
       }
       //ほかに影響を与えていないか,5年前以降は削除されているか
-      for (let year = 2013; year < currentYear - pastYear; year++) {
+      for (
+        let year = 2013;
+        year < currentYear - RANGE_DATE.PastRangeYears;
+        year++
+      ) {
         oldClipDoc.clipsMap.delete(year.toString())
       }
       expect(clipDoc).toEqual(oldClipDoc)
@@ -153,7 +161,9 @@ describe("updatePastRankingのテスト", () => {
       clipElementCheck(clips)
       clipOrderCheck(clips)
       //過去５年以内になっているかの確認
-      expect(parseInt(period)).toBeGreaterThanOrEqual(currentYear - pastYear)
+      expect(parseInt(period)).toBeGreaterThanOrEqual(
+        currentYear - RANGE_DATE.PastRangeYears,
+      )
       expect(parseInt(period)).toBeLessThan(currentYear)
       //  中身の要素確認
       for (const key_j in clips) {
@@ -187,15 +197,15 @@ describe("updatePastRankingのテスト", () => {
     await updatePastRanking()
 
     const resultPastSummary = await clipRepository.getClip("past_summary")
-    //要素数がpastYearで指定した数とあっているか確認
-    expect(resultPastSummary.clipsMap.size).toEqual(pastYear)
+    //要素数がRANGE_DATE.PastRangeYearsで指定した数とあっているか確認
+    expect(resultPastSummary.clipsMap.size).toEqual(RANGE_DATE.PastRangeYears)
 
-    //過去pastYearで指定した年のランキングがあるか確認
+    //過去RANGE_DATE.PastRangeYearsで指定した年のランキングがあるか確認
     const currentDate = getJSTDate()
     const currentYear = currentDate.getFullYear()
     for (
       let index = currentYear - 1;
-      index > currentYear - pastYear - 1;
+      index > currentYear - RANGE_DATE.PastRangeYears - 1;
       index--
     ) {
       const clips = resultPastSummary.clipsMap.get(`${index}`)

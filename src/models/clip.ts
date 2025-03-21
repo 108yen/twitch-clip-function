@@ -1,3 +1,5 @@
+import { Team } from "./team"
+
 export class Clip {
   broadcaster_follower_num?: number
   broadcaster_id?: string
@@ -19,6 +21,7 @@ export class Clip {
   video_id?: string
   view_count?: number
   vod_offset?: number
+  teams?: Team[]
 
   constructor(partial?: Partial<Clip>) {
     Object.assign(this, partial)

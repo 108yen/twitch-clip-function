@@ -27,30 +27,9 @@ export const clipDocConverter = {
     const result: FirestoreClipDoc = { streamerInfo: clipDoc.streamerInfo }
 
     clipDoc.clipsMap.forEach((clips, key) => {
-      result[key] = clips.map((clip) => {
-        return {
-          broadcaster_follower_num: clip.broadcaster_follower_num,
-          broadcaster_id: clip.broadcaster_id,
-          broadcaster_login: clip.broadcaster_login,
-          broadcaster_name: clip.broadcaster_name,
-          created_at: clip.created_at,
-          creator_id: clip.creator_id,
-          creator_name: clip.creator_name,
-          duration: clip.duration,
-          embed_url: clip.embed_url,
-          game_id: clip.game_id,
-          id: clip.id,
-          is_featured: clip.is_featured,
-          language: clip.language,
-          profile_image_url: clip.profile_image_url,
-          thumbnail_url: clip.thumbnail_url,
-          title: clip.title,
-          url: clip.url,
-          video_id: clip.video_id,
-          view_count: clip.view_count,
-          vod_offset: clip.vod_offset,
-        }
-      })
+      result[key] = clips.map((clip) => ({
+        ...clip,
+      }))
     })
 
     return result

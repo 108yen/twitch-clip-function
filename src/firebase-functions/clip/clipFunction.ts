@@ -37,15 +37,22 @@ export abstract class ClipFunction {
     return twitchClipApi
   }
 
-  protected addStreamerInfoToClips(clips: Array<Clip>, streamer: Streamer) {
-    const result: Array<Clip> = []
+  protected addStreamerInfoToClips(
+    clips: Clip[],
+    { follower_num, login, profile_image_url, teams }: Streamer,
+  ) {
+    const result: Clip[] = []
 
     for (const clip of clips) {
       const addStreamerInfoClip = new Clip({
         ...clip,
-        broadcaster_follower_num: streamer.follower_num,
-        broadcaster_login: streamer.login,
-        profile_image_url: streamer.profile_image_url,
+        broadcaster_follower_num: follower_num,
+        broadcaster_login: login,
+        profile_image_url: profile_image_url,
+        teams: teams?.map(({ display_name, name }) => ({
+          display_name,
+          name,
+        })),
       })
 
       result.push(addStreamerInfoClip)
@@ -57,7 +64,7 @@ export abstract class ClipFunction {
   protected async getClips(
     period: { ended_at?: dayjs.Dayjs; started_at?: dayjs.Dayjs },
     streamerId: string,
-  ): Promise<Array<Clip>> {
+  ): Promise<Clip[]> {
     const clips = await this.twitchClipApi.getClips(
       parseInt(streamerId),
       period.started_at,

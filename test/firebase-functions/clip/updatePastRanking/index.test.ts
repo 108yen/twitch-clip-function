@@ -9,6 +9,7 @@ import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
+import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import {
   generatePastClipDoc,
@@ -36,14 +37,8 @@ describe("updatePastRankingのテスト", () => {
       const id = streamer.id
       const created_at = streamer.created_at
 
-      // 1Mを超えるので、分離して書き込み
-      const { pastClipDoc, periodsClipDoc } = generateStreamerClipDoc(
-        id,
-        new Date(created_at!),
-      )
-
-      await clipRepository.updateClip(id, periodsClipDoc)
-      await clipRepository.updateClip(id, pastClipDoc)
+      const clipDoc = generateStreamerClipDoc(id, new Date(created_at!))
+      await clipRepository.updateClip(id, clipDoc)
     }
     //past_summary格納
     const clipDoc = generatePastClipDoc()
@@ -129,22 +124,17 @@ describe("updatePastRankingのテスト", () => {
         expect(parseInt(period)).toBeLessThan(currentYear)
 
         //期間通りになっているかの確認
-        for (const key_j in clips) {
-          const clip = clips[key_j]
-          const year = parseInt(period)
-          const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
-          const ended_at = new Date(year, 11, 31, 14, 59, 59)
-          assert(
-            typeof clip.created_at !== "undefined",
-            "created_at is undefined",
-          )
-          expect(new Date(clip.created_at).getTime()).toBeGreaterThanOrEqual(
-            started_at.getTime(),
-          )
-          expect(new Date(clip.created_at).getTime()).toBeLessThanOrEqual(
-            ended_at.getTime(),
-          )
+        const year = parseInt(period)
+        const started_at = dayjs().set("year", year).startOf("year")
+        const ended_at = dayjs().set("year", year).endOf("year")
+
+        for (const clip of clips) {
+          expect(clip.created_at).toBeDefined()
+
+          expect(dayjs(clip.created_at).isAfter(started_at)).toBeTruthy()
+          expect(dayjs(clip.created_at).isBefore(ended_at)).toBeTruthy()
         }
+
         clipDoc.clipsMap.delete(period)
         oldClipDoc.clipsMap.delete(period)
       }

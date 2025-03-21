@@ -39,7 +39,7 @@ interface TeamApiReturn {
 }
 
 export function getTeamsSpyData(id: string, name?: string, login?: string) {
-  const length = faker.number.int({ max: 3, min: 0 })
+  const length = faker.number.int({ max: 2, min: 0 })
 
   const teams: TeamApiReturn[] = Array(length)
     .fill(0)

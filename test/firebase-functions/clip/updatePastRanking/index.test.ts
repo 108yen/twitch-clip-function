@@ -36,8 +36,14 @@ describe("updatePastRankingのテスト", () => {
       const id = streamer.id
       const created_at = streamer.created_at
 
-      const clipDoc = generateStreamerClipDoc(id, new Date(created_at!))
-      await clipRepository.updateClip(id, clipDoc)
+      // 1Mを超えるので、分離して書き込み
+      const { pastClipDoc, periodsClipDoc } = generateStreamerClipDoc(
+        id,
+        new Date(created_at!),
+      )
+
+      await clipRepository.updateClip(id, periodsClipDoc)
+      await clipRepository.updateClip(id, pastClipDoc)
     }
     //past_summary格納
     const clipDoc = generatePastClipDoc()
@@ -51,6 +57,7 @@ describe("updatePastRankingのテスト", () => {
       },
     })
   })
+
   afterEach(async () => {
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()

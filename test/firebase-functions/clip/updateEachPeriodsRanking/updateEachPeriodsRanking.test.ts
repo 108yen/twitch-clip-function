@@ -141,7 +141,8 @@ async function testOnePeriodFunction(
   const clipRepository = new ClipRepository()
   const streamers = await streamerRepository.getStreamers()
   const oldClipDocs = new Map<string, ClipDoc>()
-  //準備 データを消す
+  //準備
+  // ほかのクリップの影響を確認するため、対象の期間だけデータを消す
   const initdClipDoc = new ClipDoc({
     clipsMap: new Map<string, Array<Clip>>([[period, []]]),
   })

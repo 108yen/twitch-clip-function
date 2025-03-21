@@ -3,6 +3,7 @@ import { faker } from "@faker-js/faker"
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
 import dayjs from "../../../src/utils/dayjs"
+import { getTeamsSpyData } from "../streamer/spy"
 
 export function generatePastClipDoc(id?: string, createdAt?: Date) {
   const result = new ClipDoc()
@@ -164,10 +165,13 @@ export function createClipsData(
             })
             .toISOString()
 
+    id ??= faker.string.numeric(10)
+    const broadcaster_login = faker.person.fullName()
+
     return {
       broadcaster_follower_num: faker.number.int(),
-      broadcaster_id: id ?? faker.string.numeric(10),
-      broadcaster_login: faker.person.fullName(),
+      broadcaster_id: id,
+      broadcaster_login,
       broadcaster_name: display_name,
       created_at: created_at,
       creator_id: faker.string.uuid(),
@@ -179,6 +183,7 @@ export function createClipsData(
       is_featured: faker.datatype.boolean(),
       language: "ja",
       profile_image_url: faker.internet.url(),
+      teams: getTeamsSpyData(id, display_name, broadcaster_login),
       thumbnail_url: faker.internet.url(),
       title: faker.lorem.sentence(3),
       url: faker.internet.url(),

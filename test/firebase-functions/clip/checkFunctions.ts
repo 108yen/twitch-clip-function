@@ -34,6 +34,31 @@ export function clipElementCheck(clips: Clip[]) {
     expect(broadcaster_follower_num).toBeDefined()
     expect(broadcaster_login).toBeDefined()
     expect(teams).toBeDefined()
+
+    teams?.forEach(
+      ({
+        background_image_url,
+        banner,
+        created_at,
+        display_name,
+        id,
+        info,
+        name,
+        thumbnail_url,
+        updated_at,
+      }) => {
+        expect(name).toBeDefined()
+        expect(display_name).toBeDefined()
+
+        expect(background_image_url).toBeUndefined()
+        expect(banner).toBeUndefined()
+        expect(created_at).toBeUndefined()
+        expect(id).toBeUndefined()
+        expect(info).toBeUndefined()
+        expect(thumbnail_url).toBeUndefined()
+        expect(updated_at).toBeUndefined()
+      },
+    )
   }
 }
 

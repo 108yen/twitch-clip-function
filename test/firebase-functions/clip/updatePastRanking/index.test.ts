@@ -165,23 +165,17 @@ describe("updatePastRankingのテスト", () => {
         currentYear - RANGE_DATE.PastRangeYears,
       )
       expect(parseInt(period)).toBeLessThan(currentYear)
+
+      const year = parseInt(period)
+      const started_at = dayjs().set("year", year).startOf("year")
+      const ended_at = dayjs().set("year", year).endOf("year")
       //  中身の要素確認
-      for (const key_j in clips) {
-        const clip = clips[key_j]
+      for (const clip of clips) {
         if (!isNaN(Number(period))) {
-          const year = parseInt(period)
-          const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
-          const ended_at = new Date(year, 11, 31, 14, 59, 59)
-          assert(
-            typeof clip.created_at !== "undefined",
-            "created_at is undefined",
-          )
-          expect(new Date(clip.created_at).getTime()).toBeGreaterThanOrEqual(
-            started_at.getTime(),
-          )
-          expect(new Date(clip.created_at).getTime()).toBeLessThanOrEqual(
-            ended_at.getTime(),
-          )
+          expect(clip.created_at).toBeDefined()
+
+          expect(dayjs(clip.created_at).isAfter(started_at)).toBeTruthy()
+          expect(dayjs(clip.created_at).isBefore(ended_at)).toBeTruthy()
         }
       }
     }

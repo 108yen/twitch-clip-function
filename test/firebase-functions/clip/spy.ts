@@ -73,7 +73,7 @@ export async function getClipsSpyImp(
   ended_at?: dayjs.Dayjs,
 ) {
   const display_name = faker.person.fullName()
-  const clips: Array<Clip> = [...Array(100).keys()].map(() => {
+  const clips: Clip[] = [...Array(100).keys()].map(() => {
     const created_at =
       typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
@@ -149,7 +149,7 @@ export function createClipsData(
   ended_at?: dayjs.Dayjs,
 ) {
   const display_name = faker.person.fullName()
-  const clips: Array<Clip> = [...Array(100).keys()].map(() => {
+  const clips: Clip[] = [...Array(100).keys()].map(() => {
     const created_at =
       typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
@@ -178,7 +178,12 @@ export function createClipsData(
       is_featured: faker.datatype.boolean(),
       language: "ja",
       profile_image_url: faker.internet.url(),
-      teams: getTeamsSpyData(id, display_name, broadcaster_login),
+      teams: getTeamsSpyData(id).map(
+        ({ team_display_name: display_name, team_name: name }) => ({
+          display_name,
+          name,
+        }),
+      ),
       thumbnail_url: faker.internet.url(),
       title: faker.lorem.sentence(3),
       url: faker.internet.url(),

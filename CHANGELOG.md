@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.1
+
+### Patch Changes
+
+- [#248](https://github.com/108yen/twitch-clip-function/pull/248) [`2e08a70`](https://github.com/108yen/twitch-clip-function/commit/2e08a707a6bf18cd1239a5d36ac397d438d7574a) Thanks [@108yen](https://github.com/108yen)! - Added teams info(only name and display_name) to each clips.
+
 ## 1.4.0
 
 ### Minor Changes

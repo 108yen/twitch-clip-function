@@ -68,3 +68,6 @@ keys/
 
 # mac
 .DS_Store
+
+# build
+dist/

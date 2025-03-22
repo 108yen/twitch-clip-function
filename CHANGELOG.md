@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.2
+
+### Patch Changes
+
+- [`03f1edf`](https://github.com/108yen/twitch-clip-function/commit/03f1edf60ab919c270690379d946ed582a122b04) Thanks [@108yen](https://github.com/108yen)! - Updated `tsconfig` to fix execute error.
+
 ## 1.4.1
 
 ### Patch Changes

@@ -10,7 +10,20 @@
     "login": "fps_shaka",
     "display_name": "fps_shaka",
     "type": "",
-    "view_count": 0
+    "view_count": 0,
+    "teams": [
+      {
+        "background_image_url": null,
+        "banner": null,
+        "created_at": "2023-02-19T21:30:14Z",
+        "display_name": "DeToNator",
+        "id": "988431688",
+        "info": "",
+        "name": "detonator",
+        "thumbnail_url": "https://static-cdn.jtvnw.net/team-assets/neoporte-38956fd9f173478a8556db14c3f94d72.png",
+        "updated_at": "2024-12-11T13:54:54Z"
+      }
+    ]
   },
   {
     "broadcaster_type": "partner",
@@ -23,6 +36,7 @@
     "login": "kato_junichi0817",
     "display_name": "加藤純一です",
     "type": "",
-    "view_count": 0
+    "view_count": 0,
+    "teams": []
   }
 ]

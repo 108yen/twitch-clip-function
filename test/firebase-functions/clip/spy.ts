@@ -1,18 +1,24 @@
 import { faker } from "@faker-js/faker"
 
+import { RANGE_DATE } from "../../../src/constant"
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"
 import dayjs from "../../../src/utils/dayjs"
+import { getTeamsSpyData } from "../streamer/spy"
 
 export function generatePastClipDoc(id?: string, createdAt?: Date) {
   const result = new ClipDoc()
 
   const current_year = getJSTDate().getFullYear()
   const created_year = createdAt ? utcToJst(createdAt).getFullYear() : 2016
-  for (let year = created_year; year < current_year; year++) {
-    //UTC指定なので-9時間
-    const started_at = new Date(year - 1, 11, 31, 15, 0, 0)
-    const ended_at = new Date(year, 11, 31, 14, 59, 59)
+  const start_year =
+    created_year < current_year - RANGE_DATE.PastRangeYears
+      ? current_year - RANGE_DATE.PastRangeYears
+      : created_year
+
+  for (let year = start_year; year < current_year; year++) {
+    const started_at = dayjs().set("year", year).startOf("year")
+    const ended_at = dayjs().set("year", year).endOf("year")
     const clips = createClipsData(id, started_at, ended_at)
     result.clipsMap.set(year.toString(), clips)
   }
@@ -34,11 +40,8 @@ export function generateSummaryClipDoc(id?: string) {
   for (const key in periods) {
     if (Object.prototype.hasOwnProperty.call(periods, key)) {
       const days = periods[key]
-      const ended_at = new Date()
-      const started_at = new Date(
-        ended_at.getTime() - days * 24 * 60 * 60 * 1000,
-      )
-
+      const ended_at = dayjs()
+      const started_at = ended_at.subtract(days, "day")
       const clips = days
         ? createClipsData(id, started_at, ended_at)
         : createClipsData(id)
@@ -70,7 +73,7 @@ export async function getClipsSpyImp(
   ended_at?: dayjs.Dayjs,
 ) {
   const display_name = faker.person.fullName()
-  const clips: Array<Clip> = [...Array(100).keys()].map(() => {
+  const clips: Clip[] = [...Array(100).keys()].map(() => {
     const created_at =
       typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
@@ -89,7 +92,7 @@ export async function getClipsSpyImp(
       creator_name: faker.person.fullName(),
       duration: faker.number.float(),
       embed_url: faker.internet.url(),
-      game_id: faker.string.numeric(10),
+      game_id: faker.string.numeric(5),
       id: faker.string.uuid(),
       is_featured: faker.datatype.boolean(),
       language: "ja",
@@ -109,11 +112,7 @@ export async function createDailyDummyData(dayAfter: number) {
   for (let index = dayAfter; index < dayAfter + 7; index++) {
     const ended_at = today.subtract(index, "day")
     const started_at = ended_at.subtract(1, "day")
-    const clips = createClipsData(
-      undefined,
-      started_at.toDate(),
-      ended_at.toDate(),
-    )
+    const clips = createClipsData(undefined, started_at, ended_at)
     clipDoc.clipsMap.set(started_at.tz().format("M/D"), clips)
   }
   return clipDoc
@@ -121,26 +120,23 @@ export async function createDailyDummyData(dayAfter: number) {
 
 export function createSummaryClipDoc() {
   const clipDoc = new ClipDoc()
-  const currentDate = new Date()
-  const dayAfter = (day: number) => {
-    return new Date(currentDate.getTime() - 86400000 * day)
-  }
+  const currentDate = dayjs()
 
   clipDoc.clipsMap.set(
     "day",
-    createClipsData(undefined, dayAfter(1), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "day"), currentDate),
   )
   clipDoc.clipsMap.set(
     "week",
-    createClipsData(undefined, dayAfter(7), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "week"), currentDate),
   )
   clipDoc.clipsMap.set(
     "month",
-    createClipsData(undefined, dayAfter(30), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "month"), currentDate),
   )
   clipDoc.clipsMap.set(
     "year",
-    createClipsData(undefined, dayAfter(365), currentDate),
+    createClipsData(undefined, currentDate.subtract(1, "year"), currentDate),
   )
   clipDoc.clipsMap.set("all", createClipsData())
 
@@ -149,36 +145,45 @@ export function createSummaryClipDoc() {
 
 export function createClipsData(
   id?: string,
-  started_at?: Date,
-  ended_at?: Date,
+  started_at?: dayjs.Dayjs,
+  ended_at?: dayjs.Dayjs,
 ) {
   const display_name = faker.person.fullName()
-  const clips: Array<Clip> = [...Array(100).keys()].map(() => {
+  const clips: Clip[] = [...Array(100).keys()].map(() => {
     const created_at =
       typeof started_at === "undefined" || typeof ended_at === "undefined"
         ? faker.date.past().toISOString()
         : faker.date
             .between({
-              from: started_at,
-              to: ended_at,
+              from: started_at.toDate(),
+              to: ended_at.toDate(),
             })
             .toISOString()
 
+    id ??= faker.string.numeric(10)
+    const broadcaster_login = faker.person.fullName()
+
     return {
       broadcaster_follower_num: faker.number.int(),
-      broadcaster_id: id ?? faker.string.numeric(10),
-      broadcaster_login: faker.person.fullName(),
+      broadcaster_id: id,
+      broadcaster_login,
       broadcaster_name: display_name,
       created_at: created_at,
       creator_id: faker.string.uuid(),
       creator_name: faker.person.fullName(),
       duration: faker.number.float(),
       embed_url: faker.internet.url(),
-      game_id: faker.string.numeric(10),
+      game_id: faker.string.numeric(5),
       id: faker.string.uuid(),
       is_featured: faker.datatype.boolean(),
       language: "ja",
       profile_image_url: faker.internet.url(),
+      teams: getTeamsSpyData(id).map(
+        ({ team_display_name: display_name, team_name: name }) => ({
+          display_name,
+          name,
+        }),
+      ),
       thumbnail_url: faker.internet.url(),
       title: faker.lorem.sentence(3),
       url: faker.internet.url(),
@@ -186,6 +191,7 @@ export function createClipsData(
       view_count: faker.number.int(),
     }
   })
+
   clips.sort((a, b) => {
     if (!a.view_count) {
       return 1

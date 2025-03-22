@@ -8,6 +8,7 @@
     "build": "tsc",
     "start": "node .",
     "test": "jest --runInBand",
+    "test:silent": "jest --runInBand --silent",
     "test:ci": "firebase emulators:exec 'pnpm jest --runInBand --silent' --project=twitch-clip-dev --only firestore --import test/test_data/firestore",
     "firestore:emulators": "firebase emulators:start --project=twitch-clip-dev --only firestore --import test/test_data/firestore",
     "lint": "eslint . --max-warnings=0 --cache",
@@ -16,7 +17,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check --cache .",
     "format:write": "prettier --write --cache .",
-    "quality": "pnpm format:check && pnpm lint && pnpm typecheck"
+    "quality": "pnpm format:check && pnpm lint && pnpm typecheck",
+    "test:update-data": "tsx scripts/update-test-data.ts"
   },
   "main": "dist/index.js",
   "dependencies": {
@@ -52,6 +54,7 @@
     "jiti": "^2.3.3",
     "lefthook": "^1.7.18",
     "ts-jest": "^29.1.1",
+    "tsx": "^4.19.3",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.8.1"
   }

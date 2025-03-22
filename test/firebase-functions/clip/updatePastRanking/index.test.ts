@@ -129,8 +129,8 @@ describe("updatePastRankingのテスト", () => {
 
         //期間通りになっているかの確認
         const year = parseInt(period)
-        const started_at = dayjs().set("year", year).startOf("year")
-        const ended_at = dayjs().set("year", year).endOf("year")
+        const started_at = dayjs().set("year", year).tz().startOf("year")
+        const ended_at = dayjs().set("year", year).tz().endOf("year")
 
         for (const clip of clips) {
           expect(clip.created_at).toBeDefined()
@@ -167,8 +167,8 @@ describe("updatePastRankingのテスト", () => {
       expect(parseInt(period)).toBeLessThan(currentYear)
 
       const year = parseInt(period)
-      const started_at = dayjs().set("year", year).startOf("year")
-      const ended_at = dayjs().set("year", year).endOf("year")
+      const started_at = dayjs().set("year", year).tz().startOf("year")
+      const ended_at = dayjs().set("year", year).tz().endOf("year")
       //  中身の要素確認
       for (const clip of clips) {
         if (!isNaN(Number(period))) {

@@ -58,10 +58,12 @@ describe("UpdatePastRankingLogicのテスト", () => {
         const period = periods[key]
         const started_at = dayjs()
           .set("year", Number(key))
+          .tz()
           .startOf("year")
           .toISOString()
         const ended_at = dayjs()
           .set("year", Number(key))
+          .tz()
           .endOf("year")
           .toISOString()
 

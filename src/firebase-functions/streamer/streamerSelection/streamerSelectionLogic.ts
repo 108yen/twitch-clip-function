@@ -1,6 +1,6 @@
 import { BatchRepository } from "../../..//repositories/batch"
 import { TwitchStreamerApi } from "../../../apis/streamer"
-import { BLACKLIST } from "../../../constant"
+import { BLACKLIST, STREAMER } from "../../../constant"
 import { ClipDoc } from "../../../models/clipDoc"
 import { Stream } from "../../../models/stream"
 import { Streamer } from "../../../models/streamer"
@@ -14,7 +14,6 @@ export class StreamerSelectionLogic {
   private clipRepository = new ClipRepository()
   private streamerRepository = new StreamerRepository()
   private twitchStreamerApi: TwitchStreamerApi
-  STREAMER_NUM_LIMIT = 300
   constructor(twitchStreamerApi: TwitchStreamerApi) {
     this.twitchStreamerApi = twitchStreamerApi
   }
@@ -73,14 +72,14 @@ export class StreamerSelectionLogic {
     oldStreamers: Array<Streamer>,
     newStreamers: Array<Streamer>,
   ) {
-    //Select streamers with top STREAMER_NUM_LIMIT
+    //Select streamers with top 'STREAMER.num'
     const sumStreamers = this.sortByFollowerNum(
       oldStreamers.concat(newStreamers),
     )
 
     const selectedStreamers = sumStreamers
       .filter(({ id }) => !BLACKLIST.IDs.includes(id))
-      .slice(0, this.STREAMER_NUM_LIMIT)
+      .slice(0, STREAMER.num)
     const selectedStreamerIds = selectedStreamers.map((e) => e.id)
 
     const newStreamerIds = newStreamers.map((e) => e.id)

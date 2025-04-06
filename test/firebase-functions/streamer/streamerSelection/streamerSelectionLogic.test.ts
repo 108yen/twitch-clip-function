@@ -1,5 +1,6 @@
 import axios from "axios"
 
+import { STREAMER } from "../../../../src/constant"
 import { StreamerSelectionLogic } from "../../../../src/firebase-functions/streamer/streamerSelection/streamerSelectionLogic"
 import { ClipDoc } from "../../../../src/models/clipDoc"
 import { Stream } from "../../../../src/models/stream"
@@ -234,19 +235,18 @@ describe("StreamerSelectionLogicのテスト", () => {
   })
 
   test("concatAndFilterのテスト", () => {
-    const streamerNumLimit = streamerSelectionLogic.STREAMER_NUM_LIMIT
-    const oldStreamers = [...Array(streamerNumLimit - 5)].map(
+    const oldStreamers = [...Array(STREAMER.num - 5)].map(
       (_, index) =>
         new Streamer({
-          follower_num: streamerNumLimit - 100 - index,
+          follower_num: STREAMER.num - 100 - index,
           id: `${index}`,
         }),
     )
     const newStreamers = [...Array(10)].map(
       (_, index) =>
         new Streamer({
-          follower_num: streamerNumLimit + 100 - index,
-          id: `${index + streamerNumLimit - 5}`,
+          follower_num: STREAMER.num + 100 - index,
+          id: `${index + STREAMER.num - 5}`,
         }),
     )
     const { addedStreamerIds, removedStreamerIds, selectedStreamers } =
@@ -254,7 +254,7 @@ describe("StreamerSelectionLogicのテスト", () => {
 
     const expectSelectedStreamers = newStreamers
       .concat(oldStreamers)
-      .slice(0, streamerNumLimit)
+      .slice(0, STREAMER.num)
     expect(selectedStreamers).toEqual(expectSelectedStreamers)
     expect(removedStreamerIds).toEqual(oldStreamers.map((e) => e.id).slice(-5))
     expect(addedStreamerIds).toEqual(newStreamers.map((e) => e.id))

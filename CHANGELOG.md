@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.3
+
+### Patch Changes
+
+- [#260](https://github.com/108yen/twitch-clip-function/pull/260) [`810eb12`](https://github.com/108yen/twitch-clip-function/commit/810eb124f14c92241b4cd56708b4e6eb75bde800) Thanks [@108yen](https://github.com/108yen)! - Increase number of streamer to `350`.
+
 ## 1.4.2
 
 ### Patch Changes

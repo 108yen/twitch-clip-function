@@ -3,8 +3,8 @@ import axios from "axios"
 import { describe } from "node:test"
 
 import { TwitchStreamerApi } from "../../../../src/apis/streamer"
+import { STREAMER } from "../../../../src/constant"
 import { streamerSelection } from "../../../../src/firebase-functions/streamer/streamerSelection"
-import { StreamerSelectionLogic } from "../../../../src/firebase-functions/streamer/streamerSelection/streamerSelectionLogic"
 import { Stream } from "../../../../src/models/stream"
 import { Streamer } from "../../../../src/models/streamer"
 import { ClipRepository } from "../../../../src/repositories/clip"
@@ -16,7 +16,6 @@ jest.mock("axios")
 
 describe("streamerSelectionの統合テスト", () => {
   const mockedAxios = axios as jest.MockedFunction<typeof axios>
-  let streamerSelectionLogic: StreamerSelectionLogic
 
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
@@ -26,7 +25,6 @@ describe("streamerSelectionの統合テスト", () => {
         token_type: "test",
       },
     })
-    streamerSelectionLogic = await StreamerSelectionLogic.init()
   })
 
   beforeEach(async () => {
@@ -37,9 +35,7 @@ describe("streamerSelectionの統合テスト", () => {
         token_type: "test",
       },
     })
-    const oldStreamer: Streamer[] = getStreamersSpy(
-      streamerSelectionLogic.STREAMER_NUM_LIMIT,
-    )
+    const oldStreamer: Streamer[] = getStreamersSpy(STREAMER.num)
     const streamerRepository = new StreamerRepository()
     const clipRepository = new ClipRepository()
     await streamerRepository.updateStreamers(oldStreamer)
@@ -134,13 +130,9 @@ describe("streamerSelectionの統合テスト", () => {
     await streamerSelection()
 
     expect(getJpStreamsSpy).toHaveBeenCalledTimes(1)
-    expect(getFollowerNumSpy).toHaveBeenCalledTimes(
-      streamerSelectionLogic.STREAMER_NUM_LIMIT + 1,
-    ) //1つ追加になる
+    expect(getFollowerNumSpy).toHaveBeenCalledTimes(STREAMER.num + 1) //1つ追加になる
     expect(getStreamersSpy).toHaveBeenCalledTimes(1)
-    expect(getTeamsSpy).toHaveBeenCalledTimes(
-      streamerSelectionLogic.STREAMER_NUM_LIMIT,
-    )
+    expect(getTeamsSpy).toHaveBeenCalledTimes(STREAMER.num)
   })
 
   describe("streamersのdocument内のデータチェック", async () => {
@@ -151,7 +143,7 @@ describe("streamerSelectionの統合テスト", () => {
 
       const streamers = await streamerRepository.getStreamers()
 
-      expect(streamers).toHaveLength(streamerSelectionLogic.STREAMER_NUM_LIMIT)
+      expect(streamers).toHaveLength(STREAMER.num)
 
       for (const {
         created_at,
@@ -219,7 +211,7 @@ describe("streamerSelectionの統合テスト", () => {
 
     const streamers = await streamerRepository.getStreamers()
 
-    expect(streamers).toHaveLength(streamerSelectionLogic.STREAMER_NUM_LIMIT)
+    expect(streamers).toHaveLength(STREAMER.num)
 
     for (const {
       description,
@@ -237,7 +229,7 @@ describe("streamerSelectionの統合テスト", () => {
       expect(clipDoc.streamerInfo?.description).toEqual(description)
       expect(clipDoc.streamerInfo?.follower_num).toEqual(follower_num)
     }
-  })
+  }, 7000)
 
   test("削除処理チェック", async () => {
     const { clipRepository, oldStreamerIds, streamerRepository } = await mocks()

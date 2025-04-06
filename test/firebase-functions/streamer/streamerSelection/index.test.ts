@@ -229,7 +229,7 @@ describe("streamerSelectionの統合テスト", () => {
       expect(clipDoc.streamerInfo?.description).toEqual(description)
       expect(clipDoc.streamerInfo?.follower_num).toEqual(follower_num)
     }
-  })
+  }, 7000)
 
   test("削除処理チェック", async () => {
     const { clipRepository, oldStreamerIds, streamerRepository } = await mocks()

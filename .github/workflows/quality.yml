@@ -60,6 +60,12 @@ jobs:
           TWITCH_CLIENT_SECRET: ${{secrets.TWITCH_CLIENT_SECRET}}
           FIRESTORE_EMULATOR_HOST: ${{env.FIRESTORE_EMULATOR_HOST}}
 
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: 108yen/twitch-clip-function
+
   eslint:
     name: ESLint
 

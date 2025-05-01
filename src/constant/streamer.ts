@@ -1,3 +1,3 @@
 export const STREAMER = {
-  num: 350,
+  num: 400,
 }

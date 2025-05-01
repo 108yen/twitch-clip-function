@@ -28,6 +28,8 @@ export const BLACKLIST = {
     "738746247", // 湊あくあ
     "1071995316", // ゼンレスゾーンゼロ公式
     "156948981", // EVOJapan01
+    "1065672930", // LEGENDUS by SHAKA
+    "126435001", // オーバーウォッチ日本公式
   ],
   Tags: ["ASMR", "Commissions"],
 }

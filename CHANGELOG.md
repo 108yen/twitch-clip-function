@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.4
+
+### Patch Changes
+
+- [#272](https://github.com/108yen/twitch-clip-function/pull/272) [`2681492`](https://github.com/108yen/twitch-clip-function/commit/268149228be32ff0f4a12f88cc8cc213a0f662bd) Thanks [@108yen](https://github.com/108yen)! - Updated blacklist and increase number of stremaer to `400`.
+
 ## 1.4.3
 
 ### Patch Changes

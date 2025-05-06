@@ -15,5 +15,5 @@
     "types": ["@types/node", "@types/jest"]
   },
   "compileOnSave": true,
-  "exclude": ["node_modules", "lib", "test", "scripts"]
+  "include": ["src"]
 }

@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.5
+
+### Patch Changes
+
+- [`abd7144`](https://github.com/108yen/twitch-clip-function/commit/abd71449bfc6b12587cf101f6c58a4b949cb077d) Thanks [@108yen](https://github.com/108yen)! - Fixed tsconfig.
+
 ## 1.4.4
 
 ### Patch Changes

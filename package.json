@@ -36,7 +36,7 @@
     "@changesets/cli": "^2.27.9",
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
-    "@cspell/eslint-plugin": "^8.14.4",
+    "@cspell/eslint-plugin": "^9.0.0",
     "@eslint/compat": "^1.2.0",
     "@eslint/js": "^9.25.1",
     "@faker-js/faker": "^9.0.0",

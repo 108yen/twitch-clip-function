@@ -30,6 +30,8 @@ export const BLACKLIST = {
     "156948981", // EVOJapan01
     "1065672930", // LEGENDUS by SHAKA
     "126435001", // オーバーウォッチ日本公式
+    "156950251", // EVOJapan03
+    "156950080", // EVOJapan02
   ],
   Tags: ["ASMR", "Commissions"],
 }

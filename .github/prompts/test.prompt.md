@@ -1,9 +1,17 @@
 ---
 mode: "agent"
-tools: ["codebase", "githubRepo"]
+tools:
+  [
+    "codebase",
+    "githubRepo",
+    "getProblems",
+    "terminalSelection",
+    "terminalLastCommand",
+  ]
 ---
 
 `pnpm test:ci`を実行し、テストカバレッジが不足している機能を特定して、不足しているテストケースを作成してください。
+`pnpm test:ci`の実行は時間がかかるので、結果が出るまでは待機してください。
 main関数のテストは不要です。
 
 # 補足

@@ -6,11 +6,11 @@ import { ClipDoc } from "../models/clipDoc"
 
 export class ClipRepository {
   batchCreateClipDoc(clipId: string, batch: FirebaseFirestore.WriteBatch) {
-    batch.set(clipDocRef({ clipId: clipId }), new ClipDoc())
+    batch.set(clipDocRef({ clipId }), new ClipDoc())
   }
 
   batchDeleteClipDoc(clipId: string, batch: FirebaseFirestore.WriteBatch) {
-    batch.delete(clipDocRef({ clipId: clipId }))
+    batch.delete(clipDocRef({ clipId }))
   }
 
   batchDeleteFieldValue(
@@ -18,7 +18,7 @@ export class ClipRepository {
     key: string,
     batch: FirebaseFirestore.WriteBatch,
   ) {
-    batch.update(clipDocRef({ clipId: clipId }), { [key]: FieldValue.delete() })
+    batch.update(clipDocRef({ clipId }), { [key]: FieldValue.delete() })
   }
 
   batchUpdateClip(
@@ -26,11 +26,11 @@ export class ClipRepository {
     clipDoc: ClipDoc,
     batch: FirebaseFirestore.WriteBatch,
   ) {
-    batch.set(clipDocRef({ clipId: clipId }), clipDoc, { merge: true })
+    batch.set(clipDocRef({ clipId }), clipDoc, { merge: true })
   }
 
   async createClipDoc(clipId: string) {
-    await clipDocRef({ clipId: clipId })
+    await clipDocRef({ clipId })
       .set(new ClipDoc())
       .catch((error) => {
         console.error(`ClipRepository/createClipDoc/clipDocRef.set():${error}`)
@@ -39,7 +39,7 @@ export class ClipRepository {
   }
 
   async deleteClipDoc(clipId: string) {
-    await clipDocRef({ clipId: clipId })
+    await clipDocRef({ clipId })
       .delete()
       .catch((error) => {
         console.error(
@@ -50,7 +50,7 @@ export class ClipRepository {
   }
 
   async getClip(clipId: string): Promise<ClipDoc> {
-    const ds = await clipDocRef({ clipId: clipId })
+    const ds = await clipDocRef({ clipId })
       .get()
       .catch((error) => {
         console.error(`ClipRepository/getClip/clipDocRef.get(): ${error}`)
@@ -68,7 +68,7 @@ export class ClipRepository {
   }
 
   async setClip(clipId: string, clipDoc: ClipDoc) {
-    await clipDocRef({ clipId: clipId })
+    await clipDocRef({ clipId })
       .set(clipDoc, { merge: false })
       .catch((error) => {
         console.error(`ClipRepository/updateClip/clipDocRef.set():${error}`)
@@ -77,7 +77,7 @@ export class ClipRepository {
   }
 
   async updateClip(clipId: string, clipDoc: ClipDoc) {
-    await clipDocRef({ clipId: clipId })
+    await clipDocRef({ clipId })
       .set(clipDoc, { merge: true })
       .catch((error) => {
         console.error(`ClipRepository/updateClip/clipDocRef.set():${error}`)

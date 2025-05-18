@@ -71,3 +71,6 @@ keys/
 
 # build
 dist/
+
+# coverage
+coverage/

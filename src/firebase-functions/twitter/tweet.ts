@@ -12,13 +12,16 @@ async function tweet(message: string) {
     appSecret: process.env.TWITTER_API_SECRET as string,
   })
 
-  await client.v2.tweet(message).catch((error) => {
+  try {
+    await client.v2.tweet(message)
+  } catch (error) {
     logEntry({
       message: `tweet failed: \n${error}`,
       severity: "ERROR",
     })
+
     return
-  })
+  }
 }
 
 export async function tweetTopClip() {

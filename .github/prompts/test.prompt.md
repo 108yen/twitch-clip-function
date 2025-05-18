@@ -4,7 +4,7 @@ tools:
   [
     "codebase",
     "githubRepo",
-    "getProblems",
+    "getProblem",
     "terminalSelection",
     "terminalLastCommand",
   ]

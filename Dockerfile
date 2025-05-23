@@ -14,5 +14,5 @@ RUN pnpm run build
 
 FROM base
 COPY --from=prod-deps /app/node_modules /app/node_modules
-COPY --from=build /app/src/dist /app/src/dist
+COPY --from=build /app/dist/src /app/dist/src
 CMD [ "pnpm", "start" ]

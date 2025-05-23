@@ -32,7 +32,7 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
   afterEach(() => jest.restoreAllMocks())
 
   test("getPeriodsのテスト", () => {
-    const periods = updateEachPeriodsRankingLogic.getPeriods(new Streamer())
+    const periods = updateEachPeriodsRankingLogic.getPeriods()
 
     expect(typeof periods["day"].started_at).toBeDefined()
     expect(typeof periods["day"].ended_at).toBeDefined()

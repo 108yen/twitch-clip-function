@@ -26,5 +26,6 @@
     "VALORANT",
     "VGBC",
     "zetadivision"
-  ]
+  ],
+  "ignorePaths": ["dist", "node_modules", "test/test_data", ".eslintcache"]
 }

@@ -1,7 +1,6 @@
 import assert from "assert"
 import axios from "axios"
 import { describe } from "node:test"
-
 import { TwitchStreamerApi } from "../../../../src/apis/streamer"
 import { STREAMER } from "../../../../src/constant"
 import { streamerSelection } from "../../../../src/firebase-functions/streamer/streamerSelection"

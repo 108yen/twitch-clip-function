@@ -1,6 +1,5 @@
 import axios, { AxiosRequestConfig } from "axios"
 import crypto from "crypto"
-
 import { logEntry } from "../../utils/logEntry"
 
 function generateSignature(data: string) {

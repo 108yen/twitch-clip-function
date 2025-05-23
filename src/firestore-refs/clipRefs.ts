@@ -2,7 +2,6 @@ import {
   CollectionReference,
   DocumentReference,
 } from "firebase-admin/firestore"
-
 import { clipDocConverter } from "../converters/clipDocConverter"
 import { ClipDoc } from "../models/clipDoc"
 import { db } from "./db"

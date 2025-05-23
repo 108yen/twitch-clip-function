@@ -1,6 +1,5 @@
 import assert from "assert"
 import axios, { AxiosRequestConfig } from "axios"
-
 import { Token } from "../models/token"
 
 export class TwitchApi {

@@ -1,5 +1,4 @@
 import assert from "assert"
-
 import { Clip } from "../../../src/models/clip"
 
 /**

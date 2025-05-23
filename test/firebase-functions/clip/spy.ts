@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker"
-
 import { RANGE_DATE } from "../../../src/constant"
 import { Clip } from "../../../src/models/clip"
 import { ClipDoc } from "../../../src/models/clipDoc"

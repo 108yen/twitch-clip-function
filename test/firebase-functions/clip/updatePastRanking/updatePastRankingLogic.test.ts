@@ -1,7 +1,5 @@
 import axios from "axios"
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs"
-
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { RANGE_DATE } from "../../../../src/constant"
 import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
@@ -153,7 +151,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
           const args = updateClipDocSpy.mock.calls[key]
 
           //順番チェック
-          for (const [_, clips] of args[1].clipsMap) {
+          for (const [, clips] of args[1].clipsMap) {
             expect(clips.length).toEqual(100)
             clipOrderCheck(clips)
             clipElementCheck(clips)
@@ -247,7 +245,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
       ])
     const getClipSpy = jest
       .spyOn(ClipRepository.prototype, "getClip")
-      .mockImplementation(async (clipId: string) => {
+      .mockImplementation(async () => {
         const clipDoc = new ClipDoc()
         for (
           let year = currentYear - 1;

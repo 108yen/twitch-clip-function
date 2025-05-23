@@ -1,5 +1,4 @@
 import { faker } from "@faker-js/faker"
-
 import { Streamer } from "../../../src/models/streamer"
 
 export function getStreamersSpy(n: number) {

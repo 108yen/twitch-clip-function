@@ -1,6 +1,5 @@
 import assert from "assert"
 import axios, { AxiosRequestConfig } from "axios"
-
 import { Stream } from "../models/stream"
 import { Streamer } from "../models/streamer"
 import { Team } from "../models/team"

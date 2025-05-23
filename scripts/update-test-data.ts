@@ -1,5 +1,4 @@
 import fs from "fs"
-
 import { Clip } from "../src/models/clip"
 import { Streamer } from "../src/models/streamer"
 

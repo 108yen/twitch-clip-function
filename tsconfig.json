@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "CommonJS",
+    "module": "ESNext",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noImplicitReturns": true,
@@ -8,12 +8,11 @@
     "outDir": "dist",
     "sourceMap": true,
     "strict": true,
-    "target": "es2020",
+    "target": "ESNext",
     "baseUrl": "./",
     "traceResolution": true,
     "resolveJsonModule": true,
     "types": ["@types/node", "@types/jest"]
   },
-  "compileOnSave": true,
-  "include": ["src"]
+  "compileOnSave": true
 }

@@ -1,5 +1,4 @@
 import Twitter from "twitter-api-v2"
-
 import { ClipRepository } from "../../repositories/clip"
 import dayjs from "../../utils/dayjs"
 import { logEntry } from "../../utils/logEntry"

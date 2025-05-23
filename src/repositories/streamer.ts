@@ -1,6 +1,5 @@
 import assert from "assert"
 import { FieldValue } from "firebase-admin/firestore"
-
 import { streamersDocRef } from "../firestore-refs/streamerRefs"
 import { Streamer } from "../models/streamer"
 

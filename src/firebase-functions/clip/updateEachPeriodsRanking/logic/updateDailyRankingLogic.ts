@@ -1,5 +1,4 @@
 import assert from "assert"
-
 import { Clip } from "../../../../models/clip"
 import { ClipDoc } from "../../../../models/clipDoc"
 import { ClipRepository } from "../../../../repositories/clip"

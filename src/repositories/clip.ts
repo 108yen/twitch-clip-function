@@ -1,6 +1,5 @@
 import assert from "assert"
 import { FieldValue } from "firebase-admin/firestore"
-
 import { clipDocRef } from "../firestore-refs/clipRefs"
 import { ClipDoc } from "../models/clipDoc"
 

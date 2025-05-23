@@ -1,5 +1,4 @@
 import assert from "assert"
-
 import { Streamer } from "../../../models/streamer"
 import dayjs from "../../../utils/dayjs"
 import { ClipFunction } from "../clipFunction"

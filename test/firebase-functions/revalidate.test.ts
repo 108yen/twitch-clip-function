@@ -1,6 +1,5 @@
 import axios from "axios"
 import crypto from "crypto"
-
 import { revalidate } from "../../src/firebase-functions/"
 import { logEntry } from "../../src/utils/logEntry"
 

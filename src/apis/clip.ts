@@ -1,6 +1,5 @@
 import assert from "assert"
 import axios, { AxiosRequestConfig } from "axios"
-
 import { Clip } from "../models/clip"
 import { Token } from "../models/token"
 import dayjs from "../utils/dayjs"

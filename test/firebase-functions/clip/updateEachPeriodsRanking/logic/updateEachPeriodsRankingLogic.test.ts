@@ -1,6 +1,5 @@
 import axios from "axios"
 import fs from "fs"
-
 import { TwitchClipApi } from "../../../../../src/apis/clip"
 import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
 import { Streamer } from "../../../../../src/models/streamer"

@@ -1,5 +1,4 @@
 import { TwitchClipApi } from "../../../../apis/clip"
-import { Streamer } from "../../../../models/streamer"
 import dayjs from "../../../../utils/dayjs"
 import { ClipFunction } from "../../clipFunction"
 
@@ -24,8 +23,7 @@ export class UpdateEachPeriodsRankingLogic extends ClipFunction {
     return new UpdateEachPeriodsRankingLogic(twitchClipApi, period, day)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  getPeriods(streamer: Streamer): Periods {
+  getPeriods(): Periods {
     const today = dayjs()
     let periods: Periods
     if (this.day) {

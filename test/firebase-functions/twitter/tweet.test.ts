@@ -1,5 +1,4 @@
 import Twitter from "twitter-api-v2"
-
 import { tweetTopClip } from "../../../src/firebase-functions/twitter"
 import { ClipRepository } from "../../../src/repositories/clip"
 import { logEntry } from "../../../src/utils/logEntry"

@@ -2,7 +2,6 @@ import assert from "assert"
 import axios from "axios"
 import fs from "fs"
 import { describe } from "node:test"
-
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { RANGE_DATE } from "../../../../src/constant"
 import { updatePastRanking } from "../../../../src/firebase-functions/clip/updatePastRanking"

@@ -12,8 +12,7 @@
     "baseUrl": "./",
     "traceResolution": true,
     "resolveJsonModule": true,
-    "types": ["@types/node", "@types/jest"],
-    "skipLibCheck": true
+    "types": ["@types/node", "@types/jest"]
   },
   "compileOnSave": true,
   "include": [

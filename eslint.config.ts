@@ -47,5 +47,5 @@ const config: TSESLint.FlatConfig.ConfigArray = tseslint.config(
 )
 
 export default typegen(config as Linter.Config[], {
-  dtsPath: "./@types/eslint.d.ts",
+  dtsPath: "./@types/eslint-typegen.d.ts",
 })

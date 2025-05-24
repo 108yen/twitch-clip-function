@@ -74,3 +74,6 @@ dist/
 
 # coverage
 coverage/
+
+# eslint
+eslint-typegen.d.ts

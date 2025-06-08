@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.6
+
+### Patch Changes
+
+- [`7c16070`](https://github.com/108yen/twitch-clip-function/commit/7c16070a50f619a30e6cff513e33307fb8a04efa) Thanks [@108yen](https://github.com/108yen)! - Updated blacklists.
+
 ## 1.4.5
 
 ### Patch Changes

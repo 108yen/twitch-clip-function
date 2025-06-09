@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.7
+
+### Patch Changes
+
+- [#296](https://github.com/108yen/twitch-clip-function/pull/296) [`20b6f6a`](https://github.com/108yen/twitch-clip-function/commit/20b6f6a7579c87aa07997587df87e1c0b2e8428a) Thanks [@108yen](https://github.com/108yen)! - Fixed module option of `tsconfig.json` to enable directly import. And enabled `skipLibCheck` to ignore type error of nodemodules.
+
 ## 1.4.6
 
 ### Patch Changes

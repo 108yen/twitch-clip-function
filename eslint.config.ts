@@ -2,8 +2,7 @@ import { TSESLint } from "@typescript-eslint/utils"
 import { Linter } from "eslint"
 import prettierConfig from "eslint-config-prettier"
 import typegen from "eslint-typegen"
-import { dirname, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { resolve } from "node:path"
 import tseslint from "typescript-eslint"
 import {
   baseConfig,
@@ -28,11 +27,7 @@ const ignoresConfig: Linter.Config = {
   name: "eslint/ignores",
 }
 
-const tsConfigPath = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "./tsconfig.json",
-)
-
+const tsConfigPath = resolve(__dirname, "./tsconfig.json")
 const languageOptionConfig = languageOptionFactory(tsConfigPath)
 
 const config: TSESLint.FlatConfig.ConfigArray = tseslint.config(

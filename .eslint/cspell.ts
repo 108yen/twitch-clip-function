@@ -1,5 +1,6 @@
 import cspellPlugin from "@cspell/eslint-plugin"
 import { Linter } from "eslint"
+import { resolve } from "node:path"
 import cspellJson from "../cspell.json"
 import { sharedFiles } from "./shared"
 
@@ -13,7 +14,7 @@ export const cspellConfig: Linter.Config = {
       "warn",
       {
         autoFix: false,
-        configFile: new URL("../cspell.json", import.meta.url).toString(),
+        configFile: resolve(__dirname, "../cspell.json"),
         cspell: {},
         generateSuggestions: true,
         numSuggestions: 5,

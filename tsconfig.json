@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "module": "ESNext",
+    "module": "commonjs",
     "moduleResolution": "node",
     "esModuleInterop": true,
     "noImplicitReturns": true,
@@ -12,7 +12,8 @@
     "baseUrl": "./",
     "traceResolution": true,
     "resolveJsonModule": true,
-    "types": ["@types/node", "@types/jest"]
+    "types": ["@types/node", "@types/jest"],
+    "skipLibCheck": true
   },
   "compileOnSave": true,
   "include": [

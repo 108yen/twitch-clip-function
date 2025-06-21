@@ -38,7 +38,7 @@
     "@eslint/compat": "^1.2.9",
     "@eslint/js": "^9.27.0",
     "@faker-js/faker": "^9.8.0",
-    "@types/jest": "^29.5.14",
+    "@types/jest": "^30.0.0",
     "@types/node": "^22.15.21",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",

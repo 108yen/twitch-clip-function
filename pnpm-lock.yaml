@@ -16,7 +16,7 @@ importers:
         version: 1.11.13
       dotenv:
         specifier: ^16.5.0
-        version: 16.5.0
+        version: 16.6.1
       firebase-admin:
         specifier: ^13.4.0
         version: 13.4.0
@@ -25,7 +25,7 @@ importers:
         version: 2.1.1
       twitter-api-v2:
         specifier: ^1.23.2
-        version: 1.23.2
+        version: 1.24.0
     devDependencies:
       '@changesets/changelog-github':
         specifier: ^0.5.1
@@ -1938,8 +1938,8 @@ packages:
     resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==}
     engines: {node: '>=8'}
 
-  dotenv@16.5.0:
-    resolution: {integrity: sha512-m/C+AwOAr9/W1UOIZUo232ejMNnJAJtYQjUbHoNTBNTJSvqzzDh7vnrei3o3r3m9blf6ZoDkvcw0VmozNRFJxg==}
+  dotenv@16.6.1:
+    resolution: {integrity: sha512-uBq4egWHTcTt33a72vpSG0z3HnPuIl6NqYcTrKEg2azoEyl2hpW0zqlxysq2pK9HlDIHyHyakeYaYnSAwd8bow==}
     engines: {node: '>=12'}
 
   dotenv@8.6.0:
@@ -3770,8 +3770,8 @@ packages:
     engines: {node: '>=18.0.0'}
     hasBin: true
 
-  twitter-api-v2@1.23.2:
-    resolution: {integrity: sha512-m0CGXmfGwUhWBOOTVCIXIoSEXwGCQV3Es9yraCwUxaVrjJT2CQcqDrQsQTpBhtiAvVL2HS1cCEGsotNjfX9log==}
+  twitter-api-v2@1.24.0:
+    resolution: {integrity: sha512-RDEiuNwnFirvf4c5f1sysgg0rfMQgekXgKt+/UdbNu+Bs5bJ1VbXkqKzdd2a2lPMlDVDbdGUoe2pOd4n25fFVQ==}
 
   type-check@0.4.0:
     resolution: {integrity: sha512-XleUoc9uwGXqjWwXaUTZAmzMcFZ5858QA2vvx1Ur5xIcixXIP+8LnFDgRplU30us6teqdlskFfu+ae4K79Ooew==}
@@ -6074,7 +6074,7 @@ snapshots:
     dependencies:
       is-obj: 2.0.0
 
-  dotenv@16.5.0: {}
+  dotenv@16.6.1: {}
 
   dotenv@8.6.0: {}
 
@@ -8264,7 +8264,7 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  twitter-api-v2@1.23.2: {}
+  twitter-api-v2@1.24.0: {}
 
   type-check@0.4.0:
     dependencies:

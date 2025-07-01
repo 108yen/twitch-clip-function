@@ -14,6 +14,6 @@ Closes # <!-- Github issue # here -->
 
 ## Is this a breaking change (Yes/No):
 
-<!-- If Yes, please describe the impact and migration path for existing Yamada UI users. -->
+<!-- If Yes, please describe the impact. -->
 
 ## Additional Information

@@ -47,9 +47,6 @@ async function main() {
     await updateWeekRanking()
     await updateMonthRanking()
     revalidatePaths.push("/daily")
-
-    //tweet
-    await tweetTopClip()
   }
 
   // every month at 1st
@@ -62,6 +59,11 @@ async function main() {
 
   // revalidate page cache
   await revalidate({ paths: revalidatePaths })
+
+  // tweet top clip in the day or year
+  if (hour == 0) {
+    await tweetTopClip()
+  }
 
   const endedAt = dayjs()
   const executionTime = endedAt.diff(startedAt)

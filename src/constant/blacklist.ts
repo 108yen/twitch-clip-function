@@ -33,6 +33,7 @@ export const BLACKLIST = {
     "156951252", // EVOJapan05
     "156950251", // EVOJapan03
     "156950080", // EVOJapan02
+    "993419763", // MarvelRivals
   ],
   Tags: ["ASMR", "Commissions"],
 }

@@ -1,11 +1,14 @@
+import { describe, expect, test, vi } from "vitest"
 import { BatchRepository } from "../../src/repositories/batch"
 
 describe("BatchRepository", () => {
   test("commitBatchでcatchが呼ばれる", async () => {
     const repo = new BatchRepository()
-    repo["batch"].commit = jest.fn().mockRejectedValue(new Error("fail"))
+    repo["batch"].commit = vi.fn().mockRejectedValue(new Error("fail"))
 
-    const spy = jest.spyOn(console, "error").mockImplementation()
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {
+      /* do nothing */
+    })
 
     await expect(repo.commitBatch()).rejects.toThrow()
 
@@ -19,7 +22,7 @@ describe("BatchRepository", () => {
   })
 
   test("getBatchでchunkがchunkLimitを超えた場合にcommitBatchが呼ばれる", async () => {
-    const commitSpy = jest
+    const commitSpy = vi
       .spyOn(BatchRepository.prototype, "commitBatch")
       .mockResolvedValue()
 

@@ -2,6 +2,8 @@ import assert from "assert"
 import axios from "axios"
 import fs from "fs"
 import { describe } from "node:test"
+import { MockedFunction } from "vitest"
+import { afterEach, beforeAll, expect, test, vi } from "vitest"
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { updateAllRanking } from "../../../../src/firebase-functions/clip/updateEachPeriodsRanking/updateAllRanking"
 import { updateDayRanking } from "../../../../src/firebase-functions/clip/updateEachPeriodsRanking/updateDayRanking"
@@ -17,10 +19,10 @@ import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { createDailyDummyData, getClipsSpyImp } from "../spy"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("update***Rankingのテスト", () => {
-  const mockedAxios = axios as jest.MockedFunction<typeof axios>
+  const mockedAxios = axios as unknown as MockedFunction<typeof axios>
 
   beforeAll(async () => {
     const streamerRepository = new StreamerRepository()
@@ -79,7 +81,7 @@ describe("update***Rankingのテスト", () => {
     await clipRepository.deleteClipDoc("daily")
   })
 
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
 
   test("updateDayRanking（Dailyランキングの更新もやる）", async () => {
     await testOnePeriodFunction(updateDayRanking, "day")
@@ -131,8 +133,8 @@ async function testOnePeriodFunction(
   emptyClip?: boolean,
 ) {
   const getClipsSpy = emptyClip
-    ? jest.spyOn(TwitchClipApi.prototype, "getClips").mockResolvedValue([])
-    : jest
+    ? vi.spyOn(TwitchClipApi.prototype, "getClips").mockResolvedValue([])
+    : vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
 

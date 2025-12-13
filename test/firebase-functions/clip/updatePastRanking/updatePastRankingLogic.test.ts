@@ -1,5 +1,14 @@
 import axios from "axios"
 import fs from "fs"
+import {
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  MockedFunction,
+  test,
+  vi,
+} from "vitest"
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { RANGE_DATE } from "../../../../src/constant"
 import { UpdatePastRankingLogic } from "../../../../src/firebase-functions/clip/updatePastRanking/updatePastRankingLogic"
@@ -12,7 +21,7 @@ import dayjs from "../../../../src/utils/dayjs"
 import { clipElementCheck, clipOrderCheck } from "../checkFunctions"
 import { getClipsSpyImp, getJSTDate } from "../spy"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("UpdatePastRankingLogicのテスト", () => {
   let updatePastRankingLogic: UpdatePastRankingLogic
@@ -22,7 +31,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
     createdAt > fiveYearsAgo
       ? currentYear - createdAt
       : RANGE_DATE.PastRangeYears
-  const mockedAxios = axios as jest.MockedFunction<typeof axios>
+  const mockedAxios = axios as unknown as MockedFunction<typeof axios>
 
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
@@ -37,7 +46,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
 
   afterEach(() => {
     mockedAxios.mockRestore()
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   test("getPeriodsのテスト", async () => {
@@ -78,7 +87,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
 
   describe("getStreamersのテスト", () => {
     test("正常処理", async () => {
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
@@ -107,7 +116,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
     }, 100000)
 
     test("firestoreエラー", async () => {
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockRejectedValueOnce(new Error("firestore error test"))
 
@@ -118,13 +127,15 @@ describe("UpdatePastRankingLogicのテスト", () => {
 
   describe("getClipForEachStreamersのテスト", () => {
     test("正常処理", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
@@ -161,16 +172,20 @@ describe("UpdatePastRankingLogicのテスト", () => {
     }, 100000)
 
     test("Twitch API エラー", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockRejectedValue(new Error("axios error test"))
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation()
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {
+        /* do nothing */
+      })
 
       const streamer: Array<Streamer> = JSON.parse(
         fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
@@ -196,13 +211,15 @@ describe("UpdatePastRankingLogicのテスト", () => {
     })
 
     test("firestoreエラー", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockRejectedValue(new Error("batch commit error test"))
 
@@ -229,7 +246,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
     //何年かこのものまで格納する想定か設定する
     //ここで制限はみ出している年のものが削除される
     const setAgo = 7
-    const getStreamersSpy = jest
+    const getStreamersSpy = vi
       .spyOn(StreamerRepository.prototype, "getStreamers")
       .mockResolvedValue([
         new Streamer({
@@ -243,7 +260,7 @@ describe("UpdatePastRankingLogicのテスト", () => {
           id: "545050196",
         }),
       ])
-    const getClipSpy = jest
+    const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockImplementation(async () => {
         const clipDoc = new ClipDoc()
@@ -256,10 +273,12 @@ describe("UpdatePastRankingLogicのテスト", () => {
         }
         return clipDoc
       })
-    const batchDeleteFieldValueSpy = jest
+    const batchDeleteFieldValueSpy = vi
       .spyOn(ClipRepository.prototype, "batchDeleteFieldValue")
-      .mockImplementation()
-    const commitBatchSpy = jest
+      .mockImplementation(async () => {
+        /* do nothing */
+      })
+    const commitBatchSpy = vi
       .spyOn(BatchRepository.prototype, "commitBatch")
       .mockResolvedValue()
 

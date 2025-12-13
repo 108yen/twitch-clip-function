@@ -1,5 +1,7 @@
 import axios from "axios"
 import fs from "fs"
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest"
+import { MockedFunction } from "vitest"
 import { TwitchClipApi } from "../../../../../src/apis/clip"
 import { UpdateEachPeriodsRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateEachPeriodsRankingLogic"
 import { Streamer } from "../../../../../src/models/streamer"
@@ -9,13 +11,13 @@ import { StreamerRepository } from "../../../../../src/repositories/streamer"
 import { clipElementCheck, clipOrderCheck } from "../../checkFunctions"
 import { getClipsSpyImp } from "../../spy"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("UpdateEachPeriodsRankingLogicのテスト", () => {
   let updateEachPeriodsRankingLogic: UpdateEachPeriodsRankingLogic
 
   beforeAll(async () => {
-    const mockedAxios = axios as jest.MockedFunction<typeof axios>
+    const mockedAxios = axios as unknown as MockedFunction<typeof axios>
     mockedAxios.mockResolvedValueOnce({
       data: {
         access_token: "test",
@@ -29,7 +31,7 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
     )
   })
 
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
 
   test("getPeriodsのテスト", () => {
     const periods = updateEachPeriodsRankingLogic.getPeriods()
@@ -43,7 +45,7 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
 
   describe("getStreamersのテスト", () => {
     test("正常処理", async () => {
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
@@ -72,7 +74,7 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
     }, 100000)
 
     test("firestoreエラー", async () => {
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockRejectedValueOnce(new Error("firestore error test"))
 
@@ -85,13 +87,15 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
 
   describe("getClipForEachStreamersのテスト", () => {
     test("正常処理", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(() => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
 
@@ -122,16 +126,20 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
     }, 100000)
 
     test("Twitch API エラー", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockRejectedValue(new Error("axios error test"))
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValue()
-      const consoleSpy = jest.spyOn(console, "log").mockImplementation()
+      const consoleSpy = vi.spyOn(console, "log").mockImplementation(() => {
+        /* do nothing */
+      })
 
       const streamer: Array<Streamer> = JSON.parse(
         fs.readFileSync("test/test_data/clip/streamer.json", "utf-8"),
@@ -153,13 +161,15 @@ describe("UpdateEachPeriodsRankingLogicのテスト", () => {
     })
 
     test("firestoreエラー", async () => {
-      const getClipsSpy = jest
+      const getClipsSpy = vi
         .spyOn(TwitchClipApi.prototype, "getClips")
         .mockImplementation(getClipsSpyImp)
-      const updateClipDocSpy = jest
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockRejectedValue(new Error("batch commit error test"))
 

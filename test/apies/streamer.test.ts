@@ -1,4 +1,3 @@
-import { describe } from "node:test"
 import { TwitchStreamerApi } from "../../src/apis/streamer"
 
 describe("TwitchStreamerApiのテスト", () => {

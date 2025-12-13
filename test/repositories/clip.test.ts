@@ -1,3 +1,4 @@
+import { afterEach, describe, expect, Mock, test, vi } from "vitest"
 import { clipDocRef } from "../../src/firestore-refs/clipRefs"
 import { ClipDoc } from "../../src/models/clipDoc"
 import { ClipRepository } from "../../src/repositories/clip"
@@ -5,30 +6,30 @@ import { ClipRepository } from "../../src/repositories/clip"
 // モックの設定
 const mockData = new ClipDoc()
 
-jest.mock("../../src/firestore-refs/clipRefs", () => {
+vi.mock("../../src/firestore-refs/clipRefs", () => {
   const mockedDocRef = {
-    delete: jest.fn().mockResolvedValue({}),
-    get: jest.fn().mockResolvedValue({
-      data: jest.fn().mockImplementation(() => mockData),
+    delete: vi.fn().mockResolvedValue({}),
+    get: vi.fn().mockResolvedValue({
+      data: vi.fn().mockImplementation(() => mockData),
     }),
-    set: jest.fn().mockResolvedValue({}),
-    update: jest.fn().mockResolvedValue({}),
+    set: vi.fn().mockResolvedValue({}),
+    update: vi.fn().mockResolvedValue({}),
   }
 
   return {
-    clipDocRef: jest.fn().mockReturnValue(mockedDocRef),
+    clipDocRef: vi.fn().mockReturnValue(mockedDocRef),
   }
 })
 
 describe("ClipRepository", () => {
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe("バッチ操作", () => {
     test("batchCreateClipDocでclipDocRefとbatch.setが呼ばれる", () => {
       const { batchCreateClipDoc } = new ClipRepository()
-      const mockBatch = { set: jest.fn() }
+      const mockBatch = { set: vi.fn() }
       const clipId = "test-clip-id"
 
       batchCreateClipDoc(clipId, mockBatch as any)
@@ -42,7 +43,7 @@ describe("ClipRepository", () => {
 
     test("batchDeleteClipDocでclipDocRefとbatch.deleteが呼ばれる", () => {
       const { batchDeleteClipDoc } = new ClipRepository()
-      const mockBatch = { delete: jest.fn() }
+      const mockBatch = { delete: vi.fn() }
       const clipId = "test-clip-id"
 
       batchDeleteClipDoc(clipId, mockBatch as any)
@@ -53,7 +54,7 @@ describe("ClipRepository", () => {
 
     test("batchDeleteFieldValueでclipDocRefとbatch.updateが呼ばれる", () => {
       const { batchDeleteFieldValue } = new ClipRepository()
-      const mockBatch = { update: jest.fn() }
+      const mockBatch = { update: vi.fn() }
       const clipId = "test-clip-id"
       const key = "testKey"
 
@@ -68,7 +69,7 @@ describe("ClipRepository", () => {
 
     test("batchUpdateClipでclipDocRefとbatch.setが呼ばれる", () => {
       const { batchUpdateClip } = new ClipRepository()
-      const mockBatch = { set: jest.fn() }
+      const mockBatch = { set: vi.fn() }
       const clipId = "test-clip-id"
       const clipDoc = new ClipDoc()
 
@@ -87,8 +88,8 @@ describe("ClipRepository", () => {
     test("createClipDocが成功する場合", async () => {
       const { createClipDoc } = new ClipRepository()
       const clipId = "test-clip-id"
-      const mockSet = jest.fn().mockResolvedValue({})
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockResolvedValue({})
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
@@ -102,12 +103,14 @@ describe("ClipRepository", () => {
       const { createClipDoc } = new ClipRepository()
       const clipId = "test-clip-id"
       const mockError = new Error("mock error")
-      const mockSet = jest.fn().mockRejectedValue(mockError)
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockRejectedValue(mockError)
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
-      const spy = jest.spyOn(console, "error").mockImplementation()
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {
+        /* do nothing */
+      })
 
       await expect(createClipDoc(clipId)).rejects.toThrow()
 
@@ -123,8 +126,8 @@ describe("ClipRepository", () => {
     test("deleteClipDocが成功する場合", async () => {
       const { deleteClipDoc } = new ClipRepository()
       const clipId = "test-clip-id"
-      const mockDelete = jest.fn().mockResolvedValue({})
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockDelete = vi.fn().mockResolvedValue({})
+      ;(clipDocRef as Mock).mockReturnValue({
         delete: mockDelete,
       })
 
@@ -138,13 +141,14 @@ describe("ClipRepository", () => {
       const { deleteClipDoc } = new ClipRepository()
       const clipId = "test-clip-id"
       const mockError = new Error("mock error")
-      const mockDelete = jest.fn().mockRejectedValue(mockError)
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockDelete = vi.fn().mockRejectedValue(mockError)
+      ;(clipDocRef as Mock).mockReturnValue({
         delete: mockDelete,
       })
 
-      const spy = jest.spyOn(console, "error").mockImplementation()
-
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {
+        /* do nothing */
+      })
       await expect(deleteClipDoc(clipId)).rejects.toThrow()
 
       expect(spy).toHaveBeenCalledWith(
@@ -160,11 +164,11 @@ describe("ClipRepository", () => {
       const { getClip } = new ClipRepository()
       const clipId = "test-clip-id"
       const mockClipDoc = new ClipDoc()
-      const mockData = jest.fn().mockReturnValue(mockClipDoc)
-      const mockGet = jest.fn().mockResolvedValue({
+      const mockData = vi.fn().mockReturnValue(mockClipDoc)
+      const mockGet = vi.fn().mockResolvedValue({
         data: mockData,
       })
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      ;(clipDocRef as Mock).mockReturnValue({
         get: mockGet,
       })
 
@@ -180,12 +184,14 @@ describe("ClipRepository", () => {
       const { getClip } = new ClipRepository()
       const clipId = "test-clip-id"
       const mockError = new Error("mock error")
-      const mockGet = jest.fn().mockRejectedValue(mockError)
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockGet = vi.fn().mockRejectedValue(mockError)
+      ;(clipDocRef as Mock).mockReturnValue({
         get: mockGet,
       })
 
-      const spy = jest.spyOn(console, "error").mockImplementation()
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {
+        /* do nothing */
+      })
 
       await expect(getClip(clipId)).rejects.toThrow()
 
@@ -199,11 +205,11 @@ describe("ClipRepository", () => {
     test("getClipでデータが存在しない場合", async () => {
       const { getClip } = new ClipRepository()
       const clipId = "test-clip-id"
-      const mockData = jest.fn().mockReturnValue(undefined)
-      const mockGet = jest.fn().mockResolvedValue({
+      const mockData = vi.fn().mockReturnValue(undefined)
+      const mockGet = vi.fn().mockResolvedValue({
         data: mockData,
       })
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      ;(clipDocRef as Mock).mockReturnValue({
         get: mockGet,
       })
 
@@ -216,8 +222,8 @@ describe("ClipRepository", () => {
       const { setClip } = new ClipRepository()
       const clipId = "test-clip-id"
       const clipDoc = new ClipDoc()
-      const mockSet = jest.fn().mockResolvedValue({})
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockResolvedValue({})
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
@@ -232,12 +238,14 @@ describe("ClipRepository", () => {
       const clipId = "test-clip-id"
       const clipDoc = new ClipDoc()
       const mockError = new Error("mock error")
-      const mockSet = jest.fn().mockRejectedValue(mockError)
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockRejectedValue(mockError)
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
-      const spy = jest.spyOn(console, "error").mockImplementation()
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {
+        /* do nothing */
+      })
 
       await expect(setClip(clipId, clipDoc)).rejects.toThrow()
 
@@ -252,8 +260,8 @@ describe("ClipRepository", () => {
       const { updateClip } = new ClipRepository()
       const clipId = "test-clip-id"
       const clipDoc = new ClipDoc()
-      const mockSet = jest.fn().mockResolvedValue({})
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockResolvedValue({})
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
@@ -268,12 +276,14 @@ describe("ClipRepository", () => {
       const clipId = "test-clip-id"
       const clipDoc = new ClipDoc()
       const mockError = new Error("mock error")
-      const mockSet = jest.fn().mockRejectedValue(mockError)
-      ;(clipDocRef as jest.Mock).mockReturnValue({
+      const mockSet = vi.fn().mockRejectedValue(mockError)
+      ;(clipDocRef as Mock).mockReturnValue({
         set: mockSet,
       })
 
-      const spy = jest.spyOn(console, "error").mockImplementation()
+      const spy = vi.spyOn(console, "error").mockImplementation(() => {
+        /* do nothing */
+      })
 
       await expect(updateClip(clipId, clipDoc)).rejects.toThrow()
 

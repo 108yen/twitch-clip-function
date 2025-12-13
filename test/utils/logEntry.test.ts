@@ -1,8 +1,9 @@
+import { describe, expect, test, vi } from "vitest"
 import { logEntry } from "../../src/utils/logEntry"
 
 describe("logEntry", () => {
   test("should log a JSON string with message and severity", () => {
-    const spy = jest.spyOn(console, "log").mockImplementation(jest.fn())
+    const spy = vi.spyOn(console, "log").mockImplementation(vi.fn())
     const params = { message: "test message", severity: "INFO" as const }
 
     logEntry(params)
@@ -13,7 +14,7 @@ describe("logEntry", () => {
   })
 
   test("should log with different severity levels", () => {
-    const spy = jest.spyOn(console, "log").mockImplementation(jest.fn())
+    const spy = vi.spyOn(console, "log").mockImplementation(vi.fn())
     const severities = ["ALERT", "DEBUG", "ERROR", "INFO", "WARNING"] as const
 
     for (const severity of severities) {

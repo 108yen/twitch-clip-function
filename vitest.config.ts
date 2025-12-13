@@ -9,9 +9,12 @@ export default defineConfig({
       provider: "v8",
     },
     env: loadEnv("test", process.cwd(), ""),
+    fileParallelism: false,
+    globals: true,
     include: ["**/*.test.ts"],
     mockReset: true,
     restoreMocks: true,
     setupFiles: ["test/setup.ts"],
+    silent: true,
   },
 })

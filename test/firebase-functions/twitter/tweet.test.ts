@@ -1,5 +1,5 @@
 import Twitter from "twitter-api-v2"
-import { afterEach, describe, Mock, vi } from "vitest"
+import { Mock } from "vitest"
 import { tweetTopClip } from "../../../src/firebase-functions/twitter"
 import { ClipRepository } from "../../../src/repositories/clip"
 import { logEntry } from "../../../src/utils/logEntry"
@@ -24,11 +24,11 @@ describe("tweetのテスト", () => {
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
     const tweetMock = vi.fn()
-    twitterMock.mockImplementationOnce(() => ({
+    twitterMock.mockReturnValue({
       v2: {
         tweet: tweetMock,
       },
-    }))
+    })
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 

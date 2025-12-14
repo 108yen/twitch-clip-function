@@ -4,23 +4,11 @@ import { Streamer } from "../../src/models/streamer"
 import { StreamerRepository } from "../../src/repositories/streamer"
 
 const mockStreamers: Streamer[] = [
-  new Streamer({ display_name: "Streamer1", id: "123" }),
-  new Streamer({ display_name: "Streamer2", id: "456" }),
+  { display_name: "Streamer1", id: "123" },
+  { display_name: "Streamer2", id: "456" },
 ]
 
-vi.mock("../../src/firestore-refs/streamerRefs", () => {
-  const mockedDocRef = {
-    get: vi.fn().mockResolvedValue({
-      data: vi.fn().mockReturnValue({ streamers: [] }),
-    }),
-    set: vi.fn().mockResolvedValue({}),
-    update: vi.fn().mockResolvedValue({}),
-  }
-
-  return {
-    streamersDocRef: mockedDocRef,
-  }
-})
+vi.mock("../../src/firestore-refs/streamerRefs", { spy: true })
 
 describe("StreamerRepository", () => {
   let repository: StreamerRepository

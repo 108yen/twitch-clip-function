@@ -5,30 +5,24 @@ import { ClipRepository } from "../../../src/repositories/clip"
 import { logEntry } from "../../../src/utils/logEntry"
 import { createSummaryClipDoc } from "../clip/spy"
 
-vi.mock("twitter-api-v2")
 vi.mock("../../../src/utils/logEntry")
 
 describe("tweetのテスト", () => {
-  const twitterMock = Twitter as unknown as Mock
   const logEntryMock = logEntry as unknown as Mock
 
   afterEach(() => {
-    twitterMock.mockRestore()
     logEntryMock.mockRestore()
     vi.restoreAllMocks()
   })
 
   test("tweetのテスト正常実行テスト", async () => {
     const mockData = createSummaryClipDoc()
+    const tweetMock = vi
+      .spyOn(Twitter.prototype.v2, "tweet")
+      .mockResolvedValue(Promise.resolve() as any)
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
-    const tweetMock = vi.fn()
-    twitterMock.mockReturnValue({
-      v2: {
-        tweet: tweetMock,
-      },
-    })
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 
@@ -46,12 +40,9 @@ describe("tweetのテスト", () => {
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
-    const tweetMock = vi.fn()
-    twitterMock.mockImplementationOnce(() => ({
-      v2: {
-        tweet: tweetMock,
-      },
-    }))
+    const tweetMock = vi
+      .spyOn(Twitter.prototype.v2, "tweet")
+      .mockResolvedValue(Promise.resolve() as any)
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 
@@ -65,13 +56,9 @@ describe("tweetのテスト", () => {
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
-
-    const tweetMock = vi.fn().mockRejectedValue(new Error("test error"))
-    twitterMock.mockImplementation(() => ({
-      v2: {
-        tweet: tweetMock,
-      },
-    }))
+    const tweetMock = vi
+      .spyOn(Twitter.prototype.v2, "tweet")
+      .mockRejectedValue(new Error("test error"))
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 
@@ -100,13 +87,9 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 0, 1)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-
-      const tweetMock = vi.fn()
-      twitterMock.mockImplementation(() => ({
-        v2: {
-          tweet: tweetMock,
-        },
-      }))
+      const tweetMock = vi
+        .spyOn(Twitter.prototype.v2, "tweet")
+        .mockResolvedValue(Promise.resolve() as any)
 
       await tweetTopClip()
 
@@ -138,13 +121,9 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 5, 15)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-
-      const tweetMock = vi.fn().mockReturnValue(Promise.resolve())
-      twitterMock.mockImplementation(() => ({
-        v2: {
-          tweet: tweetMock,
-        },
-      }))
+      const tweetMock = vi
+        .spyOn(Twitter.prototype.v2, "tweet")
+        .mockResolvedValue(Promise.resolve() as any)
 
       await tweetTopClip()
 
@@ -165,13 +144,9 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 0, 1)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-
-      const tweetMock = vi.fn().mockReturnValue(Promise.resolve())
-      twitterMock.mockImplementation(() => ({
-        v2: {
-          tweet: tweetMock,
-        },
-      }))
+      const tweetMock = vi
+        .spyOn(Twitter.prototype.v2, "tweet")
+        .mockResolvedValue(Promise.resolve() as any)
 
       await tweetTopClip()
 

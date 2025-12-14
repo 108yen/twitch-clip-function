@@ -1,6 +1,15 @@
 import assert from "assert"
 import axios from "axios"
-import { describe } from "node:test"
+import {
+  afterEach,
+  beforeAll,
+  beforeEach,
+  describe,
+  expect,
+  MockedFunction,
+  test,
+  vi,
+} from "vitest"
 import { TwitchStreamerApi } from "../../../../src/apis/streamer"
 import { STREAMER } from "../../../../src/constant"
 import { streamerSelection } from "../../../../src/firebase-functions/streamer/streamerSelection"
@@ -11,10 +20,10 @@ import { StreamerRepository } from "../../../../src/repositories/streamer"
 import { JP_STREAMS, NEW_STREAMER } from "../../../test_data/streamer-selection"
 import { getStreamersSpy, getTeamsSpyData } from "../spy"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("streamerSelectionの統合テスト", () => {
-  const mockedAxios = axios as jest.MockedFunction<typeof axios>
+  const mockedAxios = axios as unknown as MockedFunction<typeof axios>
 
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
@@ -52,7 +61,7 @@ describe("streamerSelectionの統合テスト", () => {
     }
     await streamerRepository.updateStreamers([])
 
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   async function mocks() {
@@ -77,11 +86,11 @@ describe("streamerSelectionの統合テスト", () => {
     )
 
     //mock
-    const getJpStreamsSpy = jest
+    const getJpStreamsSpy = vi
       .spyOn(TwitchStreamerApi.prototype, "getJpStreams")
       .mockImplementation(async () => JP_STREAMS as Stream[])
 
-    const getFollowerNumSpy = jest
+    const getFollowerNumSpy = vi
       .spyOn(TwitchStreamerApi.prototype, "getFollowerNum")
       .mockImplementation(async (id: string) => {
         const streamer = allStreamersMockData.find(
@@ -91,7 +100,7 @@ describe("streamerSelectionの統合テスト", () => {
         return streamer.follower_num
       })
 
-    const getStreamersSpy = jest
+    const getStreamersSpy = vi
       .spyOn(TwitchStreamerApi.prototype, "getStreamers")
       .mockImplementation(async (ids: Array<string>) => {
         return allStreamersMockData
@@ -102,7 +111,7 @@ describe("streamerSelectionの統合テスト", () => {
           .filter((streamer) => ids.includes(streamer.id))
       })
 
-    const getTeamsSpy = jest
+    const getTeamsSpy = vi
       .spyOn(TwitchStreamerApi.prototype, "getTeams")
       .mockImplementation(async (id) => {
         const teams = teamsMockData.find(({ id: _id }) => _id == id)

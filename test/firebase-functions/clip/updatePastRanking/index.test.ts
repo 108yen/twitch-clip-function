@@ -2,6 +2,8 @@ import assert from "assert"
 import axios from "axios"
 import fs from "fs"
 import { describe } from "node:test"
+import { MockedFunction } from "vitest"
+import { afterEach, beforeEach, expect, test, vi } from "vitest"
 import { TwitchClipApi } from "../../../../src/apis/clip"
 import { RANGE_DATE } from "../../../../src/constant"
 import { updatePastRanking } from "../../../../src/firebase-functions/clip/updatePastRanking"
@@ -18,10 +20,10 @@ import {
   getJSTDate,
 } from "../spy"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("updatePastRankingのテスト", () => {
-  const mockedAxios = axios as jest.MockedFunction<typeof axios>
+  const mockedAxios = axios as unknown as MockedFunction<typeof axios>
 
   beforeEach(async () => {
     const streamerRepository = new StreamerRepository()
@@ -62,11 +64,11 @@ describe("updatePastRankingのテスト", () => {
     await clipRepository.deleteClipDoc("past_summary")
     await streamerRepository.updateStreamers([])
     mockedAxios.mockRestore()
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   test("更新", async () => {
-    const getClipsSpy = jest
+    const getClipsSpy = vi
       .spyOn(TwitchClipApi.prototype, "getClips")
       .mockImplementation(getClipsSpyImp)
 
@@ -181,7 +183,7 @@ describe("updatePastRankingのテスト", () => {
   }, 1000000)
 
   test("過去ランキングの削除テスト", async () => {
-    const getClipsSpy = jest
+    const getClipsSpy = vi
       .spyOn(TwitchClipApi.prototype, "getClips")
       .mockImplementation(getClipsSpyImp)
 

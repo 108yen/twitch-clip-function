@@ -28,10 +28,16 @@ jobs:
       - name: Checkout Repo
         uses: actions/checkout@v6
 
+      - name: Setup Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 25
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -59,6 +65,10 @@ jobs:
           TWITCH_CLIENT_ID: ${{secrets.TWITCH_CLIENT_ID}}
           TWITCH_CLIENT_SECRET: ${{secrets.TWITCH_CLIENT_SECRET}}
           FIRESTORE_EMULATOR_HOST: ${{env.FIRESTORE_EMULATOR_HOST}}
+          TWITTER_ACCESS_TOKEN: ${{secrets.TWITTER_ACCESS_TOKEN}}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{secrets.TWITTER_ACCESS_TOKEN_SECRET}}
+          TWITTER_API_KEY: ${{secrets.TWITTER_API_KEY}}
+          TWITTER_API_SECRET: ${{secrets.TWITTER_API_SECRET}}
 
       - name: Upload coverage reports to Codecov
         uses: codecov/codecov-action@v5
@@ -81,7 +91,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -107,7 +117,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -133,7 +143,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v4
@@ -159,7 +169,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: 23
+          node-version: 24
 
       - name: Run build
         run: docker build .

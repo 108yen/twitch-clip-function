@@ -1,15 +1,24 @@
 import axios from "axios"
 import crypto from "crypto"
+import {
+  afterEach,
+  describe,
+  expect,
+  Mock,
+  MockedFunction,
+  test,
+  vi,
+} from "vitest"
 import { revalidate } from "../../src/firebase-functions/"
 import { logEntry } from "../../src/utils/logEntry"
 
-jest.mock("axios")
-jest.mock("../../src/utils/logEntry")
+vi.mock("axios")
+vi.mock("../../src/utils/logEntry")
 
 describe("revalidate", () => {
   const paths = ["/test1", "/test2"]
-  const mockLogEntry = logEntry as jest.Mock
-  const mockAxios = axios as jest.MockedFunction<typeof axios>
+  const mockLogEntry = logEntry as Mock
+  const mockAxios = axios as unknown as MockedFunction<typeof axios>
   const envBackup = process.env.TWITCH_CLIP_FUNCTION_SIGNATURE
 
   beforeEach(() => {
@@ -17,7 +26,7 @@ describe("revalidate", () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     process.env.TWITCH_CLIP_FUNCTION_SIGNATURE = envBackup
   })
 

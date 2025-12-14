@@ -1,3 +1,4 @@
+import { describe, expect, test } from "vitest"
 import dayjs from "../../src/utils/dayjs"
 
 describe("dayjsのテスト", () => {

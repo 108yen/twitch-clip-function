@@ -1,4 +1,13 @@
 import axios from "axios"
+import {
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  MockedFunction,
+  test,
+  vi,
+} from "vitest"
 import { STREAMER } from "../../../../src/constant"
 import { StreamerSelectionLogic } from "../../../../src/firebase-functions/streamer/streamerSelection/streamerSelectionLogic"
 import { ClipDoc } from "../../../../src/models/clipDoc"
@@ -8,11 +17,11 @@ import { BatchRepository } from "../../../../src/repositories/batch"
 import { ClipRepository } from "../../../../src/repositories/clip"
 import { StreamerRepository } from "../../../../src/repositories/streamer"
 
-jest.mock("axios")
+vi.mock("axios")
 
 describe("StreamerSelectionLogicのテスト", () => {
   let streamerSelectionLogic: StreamerSelectionLogic
-  const mockedAxios = axios as jest.MockedFunction<typeof axios>
+  const mockedAxios = axios as unknown as MockedFunction<typeof axios>
 
   beforeAll(async () => {
     mockedAxios.mockResolvedValueOnce({
@@ -27,14 +36,14 @@ describe("StreamerSelectionLogicのテスト", () => {
 
   afterEach(() => {
     mockedAxios.mockRestore()
-    jest.restoreAllMocks()
+    vi.restoreAllMocks()
   })
 
   describe("getOldStreamerのテスト", () => {
     test("正常実行", async () => {
       mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
       mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
@@ -66,7 +75,7 @@ describe("StreamerSelectionLogicのテスト", () => {
 
     test("axiosエラー", async () => {
       mockedAxios.mockRejectedValueOnce(new Error("axios error test"))
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockResolvedValue([
           new Streamer({
@@ -100,7 +109,7 @@ describe("StreamerSelectionLogicのテスト", () => {
     test("firestoreエラー", async () => {
       mockedAxios.mockResolvedValueOnce({ data: { total: 400 } })
       mockedAxios.mockResolvedValueOnce({ data: { total: 500 } })
-      const getStreamersSpy = jest
+      const getStreamersSpy = vi
         .spyOn(StreamerRepository.prototype, "getStreamers")
         .mockRejectedValueOnce(new Error("firestore error test"))
 
@@ -387,16 +396,22 @@ describe("StreamerSelectionLogicのテスト", () => {
 
   describe("updateFirestoreのテスト", () => {
     test("正常実行", async () => {
-      const updateStreamers = jest
+      const updateStreamers = vi
         .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
-        .mockImplementation()
-      const deleteClipDocSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const deleteClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchDeleteClipDoc")
-        .mockImplementation()
-      const updateClipDocSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockResolvedValueOnce()
 
@@ -454,16 +469,22 @@ describe("StreamerSelectionLogicのテスト", () => {
     })
 
     test("batchエラー", async () => {
-      const updateStreamers = jest
+      const updateStreamers = vi
         .spyOn(StreamerRepository.prototype, "batchUpdateStreamers")
-        .mockImplementation()
-      const deleteClipDocSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const deleteClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchDeleteClipDoc")
-        .mockImplementation()
-      const updateClipDocSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const updateClipDocSpy = vi
         .spyOn(ClipRepository.prototype, "batchUpdateClip")
-        .mockImplementation()
-      const commitBatchSpy = jest
+        .mockImplementation(async () => {
+          /* do nothing */
+        })
+      const commitBatchSpy = vi
         .spyOn(BatchRepository.prototype, "commitBatch")
         .mockRejectedValueOnce(new Error("batch error test"))
 

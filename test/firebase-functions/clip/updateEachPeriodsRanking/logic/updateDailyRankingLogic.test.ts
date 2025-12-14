@@ -1,3 +1,4 @@
+import { afterEach, beforeAll, describe, expect, test, vi } from "vitest"
 import { UpdateDailyRankingLogic } from "../../../../../src/firebase-functions/clip/updateEachPeriodsRanking/logic/updateDailyRankingLogic"
 import { Clip } from "../../../../../src/models/clip"
 import { ClipDoc } from "../../../../../src/models/clipDoc"
@@ -15,7 +16,7 @@ describe("UpdateDailyRankingLogicのテスト", () => {
     todayClips = createClipsData(undefined, lastDay, today)
   })
 
-  afterEach(() => jest.restoreAllMocks())
+  afterEach(() => vi.restoreAllMocks())
 
   test("ダミーデータがちゃんと作成出来ているかの確認", async () => {
     const clipDoc = await createDailyDummyData(1)
@@ -37,12 +38,14 @@ describe("UpdateDailyRankingLogicのテスト", () => {
   })
 
   test("firestoreの今のdayランキングをとって入れなおす", async () => {
-    const getClipsSpy = jest
+    const getClipsSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockImplementation(() => createDailyDummyData(1))
-    const setClipSpy = jest
+    const setClipSpy = vi
       .spyOn(ClipRepository.prototype, "setClip")
-      .mockImplementation()
+      .mockImplementation(async () => {
+        /* do nothing */
+      })
 
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([["day", todayClips]]),
@@ -70,12 +73,14 @@ describe("UpdateDailyRankingLogicのテスト", () => {
   })
 
   test("2回目の更新はされないことのチェック", async () => {
-    const getClipsSpy = jest
+    const getClipsSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockImplementation(() => createDailyDummyData(0))
-    const setClipSpy = jest
+    const setClipSpy = vi
       .spyOn(ClipRepository.prototype, "setClip")
-      .mockImplementation()
+      .mockImplementation(async () => {
+        /* do nothing */
+      })
 
     const todayClipDoc = new ClipDoc({
       clipsMap: new Map([["day", todayClips]]),

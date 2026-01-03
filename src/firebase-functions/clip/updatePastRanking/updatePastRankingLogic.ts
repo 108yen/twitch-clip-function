@@ -82,8 +82,16 @@ export class UpdatePastRankingLogic extends ClipFunction {
         : created_at.tz().year()
 
     for (let year = start_year; year < current_year; year++) {
-      const started_at = dayjs().set("year", year).tz().startOf("year")
-      const ended_at = dayjs().set("year", year).tz().endOf("year")
+      const started_at = dayjs()
+        .set("year", year)
+        .set("month", 5)
+        .tz()
+        .startOf("year")
+      const ended_at = dayjs()
+        .set("year", year)
+        .set("month", 5)
+        .tz()
+        .endOf("year")
 
       periods[`${year}`] = { ended_at, started_at }
     }

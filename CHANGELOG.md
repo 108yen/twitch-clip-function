@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.10
+
+### Patch Changes
+
+- [#368](https://github.com/108yen/twitch-clip-function/pull/368) [`be7e041`](https://github.com/108yen/twitch-clip-function/commit/be7e0411fb183e04c7efd1a9a1758983f793d5b5) Thanks [@108yen](https://github.com/108yen)! - Modified past ranking is broken in 1/1 update.
+
 ## 1.4.9
 
 ### Patch Changes

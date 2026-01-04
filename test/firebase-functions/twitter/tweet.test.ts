@@ -1,11 +1,25 @@
-import Twitter from "twitter-api-v2"
 import { Mock } from "vitest"
 import { tweetTopClip } from "../../../src/firebase-functions/twitter"
 import { ClipRepository } from "../../../src/repositories/clip"
 import { logEntry } from "../../../src/utils/logEntry"
 import { createSummaryClipDoc } from "../clip/spy"
 
+const { tweet } = vi.hoisted(() => ({
+  tweet: vi.fn(),
+}))
+
 vi.mock("../../../src/utils/logEntry")
+vi.mock("twitter-api-v2", () => {
+  const Twitter = vi.fn(
+    class {
+      v2 = {
+        tweet,
+      }
+    },
+  )
+
+  return { default: Twitter }
+})
 
 describe("tweetのテスト", () => {
   const logEntryMock = logEntry as unknown as Mock
@@ -17,9 +31,7 @@ describe("tweetのテスト", () => {
 
   test("tweetのテスト正常実行テスト", async () => {
     const mockData = createSummaryClipDoc()
-    const tweetMock = vi
-      .spyOn(Twitter.prototype.v2, "tweet")
-      .mockResolvedValue(Promise.resolve() as any)
+    tweet.mockResolvedValue(Promise.resolve() as any)
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
@@ -27,8 +39,8 @@ describe("tweetのテスト", () => {
     await expect(tweetTopClip()).resolves.not.toThrow()
 
     expect(getClipSpy).toHaveBeenCalledTimes(1)
-    expect(tweetMock).toHaveBeenCalledTimes(1)
-    expect(tweetMock).toHaveBeenCalledWith(
+    expect(tweet).toHaveBeenCalledTimes(1)
+    expect(tweet).toHaveBeenCalledWith(
       expect.stringMatching(/\d{2}\/\d{2}に最も再生されたクリップ/),
     )
     expect(logEntryMock).toHaveBeenCalledTimes(1)
@@ -40,14 +52,12 @@ describe("tweetのテスト", () => {
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
-    const tweetMock = vi
-      .spyOn(Twitter.prototype.v2, "tweet")
-      .mockResolvedValue(Promise.resolve() as any)
+    tweet.mockResolvedValue(Promise.resolve() as any)
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 
     expect(getClipSpy).toHaveBeenCalledTimes(1)
-    expect(tweetMock).not.toHaveBeenCalled()
+    expect(tweet).not.toHaveBeenCalled()
     expect(logEntryMock).toHaveBeenCalledTimes(2)
   })
 
@@ -56,14 +66,12 @@ describe("tweetのテスト", () => {
     const getClipSpy = vi
       .spyOn(ClipRepository.prototype, "getClip")
       .mockResolvedValue(mockData)
-    const tweetMock = vi
-      .spyOn(Twitter.prototype.v2, "tweet")
-      .mockRejectedValue(new Error("test error"))
+    tweet.mockRejectedValue(new Error("test error"))
 
     await expect(tweetTopClip()).resolves.not.toThrow()
 
     expect(getClipSpy).toHaveBeenCalledTimes(1)
-    expect(tweetMock).toHaveBeenCalledTimes(1)
+    expect(tweet).toHaveBeenCalledTimes(1)
     expect(logEntryMock).toHaveBeenCalledTimes(2)
     expect(logEntryMock).toHaveBeenNthCalledWith(
       2,
@@ -87,20 +95,18 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 0, 1)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-      const tweetMock = vi
-        .spyOn(Twitter.prototype.v2, "tweet")
-        .mockResolvedValue(Promise.resolve() as any)
+      tweet.mockResolvedValue(Promise.resolve() as any)
 
       await tweetTopClip()
 
       expect(getClipSpy).toHaveBeenCalledTimes(1)
 
-      expect(tweetMock).toHaveBeenCalledTimes(2)
-      expect(tweetMock).toHaveBeenNthCalledWith(
+      expect(tweet).toHaveBeenCalledTimes(2)
+      expect(tweet).toHaveBeenNthCalledWith(
         1,
         expect.stringMatching(/\d{2}\/\d{2}に最も再生されたクリップ/),
       )
-      expect(tweetMock).toHaveBeenNthCalledWith(
+      expect(tweet).toHaveBeenNthCalledWith(
         2,
         expect.stringMatching(/\d{4}年に最も再生されたクリップ/),
       )
@@ -121,15 +127,13 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 5, 15)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-      const tweetMock = vi
-        .spyOn(Twitter.prototype.v2, "tweet")
-        .mockResolvedValue(Promise.resolve() as any)
+      tweet.mockResolvedValue(Promise.resolve() as any)
 
       await tweetTopClip()
 
       expect(getClipSpy).toHaveBeenCalledTimes(1)
-      expect(tweetMock).toHaveBeenCalledTimes(1)
-      expect(tweetMock).toHaveBeenCalledWith(
+      expect(tweet).toHaveBeenCalledTimes(1)
+      expect(tweet).toHaveBeenCalledWith(
         expect.stringMatching(/\d{2}\/\d{2}に最も再生されたクリップ/),
       )
     })
@@ -144,14 +148,11 @@ describe("tweetのテスト", () => {
       const mockDate = new Date(2025, 0, 1)
       vi.useFakeTimers()
       vi.setSystemTime(mockDate)
-      const tweetMock = vi
-        .spyOn(Twitter.prototype.v2, "tweet")
-        .mockResolvedValue(Promise.resolve() as any)
-
+      tweet.mockResolvedValue(Promise.resolve() as any)
       await tweetTopClip()
 
       expect(getClipSpy).toHaveBeenCalledTimes(1)
-      expect(tweetMock).toHaveBeenCalledTimes(1)
+      expect(tweet).toHaveBeenCalledTimes(1)
       expect(logEntryMock).toHaveBeenCalledWith(
         expect.objectContaining({
           message: "year clips is undefined",

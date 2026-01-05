@@ -1,5 +1,11 @@
 # twitch-clip-function
 
+## 1.4.11
+
+### Patch Changes
+
+- [#371](https://github.com/108yen/twitch-clip-function/pull/371) [`1048193`](https://github.com/108yen/twitch-clip-function/commit/10481939e144b440d3573a170d46a60db0f2207e) Thanks [@108yen](https://github.com/108yen)! - Fixed import bug cause ES modules.
+
 ## 1.4.10
 
 ### Patch Changes

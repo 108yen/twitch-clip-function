@@ -31,7 +31,7 @@
     "twitter-api-v2": "^1.28.0"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.5.2",
+    "@changesets/changelog-github": "^0.6.0",
     "@changesets/cli": "^2.29.8",
     "@commitlint/cli": "^20.2.0",
     "@commitlint/config-conventional": "^20.2.0",
@@ -43,7 +43,7 @@
     "@typescript-eslint/eslint-plugin": "^8.48.1",
     "@typescript-eslint/parser": "^8.48.1",
     "@typescript-eslint/utils": "^8.48.1",
-    "@typescript/native-preview": "7.0.0-dev.20260221.1",
+    "@typescript/native-preview": "7.0.0-dev.20260324.1",
     "@vitest/coverage-v8": "^4.0.15",
     "@vitest/eslint-plugin": "^1.5.1",
     "@vitest/ui": "^4.0.15",

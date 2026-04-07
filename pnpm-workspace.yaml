@@ -4,3 +4,5 @@ minimumReleaseAge: 10080
 minimumReleaseAgeExclude:
   # Renovate security update: axios@1.13.5
   - axios@1.13.5
+  # Renovate security update: vite@7.3.2
+  - vite@7.3.2
